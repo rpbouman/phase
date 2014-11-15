@@ -1,0 +1,22 @@
+.phase-hierarchy-diagram div > table.measure > tbody > tr.measure,
+.phase-hierarchy-diagram div > table.relation > tbody > tr.level,
+.phase-hierarchy-diagram div > table.relation > tbody > tr.relation {
+  background-color: #cbdde8;
+  color: white;
+}
+
+
+.phase-hierarchy-diagram div.relation > table.relation > tbody > tr.primary-key > td.checkbox {
+  background-image: url('../images/key.png');
+}
+
+.phase-hierarchy-diagram div.level > table.level > tbody > tr.level {
+  background-color: lightgrey;
+  color: black;
+}
+
+.phase-hierarchy-diagram div.level > table.level > tbody > tr.level > td.icon {
+  background-image: url('../images/level.png');
+}
+
+

@@ -1,0 +1,11 @@
+.dnd-drag-proxy {
+  position: absolute;
+  display: none;
+  z-index: 1000000;
+}
+
+.dnd-drop-proxy {
+  position: absolute;
+  display: none;
+  z-index: 1000000;
+}

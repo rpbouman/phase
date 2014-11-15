@@ -1,0 +1,7 @@
+.phase-calculated-member-editor form fieldset legend {
+  background-image: url('../images/calculated-member.png');
+}
+
+.phase-calculated-member-editor form fieldset legend:after {
+  content: "Calculated Member";
+}

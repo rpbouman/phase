@@ -1,0 +1,100 @@
+.phase-cube-diagram div > table.measure > tbody > tr.measure,
+.phase-cube-diagram div > table.relation > tbody > tr.relation {
+  background-color: yellow;
+  color: black;
+}
+
+.phase-cube-diagram div > table.shareddimension > tbody > tr.shareddimension,
+.phase-cube-diagram div > table.privatedimension > tbody > tr.privatedimension,
+.phase-cube-diagram div > table.dimensionusage > tbody > tr.dimensionusage {
+  background-color: #cbdde8;
+  color: white;
+}
+
+
+input.celleditor {
+  border-style: none;
+  padding: 0px;
+  margin: 0px;
+  height: 14px;
+}
+
+.phase-diagram div.relation > table.relation > tbody > tr.table > td.icon {
+  background-image: url('../images/table_16x16.png');
+}
+
+.phase-diagram div.relation > table.relation > tbody > tr.view > td.icon {
+  background-image: url('../images/view_16x16.png');
+}
+
+.phase-diagram div.dimensionusage > table.dimensionusage > tbody > tr.dimensionusage > td.icon {
+  background-image: url('../images/dimension-usage.png');
+}
+
+.phase-diagram div.dimensionusage > table.dimensionusage > tbody > tr.dimensionusage-source > td.icon {
+  background-image: url('../images/dimension.png');
+}
+
+.phase-diagram div.shareddimension > table.shareddimension > tbody > tr.shareddimension > td.icon {
+  background-image: url('../images/dimension.png');
+}
+
+.phase-diagram div.privatedimension > table.privatedimension > tbody > tr.privatedimension > td.icon {
+  background-image: url('../images/dimension.png');
+}
+
+.phase-diagram div.measure > table.measure > tbody > tr.measure > td.icon {
+  background-image: url('../images/measure.png');
+}
+
+.phase-diagram div.relation > table.relation > tbody > tr.column > td.icon {
+  background-image: url('../images/column_16x16.png');
+}
+
+
+.phase-diagram div > table.relation > tbody >tr.nullable-NO > td.label {
+  font-weight: bold;
+}
+
+.phase-diagram div > table.relation > tbody >tr.primary-key > td.label {
+  text-decoration: underline;
+}
+
+.phase-diagram div > table.relation > tbody >tr.foreign-key > td.label {
+  font-style: italic;
+}
+
+.phase-diagram > div.equals:before,
+.toolbar .equals:before {
+  content: "="
+}
+
+.phase-diagram > div.not-equals:before,
+.toolbar .not-equals:before {
+  content: "≠"
+}
+
+.phase-diagram > div.like:before,
+.toolbar .like:before {
+  content: "∼"
+}
+
+.phase-diagram > div.less-than:before,
+.toolbar .less-than:before {
+  content: "<"
+}
+
+.phase-diagram > div.less-than-or-equals:before,
+.toolbar .less-than-or-equals:before {
+  content: "≤"
+}
+
+.phase-diagram > div.greater-than:before,
+.toolbar .greater-than:before {
+  content: ">"
+}
+
+.phase-diagram > div.greater-than-or-equals:before,
+.toolbar .greater-than-or-equals:before {
+  content: "≥"
+}

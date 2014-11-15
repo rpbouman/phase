@@ -1,0 +1,94 @@
+div.datagrid {
+  position: relative;
+  left: 0px;
+  right: 0px;
+  margin-right: 5px;
+  font-size: 10pt;
+  background-color: lightgrey;
+}
+
+div.datagrid-spacer {
+  left: 0px;
+  top: 0px;
+  background-color: lightgrey;
+  z-index:1;
+}
+
+.datagrid > div, .datagrid > div > table {
+  position: absolute;
+}
+
+.datagrid > div > table {
+  border-collapse: collapse;
+  overflow: hidden;
+  border-style:solid;
+  border-width:1px;
+  border-color: darkgrey;
+  left: 0px;
+  right: 0px;
+  height: 100%;
+}
+
+div.datagrid-cells {
+  overflow: auto;
+}
+
+.datagrid table tr.positioning-row {
+  font-size:0px;
+  height:0px;
+  position:relative;
+}
+
+.datagrid table tr.positioning-row td {
+  padding: 0px !important;
+  border-style:none !important;
+}
+
+
+.datagrid table td {
+  vertical-align: top;
+  white-space: nowrap;
+  border-width: 1px;
+  padding: 2px;
+  background-repeat: repeat-y;
+  overflow: hidden;
+}
+
+div.datagrid > div.datagrid-cells > table.datagrid-cells {
+  border-width:1px;
+}
+
+.datagrid table td.td {
+  border-style: solid;
+  border-color: darkgrey;
+  text-align: right;
+  font-family: monospace;
+  font-size: 9pt;
+}
+
+.datagrid table td.th {
+  border-color: darkgrey;
+  border-style: solid;
+  background-color: lightgrey;
+}
+
+.datagrid table td.thh {
+  border-style: none;
+  background-color: lightgrey;
+}
+
+.datagrid > .datagrid-cells > table > tbody > tr > td {
+  background-color: white;
+  border-color: darkgrey;
+  border-style: solid;
+}
+
+.datagrid > .datagrid-col-headers {
+}
+
+.datagrid > .datagrid-row-headers {
+}
+
+.datagrid > .datagrid-cells {
+  overflow: auto;
+}

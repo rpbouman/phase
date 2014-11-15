@@ -1,0 +1,60 @@
+body, html {
+  padding: 0px;
+  margin: 0px;
+  overflow: hidden!important;
+}
+
+.toolbar .new-trans {
+  background-image: url(../ui/images/newtrans.png);
+}
+
+.toolbar .new-job {
+  background-image: url(../ui/images/newjob.png);
+}
+
+.toolbar .open {
+  background-image: url(../ui/images/open.png);
+}
+
+.toolbar .save {
+  background-image: url(../ui/images/save.png);
+}
+
+.toolbar .save-as {
+  background-image: url(../ui/images/saveas.png);
+}
+
+.maintabpane {
+}
+.mainsplitpane {
+  top: 30px;
+}
+
+.sidebar > .pentaho-tab-bar > .pentaho-tabWidget > .pentaho-tabWidgetLabel,
+.maintabpane  > .pentaho-tab-bar > .pentaho-tabWidget > .pentaho-tabWidgetLabel {
+  padding-left: 20px;
+}
+
+.pentaho-tab-bar > .sidebar-view > .pentaho-tabWidgetLabel {
+  background-image: url(../ui/images/exploreSolution.png);
+}
+
+.pentaho-tab-bar > .sidebar-design > .pentaho-tabWidgetLabel{
+  background-image: url(../ui/images/Edit.png);
+}
+
+.job-entry-types > .collapsed > .head > .toggle,
+.step-types > .collapsed > .head > .toggle {
+  background-image: url(../ui/images/BOL.png);
+}
+
+.job-entry-types > .expanded > .head > .toggle,
+.step-types > .expanded > .head > .toggle {
+  background-image: url(../ui/images/open.png);
+}
+
+.job-entry-types .toggle,
+.step-types .toggle {
+  background-size: 16px 16px;
+}
+

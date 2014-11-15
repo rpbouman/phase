@@ -1,0 +1,80 @@
+#1 Format:
+
+spec: http://apostate.com/programming/vb-format-syntax.html
+
+The following items can have a format: Measure, CalculatedMember.
+
+Format strings can either be named, or be a string of formatting elements.
+
+In both cases, the format can be specified either via the "formatString" attribute, or with a CalculatedMemberProperty child element having a "name" attribute with the value "FORMAT_STRING" .
+
+The format can be specified either as a static string value or as an expression.
+
+A format expression is stored in the "expression" attribute of the CalculatedMemberProperty.
+A static format string can either be stored in the "formatString" attribue of the Measure or CalculatedMember element itself, or it may be stored in the "value" attribute of the CalculatedMemberProperty child element.
+
+#2 Dimension management:
+
+- copy a dimension
+- make a private dimension a shared dimension
+- make a private dimension out of a dimension usage.
+- move position of dimension within schema / cube.
+- drag shared dimension unto the graphical query canvas (to create a new dimension usage);
+
+#3 Drag and drop actions
+
+- drag shared dimension from the schema tree view unto cube diagram
+  * droptarget diagram: create a new dimension usage
+  * droptarget fact table column: create a new dimension usage and make the drop column the foreign key
+- drag column from the connection tree unto a query diagram to create a new measure based on that column
+- drag and drop within the mondrian tree:
+
+  target: schema:
+    source: schema: offer to merge source schema unto target schema
+    source: dimension, cube, virtualcube: if from another schema, offer to import that item
+  target: cube:
+    source cube: offer to replace (merge?) source cube unto target cube.
+    source dimension:
+
+#4 DWH management
+
+Currently the editor is envisioned as a cube editor only - the existence of a database connection, and database objects is presumed.
+It would be cool if we could use the editor to actually design the datamart at the database level.
+This would allow a user to design the backing dwh schema from a olap designer's perspective.
+
+#5 schema / DWH optimization
+
+It could be cool if the editor could be used to optimize a schema. What this means:
+- add / create aggregate tables
+- turn <View> elements into physical tables + ETL procedures
+- turn Measure Expressions into physical columns
+
+#6 Selection, alignment for query graph
+
+Would be nice to select multiple objects on the query graph to move them around all at once.
+Would be nice to be able to horizontally or vertially align multiple objects in the selection on a query graph.
+
+#7 Access control / role management
+
+We should be able to assign roles / privileges
+Would be nice to create new roles.
+
+#8 Drag and drop hints
+
+- only allow drag from the connection tree if a query diagram is activated.
+-
+
+#9 Code view in schema editor should respond to edits.
+- maybe implement this by listening to the on change handler of code mirror, use that to trigger a timer
+and then use the timer expires event to trigger a parse action (and possibly, validation) .
+if the parse (and validation) succeeds, silently update the model.
+If not, post a message to some kind of unobnoxius notification area.
+If the code view tab is unselected, pop up a dialog if the parse is invalid.
+
+#10 when creating a new object, a new treenode is created for it and that's selected. we should scroll the treeview so the new node is in view.
+
+#11 consolidate mondrian schema structure metadata
+- struct used as code mirror xml hint schema
+- fields for editors.
+Ideally editors should be rewritten to use the hint schema for field defs
+MondrianModel should be rewritten to refer to the hint schema for things like element order and attribute validation

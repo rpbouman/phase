@@ -1,0 +1,26 @@
+body, html {
+  padding: 0px;
+  margin: 0px;
+  overflow: hidden!important;
+}
+
+.toolbar .refresh {
+  background-image: url('../mui/images/refresh16x16.png');
+}
+
+.toolbar .new {
+  background-image: url('../images/new-schema.png');
+}
+
+.toolbar .save {
+  background-image: url('../mui/images/save16x16.png');
+}
+
+.toolbar .delete {
+  background-image: url('../mui/images/remove_16x16.png');
+}
+
+.mainsplitpane {
+  top: 32px;
+}
+

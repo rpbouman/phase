@@ -1,0 +1,47 @@
+.phase-editor {
+  bottom: 35px;
+}
+
+.phase-editor .toolbar {
+  height: 30px;
+}
+
+.phase-editor .tabpane {
+  top: 35px;
+}
+
+.phase-editor .pentaho-tab-deck-panel > div {
+  padding-left: 1em;
+  padding-right: 1em;
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+  overflow: auto;
+}
+
+.phase-editor .pure-control-group label {
+  white-space: nowrap;
+}
+
+.phase-editor .pure-control-group label:after {
+  content: ":"
+}
+
+.phase-editor .mandatory label {
+  font-weight: bold;
+}
+
+.hint-icon {
+  background-image: url('../images/help.png');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.phase-editor form fieldset legend {
+  background-repeat: no-repeat;
+  background-position: 0px 16px;
+  font-size: 18pt;
+  text-indent: 20px;
+}

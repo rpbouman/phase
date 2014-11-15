@@ -1,0 +1,7 @@
+.phase-dimension-usage-editor form fieldset legend {
+  background-image: url('../images/dimension-usage.png');
+}
+
+.phase-dimension-usage-editor form fieldset legend:after {
+  content: "Dimension Usage";
+}

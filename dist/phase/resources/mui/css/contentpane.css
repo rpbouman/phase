@@ -1,0 +1,16 @@
+.contentpane {
+  position:absolute;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  top:0px;
+}
+
+.contentpane .pentaho-titled-toolbar {
+  left: 0px;
+  right: 0px;
+  padding-left: .2em;
+  padding-top: .2em;
+  height: 22px;
+  color: white;
+}

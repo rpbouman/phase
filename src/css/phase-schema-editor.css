@@ -1,0 +1,20 @@
+.phase-schema-editor form fieldset legend {
+  background-image: url('../images/schema.png');
+}
+
+.phase-schema-editor form fieldset legend:after {
+  content: "Schema";
+}
+
+.toolbar .new-cube {
+  background-image: url('../images/new-cube.png');
+}
+
+.toolbar .new-dimension {
+  background-image: url('../images/new-dimension.png');
+}
+
+.CodeMirror {
+  margin-left: -1em;
+  margin-right: -1em;
+}

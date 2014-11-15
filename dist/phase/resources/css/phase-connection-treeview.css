@@ -1,0 +1,35 @@
+#contentpanetreePane {
+  font-size: 8pt;
+}
+
+div.catalog > div.head >  span.toggle {
+  background-image: url(../images/database_16x16.png);
+}
+
+div.schema > div.head >  span.toggle {
+  background-image: url('../images/folder-visiting_16x16.png');
+}
+
+div.table > div.head >  span.toggle {
+  background-image: url('../images/table_16x16.png');
+}
+
+div.view > div.head >  span.toggle {
+  background-image: url('../images/view_16x16.png');
+}
+
+div.column > div.head >  span.toggle {
+  background-image: url('../images/column_16x16.png');
+}
+
+div.nullable-NO > div.head >  span.label {
+  font-weight: bold;
+}
+
+div.primary-key > div.head >  span.label {
+  text-decoration: underline;
+}
+
+div.foreign-key > div.head >  span.label {
+  font-style: italic;
+}

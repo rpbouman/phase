@@ -1,0 +1,6 @@
+.pdi-editor-selector {
+  position: absolute;
+  border-width: 1px;
+  border-style: dotted;
+  z-index: 100;
+}
