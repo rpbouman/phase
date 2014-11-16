@@ -10,8 +10,10 @@ var MondrianSchemaCache;
     modelDirty: this.handleModelEvent,
     modelElementCreated: this.handleModelEvent,
     modelElementRemoved: this.handleModelEvent,
-    modelElementAttributeSet: this.handleElementAttributeSet,
-    setModelElementAttribute: this.handleSetElementAttribute,
+    modelElementAttributeSet: this.handleModelEvent,
+    setModelElementAttribute: this.handleModelEvent,
+    modelElementRenamed: this.handleModelElementRenamed,
+    renameModelElement: this.handleRenameModelElement,
     scope: this
   };
 }).prototype = {
@@ -66,32 +68,32 @@ var MondrianSchemaCache;
     this.models[model.getSchemaName()] = model;
     model.listen(this.modelListeners);
   },
-  handleSetElementAttribute: function(model, event, data) {
+  handleRenameModelElement: function(model, event, data) {
     var modelElementPath = data.modelElementPath;
     switch (modelElementPath.type) {
       case "Schema":
-        if (data.attribute === "name") {
-          return this.fireEvent("renameModel", {
-            model: model,
-            newName: data.newValue,
-            oldName: data.oldValue
-          });
-        }
+        return this.fireEvent("renameModel", {
+          model: model,
+          newName: data.newValue,
+          oldName: data.oldValue
+        });
         break;
     }
     return true;
   },
-  handleElementAttributeSet: function(model, event, data){
+  handleModelElementRenamed: function(model, event, data) {
     var modelElementPath = data.modelElementPath;
     switch (modelElementPath.type) {
       case "Schema":
-        if (data.attribute === "name") {
-          this.purge(data.oldValue);
-          this.addModel(model);
-        }
+        this.purge(data.oldValue);
+        this.addModel(model);
         break;
     }
-    this.handleModelEvent(model, event, data)
+    return this.fireEvent("modelElementRenamed", {
+      modelEvent: event,
+      model: model,
+      eventData: data
+    });
   },
   handleModelEvent: function(model, event, data){
     this.fireEvent("modelEvent", {

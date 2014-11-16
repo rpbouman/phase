@@ -60,16 +60,31 @@ var MondrianModel;
       newValue: value,
       oldValue: oldValue
     };
+
     if (this.fireEvent("setModelElementAttribute", eventData) === false) {
       return false;
     }
+
+    if (
+      attribute === "name" &&
+      this.fireEvent("renameModelElement", eventData) === false
+    ) {
+      return false;
+    }
+
     if (iUnd(value)) {
       delete modelElement.attributes[attribute];
     }
     else {
       modelElement.attributes[attribute] = value;
     }
+
+    if (attribute === "name") {
+      this.fireEvent("modelElementRenamed", eventData);
+    }
+
     this.fireEvent("modelElementAttributeSet", eventData);
+
     this.setDirty();
     return true;
   },

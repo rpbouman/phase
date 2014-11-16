@@ -146,6 +146,18 @@ var GenericEditor;
       eventData.isDescendant = model.isModelElementPathAncestor(this.modelElementPath, eventData.modelElementPath);
       this.handleModelEvent(data.modelEvent, eventData);
     },
+    modelElementRenamed: function(mondrianSchemaCache, event, data){
+      var model = this.model;
+      if (data.model !== model) {
+        return;
+      }
+      var eventData = data.eventData;
+      if (this.modelElement !== eventData.modelElement) {
+        return;
+      }
+      var modelElementPath = this.modelElementPath;
+      this.modelElementPath[modelElementPath.type] = eventData.newValue;
+    },
     scope: this
   });
 
@@ -1154,6 +1166,7 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
     this.refreshCodeMirror();
   },
   handleModelEvent: function(event, data){
+
     if (event === "modelDirty"){
       if (!this.codeMirror) {
         return;
@@ -1644,6 +1657,7 @@ adopt(SchemaEditor, GenericEditor);
     this.diagramNeedsUpdate = false;
   },
   tabSelected: function(tabPane, event, data){
+    this.saveFieldValues();
     this.updateDiagramIfDisplayed();
     this.updateFieldValues();
   },
