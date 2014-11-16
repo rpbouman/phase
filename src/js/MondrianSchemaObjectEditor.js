@@ -151,12 +151,13 @@ var GenericEditor;
       if (data.model !== model) {
         return;
       }
+      var modelElementPath = this.modelElementPath;
       var eventData = data.eventData;
-      if (this.modelElement !== eventData.modelElement) {
+      var eventModelElementPath = eventData.modelElementPath;
+      if (!model.isModelElementPathAncestor(eventModelElementPath, modelElementPath)) {
         return;
       }
-      var modelElementPath = this.modelElementPath;
-      this.modelElementPath[modelElementPath.type] = eventData.newValue;
+      this.modelElementPath[eventModelElementPath.type] = eventData.newValue;
     },
     scope: this
   });
@@ -641,6 +642,9 @@ var GenericEditor;
     }
     return value;
   },
+  beforeCreateNew: function(){
+    return this.saveFieldValues();
+  },
   saveFieldValues: function(){
     var model = this.model;
     var modelElementPath = this.modelElementPath;
@@ -807,9 +811,15 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
   if (!conf.toolbar.buttons) {
     conf.toolbar.buttons = [
       {"class": "new-cube", tooltip: "New Cube", handler: function(){
+        if (!this.beforeCreateNew()){
+          return;
+        }
         this.createNewCube();
       }},
       {"class": "new-dimension", tooltip: "New Shared Dimension", handler: function(){
+        if (!this.beforeCreateNew()){
+          return;
+        }
         this.createNewSharedDimension();
       }}
     ];
@@ -1360,6 +1370,9 @@ adopt(SchemaEditor, GenericEditor);
         this.createCubeRelation(conf);
       },
       createMeasure: function(diagram, event, conf){
+        if (!this.beforeCreateNew()){
+          return;
+        }
         this.createNewMeasure(conf);
       }
     }
@@ -1388,6 +1401,9 @@ adopt(SchemaEditor, GenericEditor);
         "class": "new-measure",
         tooltip: "New Measure",
         handler: function(){
+          if (!this.beforeCreateNew()){
+            return;
+          }
           this.createNewMeasure();
         }
       },
@@ -1395,6 +1411,9 @@ adopt(SchemaEditor, GenericEditor);
         "class": "new-calculated-member",
         tooltip: "New Calculated Member",
         handler: function(){
+          if (!this.beforeCreateNew()){
+            return;
+          }
           this.createNewCalculatedMember();
         }
       },
@@ -1402,6 +1421,9 @@ adopt(SchemaEditor, GenericEditor);
         "class": "new-dimension",
         tooltip: "New Private Dimension",
         handler: function(){
+          if (!this.beforeCreateNew()){
+            return;
+          }
           this.createNewPrivateDimension();
         }
       },
@@ -1409,6 +1431,9 @@ adopt(SchemaEditor, GenericEditor);
         "class": "new-dimension-usage",
         tooltip: "New Dimension Usage",
         handler: function(){
+          if (!this.beforeCreateNew()){
+            return;
+          }
           this.createNewDimensionUsage();
         }
       }
@@ -1896,6 +1921,9 @@ adopt(CalculatedMemberEditor, GenericEditor);
 }).prototype = {
   toolbarButtons: [
     {"class": "new-hierarchy", tooltip: "New Hierarchy", handler: function(){
+      if (!this.beforeCreateNew()){
+        return;
+      }
       this.createNewHierarchy();
     }}
   ],
@@ -2105,6 +2133,9 @@ adopt(DimensionUsageEditor, GenericEditor);
         this.createHierarchyRelation(conf);
       },
       createLevel: function(diagram, event, conf){
+        if (!this.beforeCreateNew()){
+          return;
+        }
         this.createNewLevel(conf);
       }
     }
@@ -2130,6 +2161,9 @@ adopt(DimensionUsageEditor, GenericEditor);
   if (!conf.toolbar.buttons) {
     conf.toolbar.buttons = [
       {"class": "new-level", tooltip: "New Level", handler: function(){
+        if (!this.beforeCreateNew()){
+          return;
+        }
         this.createNewLevel();
       }},
     ];

@@ -759,9 +759,14 @@ var MondrianModel;
     return table;
   },
   eachMeasure: function(cube, callback, scope, filter){
-    if (iStr(cube)) cube = this.getCube(cube);
-    if (!iObj(cube)) throw "Invalid cube";
-    return this.eachElementWithTag(cube, "Measure", callback, scope, filter);
+    if (iStr(cube)) {
+      cube = this.getCube(cube);
+    }
+    if (!iObj(cube)) {
+      throw "Invalid cube";
+    }
+    var ret = this.eachElementWithTag(cube, "Measure", callback, scope, filter);
+    return ret;
   },
   getMeasure: function(cube, measureName){
     var measureNode = null;
