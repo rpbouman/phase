@@ -847,18 +847,31 @@ var MondrianModel;
     return dimensionNode;
   },
   eachDimensionHierarchy: function(dimension, callback, scope, filter){
-    if (iStr(dimension)) dimension = this.getSharedDimension(dimension);
-    if (!iObj(dimension)) throw "Invalid dimension";
-    return this.eachElementWithTag(dimension, "Hierarchy", callback, scope, filter);
+    if (iStr(dimension)) {
+      dimension = this.getSharedDimension(dimension);
+    }
+    if (!iObj(dimension)) {
+      throw "Invalid dimension";
+    }
+    var ret = this.eachElementWithTag(
+      dimension, "Hierarchy",
+      callback, scope, filter
+    );
+    return ret;
   },
   getSharedDimensionHierarchy: function(dimensionName, hierarchyName){
     var hierarchyNode = null;
     this.eachDimensionHierarchy(dimensionName, function(hierarchy, index){
       hierarchyNode = hierarchy;
-    }, this, function(hierarchy, index){
-      var name = hierarchy.attributes.name;
-      return ((iUnd(hierarchyName) || hierarchyName === "") && (iUnd(name)) || name === "") || (name === hierarchyName);
-    });
+    }, this,
+      function(hierarchy, index){
+        var name = hierarchy.attributes.name;
+        return (
+          (iUnd(hierarchyName) || hierarchyName === "") &&
+          (iUnd(name)) || name === ""
+        ) || (name === hierarchyName);
+      }
+    );
     return hierarchyNode;
   },
   getPrivateDimensionHierarchy: function(cube, dimension, hierarchy){

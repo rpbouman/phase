@@ -508,15 +508,22 @@ function unselectCurrentEditor(){
 }
 
 function updateEditor(model, selection){
-  var editor = getEditorForSelection(selection);
+  //save the state of the editor.
   if (currentEditor) {
+    //saving the state may alter the selection (in case of a name change)
+    //so get the treenode to calculate the selection again after save.
+    var treeNode = mondrianSchemaTreeView.getTreeNodeForPath(selection);
     currentEditor.saveFieldValues();
+    selection = mondrianSchemaTreeView.parseModelElementPath(treeNode);
   }
+
+  var editor = getEditorForSelection(selection);
   if (currentEditor !== editor) {
     unselectCurrentEditor();
     currentEditor = editor;
     currentEditor.show();
   }
+
   currentEditor.setData(model, selection);
 }
 
