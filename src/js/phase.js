@@ -213,6 +213,17 @@ function doSaveModel(model, overwrite, removeOld) {
 
 function deleteModel(modelName, callback, scope){
   var model = mondrianSchemaCache.getModel(modelName);
+  var action = function(){
+    if (selectedModel === modelName) {
+      selectedModel = null;
+    }
+    mondrianSchemaCache.purge(modelName);
+    mondrianSchemaTreeView.removeModelTreeNode(modelName);
+    pedisCache.setConnection(null);
+    if (callback) {
+      callback.call(scope);
+    }
+  }
   //3 possibilities:
   //- model not in the cache. Model exists on the server but wasn't cached yet.
   //- model in the cache and has a name: Model exists on the server and was cached
@@ -221,14 +232,7 @@ function deleteModel(modelName, callback, scope){
     pham.deleteModel({
       modelName: modelName,
       success: function() {
-        if (selectedModel === modelName) {
-          selectedModel = null;
-        }
-        mondrianSchemaCache.purge(modelName);
-        mondrianSchemaTreeView.removeModelTreeNode(modelName);
-        if (callback) {
-          callback.call(scope);
-        }
+        action();
       },
       failure: function() {
         showAlert(
@@ -239,11 +243,7 @@ function deleteModel(modelName, callback, scope){
     });
   }
   else {
-    mondrianSchemaCache.purge(modelName);
-    mondrianSchemaTreeView.removeModelTreeNode(modelName);
-    if (callback) {
-      callback.call(scope);
-    }
+    action();
   }
 }
 
