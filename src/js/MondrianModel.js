@@ -162,6 +162,52 @@ var MondrianModel;
     }
     return table;
   },
+  createHierarchyTable: function(hierarchyModelElementPath, attributes, dontFireEvent){
+    var table = this.createElement("Table", attributes);
+
+    var hierarchy = this.getHierarchy(hierarchyModelElementPath);
+    var index = this.getIndexOfLastElementWithTagName(
+      hierarchy,
+      "Annotations"
+    );
+    index = index + 1;
+
+    var relationIndex = this.getRelationIndex(hierarchy);
+    var join;
+    if (relationIndex === -1) {
+      hierarchy.childNodes.splice(index, 0, table);
+    }
+    else {
+      if (relationIndex !== index) {
+        throw "unexpected index";
+      }
+      var relation = hierarchy.childNodes[relationIndex];
+      join = this.createElement("Join", {
+      });
+      if (!join.childNodes) {
+        join.childNodes = [];
+      }
+      join.childNodes.push(table);
+      join.childNodes.push(relation);
+
+      hierarchy.childNodes[relationIndex] = join;
+    }
+
+    if (dontFireEvent !== true) {
+      var modelElementPath = merge({}, hierarchyModelElementPath);
+      modelElementPath.type = "Table";
+      if (join) {
+        modelElementPath.Join = "";
+      }
+      modelElementPath.Table = table.attributes.name;
+      var eventData = {
+        modelElementPath: modelElementPath,
+        modelElement: table
+      };
+      this.fireEvent("modelElementCreated", eventData);
+    }
+    return table;
+  },
   changeSharedDimensionName: function(oldName, newName){
     var sharedDimension = this.getSharedDimension(oldName);
     if (!sharedDimension) {
@@ -453,15 +499,13 @@ var MondrianModel;
   newSharedDimensionLevelName: function(dimensionName, hierarchyName){
     return this.newName(this.getSharedDimensionLevel, [dimensionName, hierarchyName], "new Level");
   },
-  createSharedDimensionLevel: function(dimensionName, hierarchyName, attributes, dontFireEvent){
-    var schema = this.getSchema();
-    var hierarchy = this.getSharedDimensionHierarchy(dimensionName, hierarchyName);
-    var type = "Level";
-    var name = this.newSharedDimensionLevelName(dimensionName, hierarchyName);
-    var level = this.createElement("Level", {
-      name: name
-    }, attributes);
-
+  getLevelCount: function(hierarchy) {
+    var count = this.getCountOfElementsWithTagName(hierarchy, "Level");
+    return count;
+  },
+  createLevel: function(hierarchy, attributes){
+    var levelCount = this.getLevelCount(hierarchy);
+    var level = this.createElement("Level", attributes);
     var index = this.getIndexOfLastElementWithTagName(
       hierarchy,
       "Annotations",
@@ -470,8 +514,20 @@ var MondrianModel;
       "Level"
     );
     index = index + 1;
-
     this.addChildNode(hierarchy, index, level);
+    return level;
+  },
+  createSharedDimensionLevel: function(dimensionName, hierarchyName, attributes, dontFireEvent){
+    var schema = this.getSchema();
+    var hierarchy = this.getSharedDimensionHierarchy(dimensionName, hierarchyName);
+
+    if (!attributes) {
+      attributes = {};
+    }
+    if (!attributes.name) {
+      attributes.name = this.newSharedDimensionLevelName(dimensionName, hierarchyName);
+    }
+    var level = this.createLevel(hierarchy, attributes);
 
     if (dontFireEvent !== true) {
       var eventData = {
@@ -479,9 +535,8 @@ var MondrianModel;
           Schema: schema.attributes.name,
           SharedDimension: dimensionName,
           Hierarchy: hierarchyName,
-          Level: name,
-          type: type,
-          index: index
+          Level: attributes.name,
+          type: "Level"
         },
         modelElement: level
       };
@@ -496,22 +551,14 @@ var MondrianModel;
     var schema = this.getSchema();
     var hierarchy = this.getPrivateDimensionHierarchy(cubeName, dimensionName, hierarchyName);
     var cube = this.getCube(cubeName);
-    var type = "Level";
-    var name = this.newPrivateDimensionLevelName(cubeName, dimensionName, hierarchyName);
-    var level = this.createElement("Level", {
-      name: name
-    }, attributes);
 
-    var index = this.getIndexOfLastElementWithTagName(
-      hierarchy,
-      "Annotations",
-      "Table",
-      "Join",
-      "Level"
-    );
-    index = index + 1;
-
-    this.addChildNode(hierarchy, index, level);
+    if (!attributes) {
+      attributes = {};
+    }
+    if (!attributes.name) {
+      attributes.name = this.newPrivateDimensionLevelName(cubeName, dimensionName, hierarchyName);
+    }
+    var level = this.createLevel(hierarchy, name, attributes);
 
     if (dontFireEvent !== true) {
       var eventData = {
@@ -520,9 +567,8 @@ var MondrianModel;
           Cube: cubeName,
           PrivateDimension: dimensionName,
           Hierarchy: hierarchyName,
-          Level: name,
-          type: type,
-          index: index
+          Level: attributes.name,
+          type: "Level"
         },
         modelElement: level
       };
@@ -663,7 +709,7 @@ var MondrianModel;
       return true;
     });
   },
-  getIndexOfLastElementWithTagName: function(element) {
+  getTagNamesFromArguments: function(){
     var tagNames = [];
     var i, n = arguments.length, argument;
     for (i = 1; i < n; i++){
@@ -683,6 +729,18 @@ var MondrianModel;
         }
       }
     }
+    return tagNames;
+  },
+  getCountOfElementsWithTagName: function(element){
+    var tagNames = this.getTagNamesFromArguments.apply(this, arguments);
+    var count = 0;
+    this.eachElementWithTag(element, tagNames, function(child, i){
+      count++;
+    });
+    return count;
+  },
+  getIndexOfLastElementWithTagName: function(element) {
+    var tagNames = this.getTagNamesFromArguments.apply(this, arguments);
     var index = -1;
     this.eachElementWithTag(element, tagNames, function(child, i){
       index = i;
@@ -1065,25 +1123,33 @@ var MondrianModel;
     return relation;
   },
   getRelation: function(modelElement, index){
+    var relationIndex = this.getRelationIndex(modelElement, index);
+    if (relationIndex === -1){
+      return null;
+    }
+    var relation = modelElement.childNodes[relationIndex];
+    return relation;
+  },
+  getRelationIndex: function(modelElement, index){
     if (modelElement.nodeType !== 1) {
       modelElement = this.getModelElement(modelElement);
     }
     if (!index) {
       index = 0;
     }
-    var count = -1, relation = null;
+    var relationIndex = -1, count = -1;
     this.eachElementWithTag(
       modelElement,
       ["Join", "InlineTable", "Table", "View"],
       function(node, i){
-        relation = node;
+        relationIndex = i;
       },
       this,
       function(node, i){
         return index === ++count;
       }
     );
-    return relation;
+    return relationIndex;
   },
   getModelElementsForPath: function(selection){
     var componentPath = [], component;
