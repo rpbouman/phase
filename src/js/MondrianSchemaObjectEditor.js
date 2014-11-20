@@ -2289,6 +2289,7 @@ adopt(DimensionUsageEditor, GenericEditor);
     }
   },
   handleTableRelationshipCreated: function(data){
+    var model = this.model;
     var diagram = this.getDiagram();
     var diagramModel = diagram.getDiagramModel();
     diagramModel.relationships.push(data);
@@ -2332,6 +2333,46 @@ adopt(DimensionUsageEditor, GenericEditor);
       }
     }, this);
     debugger;
+
+    var createTableElement = function(tableIndex){
+      var rec = diagramModel.getTable(tableIndex);
+      var metadata = rec.metadata;
+      var attributes = {
+        name: metadata.TABLE_NAME,
+        alias: metadata.alias
+      };
+      if (metadata.TABLE_SCHEM) {
+        attributes.schema = metadata.TABLE_SCHEM;
+      }
+      return model.createElement("Table", attributes);
+    }
+
+    var joinElement;
+    var makeJoinElement = function(tableIndex){
+      var relationships = tableRelationships[tableIndex].left;
+      var i, n = relationships.length, prevJoinElement, left, tableElement;
+      for (i = 0; i < n; i++) {
+        relationship = relationships[i];
+        left = diagramModel.getTable(relationship.leftTable);
+        prevJoinElement = joinElement;
+        tableElement = createTableElement(relationship.rightTable);
+        joinElement = model.createElement("Join", {
+          leftTable: left.alias,
+          leftKey: relationship.leftColumn,
+          rightTable: tableElement.attributes.alias,
+          rightKey:relationship.rightColumn
+        });
+        joinElement.childNodes[0] = prevJoinElement;
+        joinElement.childNodes[1] = tableElement;
+        makeJoinElement(relationship.rightTable);
+      }
+    }
+    var item, nodes = [];
+    for (item in roots) {
+      joinElement = createTableElement(parseInt(item, 10));
+      makeJoinElement(parseInt(item, 10));
+    }
+    model.setHierarchyTable(this.modelElementPath, joinElement);
   },
   getHierarchyRelationsInfo: function(relations, index, callback1, callback2, scope){
     if (!index) {
@@ -2454,17 +2495,14 @@ adopt(DimensionUsageEditor, GenericEditor);
     var diagram = this.diagram;
     var diagramModel = diagram.getDiagramModel();
 
-    var left = relationship.left.relation;
+    var rec = {};
     var leftIndex = diagramModel.getTableIndex({
-      TABLE_NAME: left.attributes.name,
-      TABLE_SCHEM: left.attributes.schema || null
+      alias: joinAttributes.leftTable
     });
     var leftColumn = joinAttributes.leftKey;
 
-    var right = relationship.right.relation;
     var rightIndex = diagramModel.getTableIndex({
-      TABLE_NAME: right.attributes.name,
-      TABLE_SCHEM: right.attributes.schema || null
+      alias: joinAttributes.rightTable
     });
     var rightColumn = joinAttributes.rightKey;
 
@@ -2478,11 +2516,13 @@ adopt(DimensionUsageEditor, GenericEditor);
   addTableRelationshipsToDiagram: function(){
     var relationsInfo = this.getHierarchyRelations();
     var relationships = relationsInfo.relationships,
-        relationship, i, n = relationships.length
+        relationship, i, n = relationships.length,
+        joinAttributes
     ;
     for (i = 0; i < n; i++){
       relationship = relationships[i];
-      if (iUnd(relationship.leftColumn) || iUnd(relationship.rightColumn)) {
+      joinAttributes = relationship.join.attributes;
+      if (iUnd(joinAttributes.leftKey) || iUnd(joinAttributes.rightKey)) {
         continue;
       }
       this.addTableRelationshipToDiagram(relationship);
@@ -2549,8 +2589,40 @@ adopt(DimensionUsageEditor, GenericEditor);
     }, this);
   },
   saveDiagram: function(){
+    var model = this.model;
+    var modelElement = this.modelElement;
     var diagram = this.diagram;
     var diagramModel = this.diagram.getDiagramModel();
+    var relationsInfo = this.getHierarchyRelations();
+    var relations = relationsInfo.relations;
+    var i, n = relations.length, relation, rec, relationAttributes,
+        tableIndex, table, tableDom, annotationPrefix
+    ;
+    for (i = 0; i < n; i++) {
+      relation = relations[i];
+      if (relation.tagName !== "Table") {
+        continue;
+      }
+      relationAttributes = relation.attributes;
+      rec = {};
+      if (relationAttributes.alias) {
+        rec.alias = relationAttributes.alias;
+      }
+      else {
+        rec.TABLE_NAME = relationAttributes.name;
+        if (relationAttributes.schema) {
+          rec.TABLE_SCHEM = relationAttributes.schema;
+        }
+      }
+      tableIndex = diagramModel.getTableIndex(rec);
+      if (tableIndex === -1) {
+        continue;
+      }
+      table = diagramModel.getTable(tableIndex);
+      annotationPrefix = this.getHierarchyTableAnnotationPrefix(rec.alias, rec.TABLE_NAME);
+      model.setAnnotationValue(modelElement, annotationPrefix + "x", table.x, true);
+      model.setAnnotationValue(modelElement, annotationPrefix + "y", table.y, true);
+    }
   },
   updateDiagram: function(){
     this.saveDiagram();
