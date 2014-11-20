@@ -2495,15 +2495,34 @@ adopt(DimensionUsageEditor, GenericEditor);
     var diagram = this.diagram;
     var diagramModel = diagram.getDiagramModel();
 
-    var rec = {};
-    var leftIndex = diagramModel.getTableIndex({
-      alias: joinAttributes.leftTable
-    });
+    var rec;
+    rec = {};
+    if (joinAttributes.leftTable) {
+      rec.alias = joinAttributes.leftTable;
+    }
+    else
+    if (join.childNodes[0].attributes.alias){
+      rec.alias = join.childNodes[0].attributes.alias;
+    }
+    else {
+      rec.TABLE_NAME = join.childNodes[0].attributes.name;
+    }
+
+    var leftIndex = diagramModel.getTableIndex(rec);
     var leftColumn = joinAttributes.leftKey;
 
-    var rightIndex = diagramModel.getTableIndex({
-      alias: joinAttributes.rightTable
-    });
+    rec = {};
+    if (joinAttributes.rightTable) {
+      rec.alias = joinAttributes.rightTable;
+    }
+    else
+    if (join.childNodes[1].attributes.alias){
+      rec.alias = join.childNodes[1].attributes.alias;
+    }
+    else {
+      rec.TABLE_NAME = join.childNodes[1].attributes.name;
+    }
+    var rightIndex = diagramModel.getTableIndex(rec);
     var rightColumn = joinAttributes.rightKey;
 
     diagramModel.addTableRelationship({
