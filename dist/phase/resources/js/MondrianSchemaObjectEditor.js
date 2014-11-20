@@ -146,6 +146,19 @@ var GenericEditor;
       eventData.isDescendant = model.isModelElementPathAncestor(this.modelElementPath, eventData.modelElementPath);
       this.handleModelEvent(data.modelEvent, eventData);
     },
+    modelElementRenamed: function(mondrianSchemaCache, event, data){
+      var model = this.model;
+      if (data.model !== model) {
+        return;
+      }
+      var modelElementPath = this.modelElementPath;
+      var eventData = data.eventData;
+      var eventModelElementPath = eventData.modelElementPath;
+      if (!model.isModelElementPathAncestor(eventModelElementPath, modelElementPath)) {
+        return;
+      }
+      this.modelElementPath[eventModelElementPath.type] = eventData.newValue;
+    },
     scope: this
   });
 
@@ -629,6 +642,9 @@ var GenericEditor;
     }
     return value;
   },
+  beforeCreateNew: function(){
+    return this.saveFieldValues();
+  },
   saveFieldValues: function(){
     var model = this.model;
     var modelElementPath = this.modelElementPath;
@@ -795,9 +811,15 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
   if (!conf.toolbar.buttons) {
     conf.toolbar.buttons = [
       {"class": "new-cube", tooltip: "New Cube", handler: function(){
+        if (!this.beforeCreateNew()){
+          return;
+        }
         this.createNewCube();
       }},
       {"class": "new-dimension", tooltip: "New Shared Dimension", handler: function(){
+        if (!this.beforeCreateNew()){
+          return;
+        }
         this.createNewSharedDimension();
       }}
     ];
@@ -1154,6 +1176,7 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
     this.refreshCodeMirror();
   },
   handleModelEvent: function(event, data){
+
     if (event === "modelDirty"){
       if (!this.codeMirror) {
         return;
@@ -1347,6 +1370,9 @@ adopt(SchemaEditor, GenericEditor);
         this.createCubeRelation(conf);
       },
       createMeasure: function(diagram, event, conf){
+        if (!this.beforeCreateNew()){
+          return;
+        }
         this.createNewMeasure(conf);
       }
     }
@@ -1375,6 +1401,9 @@ adopt(SchemaEditor, GenericEditor);
         "class": "new-measure",
         tooltip: "New Measure",
         handler: function(){
+          if (!this.beforeCreateNew()){
+            return;
+          }
           this.createNewMeasure();
         }
       },
@@ -1382,6 +1411,9 @@ adopt(SchemaEditor, GenericEditor);
         "class": "new-calculated-member",
         tooltip: "New Calculated Member",
         handler: function(){
+          if (!this.beforeCreateNew()){
+            return;
+          }
           this.createNewCalculatedMember();
         }
       },
@@ -1389,6 +1421,9 @@ adopt(SchemaEditor, GenericEditor);
         "class": "new-dimension",
         tooltip: "New Private Dimension",
         handler: function(){
+          if (!this.beforeCreateNew()){
+            return;
+          }
           this.createNewPrivateDimension();
         }
       },
@@ -1396,6 +1431,9 @@ adopt(SchemaEditor, GenericEditor);
         "class": "new-dimension-usage",
         tooltip: "New Dimension Usage",
         handler: function(){
+          if (!this.beforeCreateNew()){
+            return;
+          }
           this.createNewDimensionUsage();
         }
       }
@@ -1644,6 +1682,7 @@ adopt(SchemaEditor, GenericEditor);
     this.diagramNeedsUpdate = false;
   },
   tabSelected: function(tabPane, event, data){
+    this.saveFieldValues();
     this.updateDiagramIfDisplayed();
     this.updateFieldValues();
   },
@@ -1882,6 +1921,9 @@ adopt(CalculatedMemberEditor, GenericEditor);
 }).prototype = {
   toolbarButtons: [
     {"class": "new-hierarchy", tooltip: "New Hierarchy", handler: function(){
+      if (!this.beforeCreateNew()){
+        return;
+      }
       this.createNewHierarchy();
     }}
   ],
@@ -2091,8 +2133,14 @@ adopt(DimensionUsageEditor, GenericEditor);
         this.createHierarchyRelation(conf);
       },
       createLevel: function(diagram, event, conf){
+        if (!this.beforeCreateNew()){
+          return;
+        }
         this.createNewLevel(conf);
-      }
+      },
+      tableRelationshipCreated: function(diagram, event, data){
+        this.handleTableRelationshipCreated(data);
+      },
     }
   });
 
@@ -2116,6 +2164,9 @@ adopt(DimensionUsageEditor, GenericEditor);
   if (!conf.toolbar.buttons) {
     conf.toolbar.buttons = [
       {"class": "new-level", tooltip: "New Level", handler: function(){
+        if (!this.beforeCreateNew()){
+          return;
+        }
         this.createNewLevel();
       }},
     ];
@@ -2176,6 +2227,36 @@ adopt(DimensionUsageEditor, GenericEditor);
       tooltipText: "The human-friendly label for the \"All\" member to be used in graphical front-ends."
     }
   },
+  handleModelEvent: function(event, data){
+  /*
+    switch (data.modelElementPath.type) {
+      case "Table":
+        if (event === "modelElementCreated") {
+          var modelElement = data.modelElement;
+          var attributes = modelElement.attributes;
+          var annotationPrefix = this.getHierarchyTableAnnotationPrefix(attributes.alias, attributes.name);
+          var x = parseInt(this.model.getAnnotationValue(this.modelElement, annotationPrefix + "x"), 10);
+          var y = parseInt(this.model.getAnnotationValue(this.modelElement, annotationPrefix + "y"), 10);
+          data.x = x;
+          data.y = y;
+        }
+        break;
+    }
+  */
+    switch (event) {
+      case "modelElementCreated":
+      case "modelElementRemoved":
+        if (this.diagramActivated()) {
+          //this.diagram.handleModelEvent(event, data);
+          this.updateDiagram();
+        }
+        else {
+          this.diagramNeedsUpdate = true;
+        }
+        break;
+      default:
+    }
+  },
   createNewLevel: function(){
     var model = this.model;
     var modelElementPath = this.modelElementPath;
@@ -2207,8 +2288,50 @@ adopt(DimensionUsageEditor, GenericEditor);
       this.updateDiagramIfDisplayed();
     }
   },
-  getHierarchyRelationAnnotationPrefix: function(index){
-    return "phase.Relation" + index + ".";
+  handleTableRelationshipCreated: function(data){
+    var diagram = this.getDiagram();
+    var diagramModel = diagram.getDiagramModel();
+    diagramModel.relationships.push(data);
+    var tableRelationship, roots = {}, tableRelationships = {
+    };
+    diagramModel.eachTableRelationship(function(relationship, index){
+      if (!roots[relationship.leftTable]) {
+        roots[relationship.leftTable] = [];
+      }
+
+      tableRelationship = tableRelationships[relationship.leftTable];
+      if (!tableRelationship) {
+        tableRelationship = {
+          left: [],
+          right: []
+        }
+        tableRelationships[relationship.leftTable] = tableRelationship;
+      }
+      tableRelationship.left.push(relationship);
+
+      if (tableRelationship.right.length) {
+        delete roots[relationship.leftTable];
+      }
+
+      if (!roots[relationship.rightTable]) {
+        roots[relationship.rightTable] = [];
+      }
+
+      tableRelationship = tableRelationships[relationship.rightTable];
+      if (!tableRelationship) {
+        tableRelationship = {
+          left: [],
+          right: []
+        }
+        tableRelationships[relationship.rightTable] = tableRelationship;
+      }
+      tableRelationship.right.push(relationship);
+
+      if (tableRelationship.right.length) {
+        delete roots[relationship.rightTable];
+      }
+    }, this);
+    debugger;
   },
   getHierarchyRelationsInfo: function(relations, index, callback1, callback2, scope){
     if (!index) {
@@ -2224,15 +2347,31 @@ adopt(DimensionUsageEditor, GenericEditor);
     switch (relation.tagName) {
       case "Table":
         break;
+      //TODO: support for <View>
       default:
+        //ignore anything other than Table.
         this.getHierarchyRelationsInfo(relations, ++index, callback1, callback2, scope);
         return;
     }
 
     this.getRelationInfo(relation, function(table){
-      var annotationPrefix = this.getHierarchyRelationAnnotationPrefix(index);
+      var tableName = relation.attributes.name;
+      var alias;
+      if (iUnd(relations[tableName])) {
+        relations[tableName] = 0;
+        alias = tableName;
+      }
+      else {
+        alias = tableName + (++relations[tableName]);
+      }
+      relation.attributes.alias = alias;
+      var annotationPrefix = this.getHierarchyTableAnnotationPrefix(
+        alias,
+        tableName
+      );
       var rec = {
         metadata: table,
+        alias: alias
       };
       var model = this.model, modelElement = this.modelElement;
       var x = model.getAnnotationValue(modelElement, annotationPrefix + "x");
@@ -2253,16 +2392,60 @@ adopt(DimensionUsageEditor, GenericEditor);
       if (y) {
         rec.y = y;
       }
-      var alias = relation.attributes.alias;
-      if (alias) {
-        rec.alias = alias;
-      }
       callback1.call(scope || null, rec);
       this.getHierarchyRelationsInfo(relations, ++index, callback1, callback2, scope);
     }, this);
   },
+  getHierarchyTableAnnotationPrefix: function(alias, name){
+    var annotationPrefix = "phase.Table." + (alias || name) + ".";
+    return annotationPrefix;
+  },
   createHierarchyRelation: function(conf){
-    this.diagram.addTable(conf);
+    var metadata = conf.metadata;
+    var tableName = metadata.TABLE_NAME;
+    var alias = conf.alias;
+    if (!conf.alias) {
+      var relationsInfo = this.getHierarchyRelations();
+      relationsInfo = relationsInfo.relations;
+      var n = relationsInfo.length, i, element;
+      for (i = 0; i < n; i++) {
+        relationInfo = relationsInfo[i];
+        if (relationInfo.tagName !== "Table") {
+          continue;
+        }
+
+        if (relationInfo.attributes.name !== tableName) {
+          continue;
+        }
+
+        if (iUnd(relationsInfo[tableName])) {
+          relationsInfo[tableName] = 0;
+        }
+        else {
+          relationsInfo[tableName]++;
+        }
+      }
+      if (iUnd(relationsInfo[tableName])) {
+        alias = tableName;
+      }
+      else {
+        alias = tableName + (relationsInfo[tableName] + 1);
+      }
+      conf.alias = alias;
+    }
+    var annotationPrefix = this.getHierarchyTableAnnotationPrefix(alias, tableName);
+    var model = this.model;
+    var hierarchy = this.modelElement;
+    model.setAnnotationValue(hierarchy, annotationPrefix + "x", conf.x, true);
+    model.setAnnotationValue(hierarchy, annotationPrefix + "y", conf.y, true);
+    var attributes = {
+      name: tableName
+    };
+    if (metadata.TABLE_SCHEMA) {
+      attributes.schema = metadata.TABLE_SCHEMA;
+    }
+    attributes.alias = alias;
+    model.createHierarchyTable(this.modelElementPath, attributes);
   },
   addTableRelationshipToDiagram: function(relationship) {
     var join = relationship.join;
@@ -2299,6 +2482,9 @@ adopt(DimensionUsageEditor, GenericEditor);
     ;
     for (i = 0; i < n; i++){
       relationship = relationships[i];
+      if (iUnd(relationship.leftColumn) || iUnd(relationship.rightColumn)) {
+        continue;
+      }
       this.addTableRelationshipToDiagram(relationship);
     }
   },
@@ -2331,6 +2517,7 @@ adopt(DimensionUsageEditor, GenericEditor);
     var relationsInfo = this.getHierarchyRelations();
     var tableIndex = 0;
 
+    var model = this.model;
     var modelElement = this.modelElement;
     var attributes = modelElement.attributes;
 
@@ -2339,10 +2526,14 @@ adopt(DimensionUsageEditor, GenericEditor);
     var primaryKeyTableIndex;
 
     this.getHierarchyRelationsInfo(relationsInfo.relations, 0, function(rec){
-
+      var alias = rec.alias;
+      var tableName = rec.metadata.TABLE_NAME;
+      var annotationPrefix = this.getHierarchyTableAnnotationPrefix(alias, tableName);
+      var x = parseInt(model.getAnnotationValue(modelElement, annotationPrefix + "x"), 10);
+      var y = parseInt(model.getAnnotationValue(modelElement, annotationPrefix + "y"), 10);
       this.diagram.addTable(rec, function(){
         if (
-          (primaryKeyTable === (rec.metadata.TABLE_NAME || rec.alias))  ||
+          (primaryKeyTable === (tableName || alias))  ||
           (!primaryKeyTable && tableIndex === 0)
         ) {
           primaryKeyTableIndex = tableIndex;

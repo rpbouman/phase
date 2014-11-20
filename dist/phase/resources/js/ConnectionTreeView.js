@@ -94,7 +94,13 @@ var ConnectionTreeView;
       }
       else
       if (hCls(dom, "column")) {
-        phaseDiagram.createMeasure(conf);
+        if (phaseDiagram instanceof CubeDiagram) {
+          phaseDiagram.createMeasure(conf);
+        }
+        else
+        if (phaseDiagram instanceof HierarchyDiagram) {
+          phaseDiagram.createLevel(conf);
+        }
       }
     }
   });
@@ -386,4 +392,6 @@ var ConnectionTreeView;
 adopt(ConnectionTreeView, ContentPane);
 
 linkCss("../css/phase-connection-treeview.css");
+linkCss("../css/phase-tables-and-columns.css");
+
 })();

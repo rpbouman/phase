@@ -78,3 +78,14 @@ If the code view tab is unselected, pop up a dialog if the parse is invalid.
 - fields for editors.
 Ideally editors should be rewritten to use the hint schema for field defs
 MondrianModel should be rewritten to refer to the hint schema for things like element order and attribute validation
+
+#12
+Support for analyzer specific Annotations
+o    AnalyzerDateFormat: http://help.pentaho.com/Documentation/5.1/0N0/020/070/030/000
+o    AnalyzerBusinessGroup: http://help.pentaho.com/Documentation/5.1/0N0/020/070/020/010
+o    AnalyzerCustomAction: http://help.pentaho.com/Documentation/5.1/0N0/020/070/030/Configuring_Custom_Analyzer_Actions
+
+#13 support for conditional formatting.
+Conditional Formatting: http://help.pentaho.com/Documentation/5.1/0N0/020/090/060/010/000
+
+#14 Inline editing in diagram of Captions of dimensions, levels, measures

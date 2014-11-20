@@ -14,7 +14,11 @@ var MondrianSchemaTreeView;
   this.pham = conf.pham;
 
   this.mondrianSchemaCache = conf.mondrianSchemaCache;
-  this.mondrianSchemaCache.listen("modelEvent", this.handleModelEvent, this);
+  this.mondrianSchemaCache.listen({
+    scope: this,
+    modelEvent: this.handleModelEvent,
+    modelElementRenamed: this.handleModelElementRenamed
+  });
 
   var dnd = conf.dnd;
   dnd.listen({
@@ -81,6 +85,14 @@ var MondrianSchemaTreeView;
     this.listen(conf.listeners);
   }
 }).prototype = {
+  handleModelElementRenamed: function(mondrianSchemaCache, event, data){
+    var eventData = data.eventData;
+    this.handleModelElementNameChange(
+      eventData.modelElementPath,
+      eventData.oldValue,
+      eventData.newValue
+    );
+  },
   handleModelEvent: function(mondrianSchemaCache, event, data){
     var model = data.model;
     var modelEvent = data.modelEvent;
@@ -92,15 +104,6 @@ var MondrianSchemaTreeView;
         break;
       case "modelElementRemoved":
         this.handleModelElementRemoved(modelElementPath);
-        break;
-      case "modelElementAttributeSet":
-        if (eventData.attribute === "name") {
-          this.handleModelElementNameChange(
-            modelElementPath,
-            eventData.oldValue,
-            eventData.newValue
-          );
-        }
         break;
       case "modelDirty":
         this.markDirty(model, eventData.dirty);
@@ -468,19 +471,20 @@ var MondrianSchemaTreeView;
     return data;
   },
   getTreeNodeIdForPath: function(path){
+    var dimensionElements = {
+      Hierarchy: {
+        Level: null
+      }
+    };
     var elements = {
       Schema: {
         Cube: {
-          PrivateDimension: null,
+          PrivateDimension: dimensionElements,
           DimensionUsage: null,
           Measure: null,
           CalculatedMember: null
         },
-        SharedDimension: {
-          Hierarchy: {
-            Level: null
-          }
-        }
+        SharedDimension: dimensionElements
       }
     }
     var id = "", name, value = elements;

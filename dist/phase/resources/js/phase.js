@@ -213,6 +213,17 @@ function doSaveModel(model, overwrite, removeOld) {
 
 function deleteModel(modelName, callback, scope){
   var model = mondrianSchemaCache.getModel(modelName);
+  var action = function(){
+    if (selectedModel === modelName) {
+      selectedModel = null;
+    }
+    mondrianSchemaCache.purge(modelName);
+    mondrianSchemaTreeView.removeModelTreeNode(modelName);
+    pedisCache.setConnection(null);
+    if (callback) {
+      callback.call(scope);
+    }
+  }
   //3 possibilities:
   //- model not in the cache. Model exists on the server but wasn't cached yet.
   //- model in the cache and has a name: Model exists on the server and was cached
@@ -221,14 +232,7 @@ function deleteModel(modelName, callback, scope){
     pham.deleteModel({
       modelName: modelName,
       success: function() {
-        if (selectedModel === modelName) {
-          selectedModel = null;
-        }
-        mondrianSchemaCache.purge(modelName);
-        mondrianSchemaTreeView.removeModelTreeNode(modelName);
-        if (callback) {
-          callback.call(scope);
-        }
+        action();
       },
       failure: function() {
         showAlert(
@@ -239,11 +243,7 @@ function deleteModel(modelName, callback, scope){
     });
   }
   else {
-    mondrianSchemaCache.purge(modelName);
-    mondrianSchemaTreeView.removeModelTreeNode(modelName);
-    if (callback) {
-      callback.call(scope);
-    }
+    action();
   }
 }
 
@@ -508,15 +508,22 @@ function unselectCurrentEditor(){
 }
 
 function updateEditor(model, selection){
-  var editor = getEditorForSelection(selection);
+  //save the state of the editor.
   if (currentEditor) {
+    //saving the state may alter the selection (in case of a name change)
+    //so get the treenode to calculate the selection again after save.
+    var treeNode = mondrianSchemaTreeView.getTreeNodeForPath(selection);
     currentEditor.saveFieldValues();
+    selection = mondrianSchemaTreeView.parseModelElementPath(treeNode);
   }
+
+  var editor = getEditorForSelection(selection);
   if (currentEditor !== editor) {
     unselectCurrentEditor();
     currentEditor = editor;
     currentEditor.show();
   }
+
   currentEditor.setData(model, selection);
 }
 

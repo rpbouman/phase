@@ -104,6 +104,34 @@ var HierarchyDiagram;
       var diffY = xy.y - originalXY.y;
 
       if (ddHandler.isColumn) {
+        var target = event.getTarget();
+        var objectInfo = this.getDiagramElementObjectInfo(target);
+        var color = "";
+        if (objectInfo) {
+          switch (objectInfo.objectType) {
+            case "relation":
+              if (ddHandler.tableDom === objectInfo.dom) {
+                color = "red";
+              }
+              else {
+                var diagramModel = this.diagramModel;
+                var indexOfTableRelationship = diagramModel.indexOfTableRelationship({
+                  rightTable: objectInfo.objectIndex
+                });
+                if (indexOfTableRelationship === -1) {
+                  color = "green";
+                }
+                else {
+                  color = "red";
+                }
+              }
+              break;
+            case "level":
+              color = "green";
+              break;
+          }
+        }
+
         var x = xy.x, y = xy.y, x1, y1 = ddHandler.left.y;
         var distLeft = this.getDistance(ddHandler.left.x, y1, x, y);
         var distRight = this.getDistance(ddHandler.right.x, y1, x, y);
@@ -121,6 +149,7 @@ var HierarchyDiagram;
           xy.y + (xy.y > y1 ? -1 : 1) * 2
         );
         dragProxy.style.zIndex = 1000;
+        dragProxy.style.borderColor = color;
       }
       else {
         var originalTablePos = ddHandler.originalTablePos;
@@ -293,8 +322,29 @@ var HierarchyDiagram;
     var targetTableIndex = this.getTableIndexFromId(targetColumnId);
     var targetColumn = this.getColumnNameFromId(targetColumnId);
 
+    if (sourceTableIndex === targetTableIndex) {
+      return;
+    }
+
     var diagramModel = this.getDiagramModel();
+    var relationshipIndex = diagramModel.indexOfTableRelationship({
+      rightTable: targetTableIndex
+    });
+    if (relationshipIndex !== -1) {
+      var relationship = diagramModel.getTableRelationship(relationshipIndex);
+      if (relationship.leftTable !== sourceTableIndex) {
+        return;
+      }
+    }
+/*
     diagramModel.addTableRelationship({
+      leftTable: sourceTableIndex,
+      leftColumn: sourceColumn,
+      rightTable: targetTableIndex,
+      rightColumn: targetColumn
+    });
+*/
+    this.fireEvent("tableRelationshipCreated", {
       leftTable: sourceTableIndex,
       leftColumn: sourceColumn,
       rightTable: targetTableIndex,
@@ -302,6 +352,7 @@ var HierarchyDiagram;
     });
   },
   tableRelationshipAddedHandler: function(diagramModel, event, data){
+/*
     var relationship = data.relationship;
     var fromId = this.getTableColumnId(relationship.leftTable, relationship.leftColumn);
     var fromTr = gEl(fromId);
@@ -312,6 +363,8 @@ var HierarchyDiagram;
       relationship.rightTable, relationship.rightColumn
     );
     this.renderRelationship(fromTr, toTr, id, "=");
+*/
+    this.fireEvent("tableRelationshipCreated", data);
   },
   addLevel: function(rec){
     var diagramModel = this.getDiagramModel();
@@ -392,12 +445,12 @@ var HierarchyDiagram;
     var oldKey = data.oldKey;
     if (oldKey && oldKey.table !== null && oldKey.column !== null) {
       var oldId = this.getTableColumnId(oldKey.table, oldKey.column);
-      rCls(oldId, "primary-key", "");
+      rCls(oldId, "dimension-primary-key", "");
     }
 
     var newKey = data.newKey;
     var newId = this.getTableColumnId(newKey.table, newKey.column);
-    aCls(newId, "primary-key", "");
+    aCls(newId, "dimension-primary-key", "");
   },
   updateTableLevelRelationships: function(tableIndex){
     //todo: only update things for this table

@@ -1,0 +1,115 @@
+.connection-tree div.view > div.head >  span.toggle,
+.phase-diagram > div.relation > table.relation > tbody > tr.view > td.icon {
+  background-image: url('../images/view_16x16.png');
+}
+
+.connection-tree div.table > div.head >  span.toggle,
+.phase-diagram > div.relation > table.relation > tbody > tr.table > td.icon {
+  background-image: url('../images/table_16x16.png');
+}
+
+.connection-tree div.column > div.head >  span.toggle,
+.phase-diagram > div.relation > table.relation > tbody > tr.column > td.icon {
+  background-image: url('../images/column_16x16.png');
+}
+
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-2002 > td.icon,  /* struct */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype--8 > td.icon,    /* rowid */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-2006 > td.icon,  /* ref */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-0 > td.icon,     /* null */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-1111 > td.icon,  /* other */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-2001 > td.icon,  /* distinct */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-70 > td.icon,    /* datalink */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype--7 > td.icon,    /* bit */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-2003 > td.icon  /* Array */
+{
+  background-image: url('../images/column_16x16.png');
+}
+
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-2000 > td.icon   /* java object */
+{
+  background-image: url('../images/JavaIcon.gif');
+}
+
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-2009 > td.icon   /* sqlxml */
+{
+  background-image: url('../images/column-xml.png');
+}
+
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-16 > td.icon     /* boolean */
+{
+  background-image: url('../images/column-boolean.png');
+}
+
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype--6 > td.icon,    /* tinyint  */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-5 > td.icon,     /* smallint */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-4 > td.icon,     /* integer  */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype--5 > td.icon     /* bigint   */
+{
+  background-image: url('../images/column-integer.png');
+}
+
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-3 > td.icon,     /* decimal  */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-2 > td.icon      /* numeric */
+{
+  background-image: url('../images/column-decimal.jpg');
+}
+
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-7 > td.icon,     /* real  */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-8 > td.icon,     /* double  */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-6 > td.icon      /* float   */
+{
+  background-image: url('../images/column-float.png');
+}
+
+
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-12 > td.icon,    /* varchar  */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype--9 > td.icon,    /* nvarchar  */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-2011 > td.icon,  /* nclob  */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype--15 > td.icon,   /* nchar  */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype--1 > td.icon,    /* longvarchar  */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype--16 > td.icon,   /* longnvarchar  */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-2005 > td.icon,  /* clob  */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-1 > td.icon      /* char   */
+{
+  background-image: url('../images/column-text.png');
+}
+
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype--3 > td.icon,    /* varbinary   */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype--4 > td.icon,    /* longvarbinary   */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-2004 > td.icon,  /* blob   */
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype--2 > td.icon     /* binary   */
+{
+  background-image: url('../images/column-binary.png');
+}
+
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-91 > td.icon     /* date   */
+{
+  background-image: url('../images/column-date.png');
+}
+
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-92 > td.icon     /* time   */
+{
+  background-image: url('../images/column-time.png');
+}
+
+.phase-diagram > div.relation > table.relation > tbody > tr.datatype-93 > td.icon     /* timestamp   */
+{
+  background-image: url('../images/column-datetime.png');
+}
+
+
+.connection-tree div.nullable-NO > div.head >  span.label,
+.phase-diagram > div.relation > table.relation > tbody > tr.nullable-NO > td.name {
+  font-weight: bold;
+}
+
+.connection-tree div.primary-key > div.head >  span.label,
+.phase-diagram > div.relation> table.relation > tbody > tr.primary-key > td.name {
+  text-decoration: underline;
+}
+
+.connection-tree div.foreign-key > div.head >  span.label,
+.phase-diagram > div.relation > table.relation > tbody > tr.foreign-key > td.name {
+  font-style: italic;
+}

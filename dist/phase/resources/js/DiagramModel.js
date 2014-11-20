@@ -66,6 +66,10 @@ var DiagramModel;
     }
     return true;
   },
+  getTableRelationship: function(index) {
+    var relationships = this.relationships;
+    return relationships[index];
+  },
   indexOfTableRelationship: function(relationship) {
     var index = -1;
     this.eachTableRelationship(function(relationship, i){

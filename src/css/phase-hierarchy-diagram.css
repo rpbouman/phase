@@ -6,7 +6,7 @@
 }
 
 
-.phase-hierarchy-diagram div.relation > table.relation > tbody > tr.primary-key > td.checkbox {
+.phase-hierarchy-diagram div.relation > table.relation > tbody > tr.dimension-primary-key > td.checkbox {
   background-image: url('../images/key.png');
 }
 

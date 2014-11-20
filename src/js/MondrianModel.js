@@ -182,13 +182,9 @@ var MondrianModel;
         throw "unexpected index";
       }
       var relation = hierarchy.childNodes[relationIndex];
-      join = this.createElement("Join", {
-      });
-      if (!join.childNodes) {
-        join.childNodes = [];
-      }
-      join.childNodes.push(table);
+      join = this.createElement("Join", {});
       join.childNodes.push(relation);
+      join.childNodes.push(table);
 
       hierarchy.childNodes[relationIndex] = join;
     }

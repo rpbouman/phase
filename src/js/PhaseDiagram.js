@@ -464,4 +464,5 @@ PhaseDiagram.lookup = function(el){
 adopt(PhaseDiagram, Observable);
 
 linkCss("../css/phase-diagram.css");
+linkCss("../css/phase-tables-and-columns.css");
 })();

@@ -471,19 +471,20 @@ var MondrianSchemaTreeView;
     return data;
   },
   getTreeNodeIdForPath: function(path){
+    var dimensionElements = {
+      Hierarchy: {
+        Level: null
+      }
+    };
     var elements = {
       Schema: {
         Cube: {
-          PrivateDimension: null,
+          PrivateDimension: dimensionElements,
           DimensionUsage: null,
           Measure: null,
           CalculatedMember: null
         },
-        SharedDimension: {
-          Hierarchy: {
-            Level: null
-          }
-        }
+        SharedDimension: dimensionElements
       }
     }
     var id = "", name, value = elements;
