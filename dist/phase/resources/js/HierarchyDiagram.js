@@ -352,7 +352,6 @@ var HierarchyDiagram;
     });
   },
   tableRelationshipAddedHandler: function(diagramModel, event, data){
-/*
     var relationship = data.relationship;
     var fromId = this.getTableColumnId(relationship.leftTable, relationship.leftColumn);
     var fromTr = gEl(fromId);
@@ -363,8 +362,7 @@ var HierarchyDiagram;
       relationship.rightTable, relationship.rightColumn
     );
     this.renderRelationship(fromTr, toTr, id, "=");
-*/
-    this.fireEvent("tableRelationshipCreated", data);
+    //this.fireEvent("tableRelationshipCreated", data);
   },
   addLevel: function(rec){
     var diagramModel = this.getDiagramModel();

@@ -162,6 +162,27 @@ var MondrianModel;
     }
     return table;
   },
+  setHierarchyTable: function(hierarchyModelElementPath, table, dontFireEvent){
+    var hierarchy = this.getHierarchy(hierarchyModelElementPath);
+    var index = this.getIndexOfLastElementWithTagName(
+      hierarchy,
+      "Annotations"
+    );
+    index = index + 1;
+
+    var relationIndex = this.getRelationIndex(hierarchy);
+    hierarchy.childNodes.splice(index, relationIndex === -1 ? 0 : 1, table);
+    if (dontFireEvent !== true) {
+      var modelElementPath = merge({}, hierarchyModelElementPath);
+      modelElementPath.type = table.tagName;
+      modelElementPath[modelElementPath.type] = table.attributes.name || "";
+      var eventData = {
+        modelElementPath: modelElementPath,
+        modelElement: table
+      };
+      this.fireEvent("modelElementCreated", eventData);
+    }
+  },
   createHierarchyTable: function(hierarchyModelElementPath, attributes, dontFireEvent){
     var table = this.createElement("Table", attributes);
 
