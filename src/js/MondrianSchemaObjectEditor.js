@@ -519,7 +519,6 @@ var GenericEditor;
       return;
     }
     this.model = model;
-    //TODO: update all the fields that list items from the model
   },
   getModelElementPath: function(){
     return merge({}, this.modelElementPath);
@@ -2257,6 +2256,10 @@ adopt(DimensionUsageEditor, GenericEditor);
       default:
     }
   },
+  getLevelAnnotationPrefix: function(){
+    var annotationPrefix = "phase.";
+    return annotationPrefix;
+  },
   createNewLevel: function(){
     var model = this.model;
     var modelElementPath = this.modelElementPath;
@@ -2332,7 +2335,6 @@ adopt(DimensionUsageEditor, GenericEditor);
         delete roots[relationship.rightTable];
       }
     }, this);
-    debugger;
 
     var createTableElement = function(tableIndex){
       var rec = diagramModel.getTable(tableIndex);
@@ -2642,6 +2644,10 @@ adopt(DimensionUsageEditor, GenericEditor);
       model.setAnnotationValue(modelElement, annotationPrefix + "x", table.x, true);
       model.setAnnotationValue(modelElement, annotationPrefix + "y", table.y, true);
     }
+    diagramModel.eachLevel(function(level, i){
+      model.setAnnotationValue(level.level, "phase.x", level.x, true);
+      model.setAnnotationValue(level.level, "phase.y", level.y, true);
+    }, this);
   },
   updateDiagram: function(){
     this.saveDiagram();
