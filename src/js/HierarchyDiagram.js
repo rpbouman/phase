@@ -183,6 +183,8 @@ var HierarchyDiagram;
               this.createTableRelationship(sourceColumnId, target.parentNode.id);
               break;
             case "level":
+              this.setLevelColumn(target.parentNode.id, sourceTableIndex, columnName);
+              break;
             default:
           }
         }
@@ -487,11 +489,34 @@ var HierarchyDiagram;
       this.updateRelationship(relationshipId);
     }
   },
+  getLevelIndex: function(dom){
+    var id;
+    if (iNod(dom)) {
+      id = dom.id;
+    }
+    else {
+      id = dom;
+    }
+    var index = id.substr(this.getLevelId().length);
+    return parseInt(index, 10);
+  },
   getLevelId: function(index){
-    return this.getId() + ":level" + index;
+    return this.getId() + ":level" + (iDef(index) ? index : "");
   },
   getLevelColumnId: function(index, column){
-    return this.getLevelId(index) + ":COLUMN:" + column;
+    return this.getLevelId(index) + ":COLUMN:" + (column || "");
+  },
+  getLevelColumnName: function(dom){
+    var id;
+    if (iNod(dom)) {
+      id = dom.id;
+    }
+    else {
+      id = dom;
+    }
+    var levelIndex = this.getLevelIndex(dom);
+    var levelColumnId = this.getLevelColumnId(levelIndex);
+    return id.substr(levelColumnId.length);
   },
   getLevelColumnRelationshipId: function(index, column) {
     return this.getLevelColumnId(index, column) + ":relationship";
@@ -522,7 +547,11 @@ var HierarchyDiagram;
     if (columnName) {
       diagramModel.eachTableColumn(function(table, tableIndex, column, columnIndex){
         if (columnName === column.COLUMN_NAME) {
-          if (tableName && table.metadata.TABLE_NAME !== tableName) {
+          if (
+            tableName &&
+            ( table.alias && table.alias !== tableName ||
+              table.metadata.TABLE_NAME !== tableName)
+          ) {
             return true;
           }
           var tableId = this.getTableIdForIndex(tableIndex);
@@ -588,6 +617,23 @@ var HierarchyDiagram;
     }, tab, dom);
     this.updateLevelTableRelationships(index);
     return tableElement;
+  },
+  setLevelColumn: function(levelColumnId, sourceTableIndex, columnName) {
+    var diagramModel = this.getDiagramModel();
+    var table = diagramModel.getTable(sourceTableIndex);
+    var tableName = table.alias || table.metadata.TABLE_NAME;
+    var levelIndex = this.getLevelIndex(levelColumnId);
+    var level = diagramModel.getLevel(levelIndex);
+    var levelModelElement = level.level;
+    var levelAttributes = levelModelElement.attributes;
+    var levelColumn = this.getLevelColumnName(levelColumnId);
+
+    levelAttributes.table = tableName;
+    levelAttributes[levelColumn] = columnName;
+    var relationshipId = this.getLevelColumnRelationshipId(levelIndex, levelColumn);
+    var columnId = this.getTableColumnId(sourceTableIndex, columnName);
+    this.renderRelationship(gEl(levelColumnId), gEl(columnId), relationshipId, "");
+    //TODO: check all other level columns to see if they match the table. If not, remove the relationship.
   }
 }
 
