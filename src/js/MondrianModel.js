@@ -585,7 +585,7 @@ var MondrianModel;
     if (!attributes.name) {
       attributes.name = this.newPrivateDimensionLevelName(cubeName, dimensionName, hierarchyName);
     }
-    var level = this.createLevel(hierarchy, name, attributes);
+    var level = this.createLevel(hierarchy, attributes);
 
     if (dontFireEvent !== true) {
       var eventData = {
@@ -604,7 +604,9 @@ var MondrianModel;
     return level;
   },
   newName: function(getters, args, name, num){
-    if (!num) num = "1";
+    if (!num) {
+      num = "1";
+    }
     args.push(name + num);
     if (!iArr(getters)){
       getters = [getters];
