@@ -1,8 +1,0 @@
-.phase-measure-editor form fieldset legend {
-  background-image: url('../images/measure.png');
-}
-
-.phase-measure-editor form fieldset legend:after {
-  content: "Measure";
-}
-

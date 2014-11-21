@@ -1,7 +1,0 @@
-.connection-tree div.catalog > div.head >  span.toggle {
-  background-image: url(../images/database_16x16.png);
-}
-
-.connection-tree div.schema > div.head >  span.toggle {
-  background-image: url('../images/folder-visiting_16x16.png');
-}
