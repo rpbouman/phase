@@ -15,20 +15,31 @@ var MondrianModel;
   isDirty: function(){
     return this.dirty;
   },
-  setDirty: function(dirty){
+  setDirty: function(dirty, dontFireEvent){
     if (dirty !== false) {
       dirty = true;
     }
     if (this.dirty !== dirty) {
       this.dirty = dirty;
-      this.fireEvent("modelDirty", {
-        modelElementPath: {
-          Schema: this.getSchemaName(),
-          type: "Schema"
-        },
-        dirty: dirty
-      });
+      if (dontFireEvent !== true) {
+        this.fireEvent("modelDirty", {
+          modelElementPath: {
+            Schema: this.getSchemaName(),
+            type: "Schema"
+          },
+          dirty: dirty
+        });
+      }
     }
+  },
+  fireEvent: function(event, eventData){
+    switch (event) {
+      case "modelElementAttributeSet":
+      case "modelElementCreated":
+      case "modelElementRemoved":
+        this.setDirty(true);
+    }
+    return Observable.prototype.fireEvent.call(this, event, eventData);
   },
   setNotDirty: function(){
     this.setDirty(false);
@@ -85,7 +96,6 @@ var MondrianModel;
 
     this.fireEvent("modelElementAttributeSet", eventData);
 
-    this.setDirty();
     return true;
   },
   getAttributeValue: function(modelElementPath, attribute){
@@ -133,6 +143,7 @@ var MondrianModel;
         modelElement: cube
       };
       this.fireEvent("modelElementCreated", eventData);
+
     }
     return cube;
   },
@@ -1030,7 +1041,6 @@ var MondrianModel;
     }, this, function(child, i){
       return child === modelElementToDelete;
     });
-    this.setDirty();
     return modelElementToDelete;
   },
   getModelElement: function(selection){
