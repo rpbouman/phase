@@ -1225,4 +1225,216 @@ var MondrianModel;
 };
 adopt(MondrianModel, Observable);
 
+MondrianModel.SchemaInfoValues = {
+  bool: ["true", "false"],
+  dataType: ["String", "Numeric", "Integer", "Boolean", "Date", "Time", "Timestamp"],
+  internalType: ["int", "long", "Object", "String"],
+  levelType: ["Regular", "TimeYears", "TimeHalfYears", "TimeHalfYear", "TimeQuarters", "TimeMonths", "TimeWeeks", "TimeDays", "TimeHours", "TimeMinutes", "TimeSeconds", "TimeUndefined"],
+  aggregator: [ "sum", "count", "min", "max", "avg", "distinct-count"],
+  dimensionType: ["StandardDimension", "TimeDimension"],
+  hideMemberIf: ["Never", "IfBlankName", "IfParentsName"],
+  sqlDialect: ["generic", "access", "db2", "derby", "firebird", "hsqldb", "mssql", "mysql", "oracle", "postgres", "sybase", "teradata", "ingres", "infobright", "luciddb", "vertica", "neoview"]
+};
+
+MondrianModel.SchemaInfo = {
+  "!top": ["Schema"],
+  "!attrs": {},
+  Schema: {
+    attrs: {
+      name: null,
+      description: null,
+      measuresCaption: null,
+      defaultRole: null
+    },
+    children: ["Annotations", "Parameter", "Dimension", "Cube", "VirtualCube", "NamedSet", "Role", "UserDefinedFunction"]
+  },
+  Annotations: {
+    attrs: {},
+    children: ["Annotation"]
+  },
+  Annotation: {
+    attrs: {name: null}
+  },
+  Parameter: {
+    attrs: {
+      name: null,
+      description: null,
+      type: MondrianModel.SchemaInfoValues.dataType.concat(["Member"]),
+      modifiable: MondrianModel.SchemaInfoValues.bool,
+      defaultValue: null
+    }
+  },
+  Dimension: {
+    attrs: {
+      type: MondrianModel.SchemaInfoValues.dimensionType,
+      usagePrefix: null,
+      visible: MondrianModel.SchemaInfoValues.bool,
+      foreignKey: null,
+      highCardinality: MondrianModel.SchemaInfoValues.bool,
+      name: null,
+      caption: null,
+      description: null
+    },
+    children: ["Annotations", "Hierarchy"]
+  },
+  Cube: {
+    attrs: {
+      name: null,
+      caption: null,
+      visible: MondrianModel.SchemaInfoValues.bool,
+      description: null,
+      defaultMeasure: null,
+      cache: MondrianModel.SchemaInfoValues.bool,
+      enabled: MondrianModel.SchemaInfoValues.bool
+    },
+    children: ["Annotations", "Table", "View", "Dimension", "DimensionUsage", "Measure", "CalculatedMember", "NamedSet"]
+  },
+  DimensionUsage: {
+    attrs: {
+      source: null,
+      level: null,
+      usagePrefix: null,
+      name: null,
+      caption: null,
+      visible: MondrianModel.SchemaInfoValues.bool,
+      description: null,
+      foreignKey: null,
+      highCardinality: MondrianModel.SchemaInfoValues.bool
+    }
+  },
+  Hierarchy: {
+    attrs: {
+      name: null,
+      visible: MondrianModel.SchemaInfoValues.bool,
+      hasAll: MondrianModel.SchemaInfoValues.bool,
+      allMemberName: null,
+      allMemberCaption: null,
+      allLevelName: null,
+      primaryKey: null,
+      primaryKeyTable: null,
+      defaultMember: null,
+      memberReaderClass: null,
+      caption: null,
+      description: null,
+      uniqueKeyLevelName: null
+    },
+    children: ["Annotations", "Table", "View", "Join", "InlineTable", "Level", "MemberReaderParameter"]
+  },
+  Level: {
+    attrs: {
+      approxRowCount: null,
+      name: null,
+      visible: MondrianModel.SchemaInfoValues.bool,
+      table: null,
+      column: null,
+      nameColumn: null,
+      ordinalColumn: null,
+      parentColumn: null,
+      nullParentValue: null,
+      type: MondrianModel.SchemaInfoValues.dataType,
+      internalType: MondrianModel.SchemaInfoValues.internalType,
+      uniqueMembers: MondrianModel.SchemaInfoValues.bool,
+      levelType: MondrianModel.SchemaInfoValues.levelType,
+      hideMemberIf: MondrianModel.SchemaInfoValues.hideMemberIf,
+      formatter: null,
+      caption: null,
+      description: null,
+      captionColumn: null
+    },
+    children: ["Annotations", "KeyExpression", "NameExpression", "CaptionExpression", "OrdinalExpression", "ParentExpression", "MemberFormatter", "Closure", "Property"]
+  },
+  Closure: {
+    attrs: {
+      parentColumn: null,
+      childColumn: null
+    }
+  },
+  Property: {
+    attrs: {
+      name: null,
+      column: null,
+      type: MondrianModel.SchemaInfoValues.dataType,
+      formatter: null,
+      caption: null,
+      description: null,
+      dependsOnLevelValue: MondrianModel.SchemaInfoValues.bool
+    },
+    children: ["PropertyFormatter"]
+  },
+  Measure: {
+    attrs: {
+      name: null,
+      column: null,
+      datatype: MondrianModel.SchemaInfoValues.dataType,
+      formatString: null,
+      aggregator: MondrianModel.SchemaInfoValues.aggregator,
+      formatter: null,
+      caption: null,
+      description: null,
+      visible: MondrianModel.SchemaInfoValues.bool
+    },
+    children: ["Annotations", "MeasureExpression", "CellFormatter", "CalculatedMemberProperty"]
+  },
+  CalculatedMember: {
+    attrs: {
+      name: null,
+      formatString: null,
+      caption: null,
+      description: null,
+      formula: null,
+      dimension: null,
+      hierarchy: null,
+      parent: null,
+      visible: MondrianModel.SchemaInfoValues.bool
+    },
+    children: ["Annotations", "Formula", "CellFormatter", "CalculatedMemberProperty"]
+  },
+  CalculatedMemberProperty: {
+    attrs: {
+      name: null,
+      caption: null,
+      description: null,
+      expression: null,
+      value: null
+    }
+  },
+  NamedSet: {
+    attrs: {
+      name: null,
+      caption: null,
+      description: null,
+      formula: null
+    },
+    children: ["Annotations", "Formula"]
+  },
+  View: {
+    attrs: {
+      alias: null
+    },
+    children: ["SQL"]
+  },
+  Join: {
+    attrs: {
+      leftAlias: null,
+      leftKey: null,
+      rightAlias: null,
+      rightKey: null
+    },
+    children: ["View", "Table", "Join", "InlineTable"]
+  },
+  Table: {
+    attrs: {
+      name: null,
+      schema: null,
+      alias: null
+    },
+    children: ["SQL", "AggExclude", "AggTable", "Hint"]
+  },
+  SQL: {
+    attrs: {
+      dialect: MondrianModel.SchemaInfoValues.sqlDialect
+    }
+  }
+};
+
 })();
