@@ -12,6 +12,21 @@ var MondrianModel;
   this.datasourceInfo = {};
   this.setDirty();
 }).prototype = {
+  setDocument: function(document) {
+    var eventData = {
+      oldDoc: this.doc,
+      newDoc: document,
+      modelElementPath: {
+        Schema: this.getSchemaName(),
+        type: "Schema"
+      }
+    };
+    if (this.fireEvent("setDocument", eventData)===false) {
+      return false;
+    }
+    this.doc = document;
+    return this.fireEvent("documentSet", eventData);
+  },
   isDirty: function(){
     return this.dirty;
   },

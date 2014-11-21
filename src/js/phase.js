@@ -39,6 +39,22 @@ var mondrianSchemaCache = new MondrianSchemaCache({
     },
     renameModel: function(mondrianSchemaCache, event, data){
       return renameModel(data.model, data.oldName, data.newName);
+    },
+    modelEvent: function(mondrianSchemaCache, event, data) {
+      var model = data.model;
+      var modelEvent = data.modelEvent;
+      var eventData  = data.eventData;
+      var modelElementPath = eventData.modelElementPath;
+      switch (modelEvent) {
+        case "documentSet":
+          var oldSchemaName = modelElementPath.Schema;
+          mondrianSchemaTreeView.removeModelTreeNode(oldSchemaName);
+          mondrianSchemaCache.purge(oldSchemaName);
+          mondrianSchemaCache.addModel(model);
+          var treeNode = mondrianSchemaTreeView.renderModelTreeNode(model.getSchemaName());
+          mondrianSchemaTreeView.setSelectedTreeNode(treeNode);
+          break;
+      }
     }
   }
 });

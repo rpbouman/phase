@@ -7,6 +7,7 @@ var MondrianSchemaCache;
   }
   this.models = {};
   this.modelListeners = {
+    documentSet: this.handleModelEvent,
     modelDirty: this.handleModelEvent,
     modelElementCreated: this.handleModelEvent,
     modelElementRemoved: this.handleModelEvent,

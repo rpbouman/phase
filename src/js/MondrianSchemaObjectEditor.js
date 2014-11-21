@@ -841,6 +841,13 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
           return;
         }
         this.createNewSharedDimension();
+      }},
+      {class: "separator"},
+      {group: "code", "class": "save-code", style: {display: "none"}, tooltip: "Parse and save code changes", handler: function(){
+        this.parseCodeAndSaveChanges();
+      }},
+      {group: "code", "class": "undo-code", style: {display: "none"}, tooltip: "Reload source from document", handler: function(){
+        this.loadEditorFromModel();
       }}
     ];
   }
@@ -904,7 +911,7 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
     var textArea = cEl("textarea", {
       id: this.getSourceTextAreaId()
     }, null, sourceTab.component);
-
+    this.setCodeDirty(false);
     return dom;
   },
   createCodeMirror: function(){
@@ -934,7 +941,7 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
       });
     }
 
-    this.codeMirror = CodeMirror.fromTextArea(gEl(this.getSourceTextAreaId()), {
+    var codeMirror = CodeMirror.fromTextArea(gEl(this.getSourceTextAreaId()), {
       mode: "application/xml",
       lineNumbers: true,
       foldGutter: true,
@@ -950,11 +957,68 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
       },
       hintOptions: {schemaInfo: MondrianModel.SchemaInfo}
     });
+    this.codeMirror = codeMirror;
+
+    var me = this;
+    codeMirror.on("changes", function(codeMirror, eventData){
+      var xml = codeMirror.getDoc().getValue();
+      me.setCodeDirty(xml !== me.xml);
+    });
+  },
+  setCodeDirty: function(dirty){
+    if (dirty !== this.codeDirty) {
+      this.codeDirty = dirty;
+      var toolbar = this.getToolbar();
+      toolbar.eachButtonInGroup(function(button){
+        Displayed.setDisplayed(button.getDom(), dirty);
+      }, this, "code");
+      this.fireEvent("dirty", dirty);
+    }
   },
   afterSetDisplayed: function(displayed){
     if (displayed) {
       this.refreshCodeMirror();
     }
+  },
+  parseCodeAndSaveChanges: function(){
+    var xml = this.codeMirror.getDoc().getValue();
+    var doc;
+    try {
+      doc = parseXmlText(xml);
+    }
+    catch (exception) {
+      var me = this;
+      this.dialog.show({
+        message:  "Couldn't parse the schema because of: \n" +
+                  exception +
+                  "\nDo you want to restore? Restoring will lose your changes",
+        title:    "Parse Error",
+        yes: {
+          handler:  function(){
+                      me.loadEditorFromModel();
+                    },
+          label: "Restore"
+        },
+        no: {
+          label: "Cancel"
+        }
+      });
+      return;
+    }
+    this.model.setDocument(doc);
+  },
+  loadEditorFromModel: function(){
+    var value;
+    if (this.model) {
+      value = this.model.toXml();
+      this.xml = value;
+      this.dirty = false;
+    }
+    else {
+      value = "";
+    }
+    this.codeMirror.getDoc().setValue(value);
+    this.setCodeDirty(false);
   },
   refreshCodeMirror: function(){
     var tab = this.tabPane.getSelectedTab();
@@ -966,14 +1030,7 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
     if (!codeMirror) {
       return;
     }
-    var value;
-    if (this.model) {
-      value = this.model.toXml();
-    }
-    else {
-      value = "";
-    }
-    codeMirror.getDoc().setValue(value);
+    this.loadEditorFromModel();
     window.setTimeout(function(){
       codeMirror.setSize(
         tab.component.clientWidth,
