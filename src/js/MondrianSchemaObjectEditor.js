@@ -159,6 +159,13 @@ var GenericEditor;
       }
       this.modelElementPath[eventModelElementPath.type] = eventData.newValue;
     },
+    modelPurged: function(mondrianSchemaCache, event, data){
+      var model = this.model;
+      if (data.model !== model) {
+        return;
+      }
+      this.clearData();
+    },
     scope: this
   });
 
@@ -716,6 +723,9 @@ var GenericEditor;
   },
   modelElementChanged: function(){
     //noop. Override.
+  },
+  clearData: function(){
+    this.setData(null, null);
   },
   setData: function(model, modelElementPath){
     var oldModel = this.model;
