@@ -438,7 +438,12 @@ var MondrianModel;
     return dimensionUsage;
   },
   newSharedDimensionHierarchyName: function(sharedDimension){
-    return this.newName(this.getSharedDimensionHierarchy, [sharedDimension], "new Hierarchy");
+    var name = "";
+    var unnamedHierarchy = this.getSharedDimensionHierarchy(sharedDimension, "");
+    if (unnamedHierarchy) {
+      name = this.newName(this.getSharedDimensionHierarchy, [sharedDimension], "new Hierarchy");
+    }
+    return name;
   },
   createSharedDimensionHierarchy: function(dimensionName, attributes, dontFireEvent) {
     var schema = this.getSchema();
@@ -475,7 +480,12 @@ var MondrianModel;
     return hierarchy;
   },
   newPrivateDimensionHierarchyName: function(cube, privateDimension){
-    return this.newName(this.getPrivateDimensionHierarchy, [cube, privateDimension], "new Hierarchy");
+    var name = "";
+    var unnamedHierarchy = this.getPrivateDimensionHierarchy(cube, privateDimension, name);
+    if (unnamedHierarchy) {
+      name = this.newName(this.getPrivateDimensionHierarchy, [cube, privateDimension], "new Hierarchy");
+    }
+    return name;
   },
   createPrivateDimensionHierarchy: function(cubeName, dimensionName, attributes, dontFireEvent) {
     var schema = this.getSchema();
