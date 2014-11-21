@@ -194,6 +194,11 @@ var MondrianModel;
       this.fireEvent("modelElementCreated", eventData);
     }
   },
+  setHierarchyPrimaryKey: function(hierarchyPath, table, column){
+    var hierarchy = this.getHierarchy(hierarchyPath);
+    this.setAttributeValue(hierarchyPath, "primaryKeyTable", table);
+    this.setAttributeValue(hierarchyPath, "primaryKey", column);
+  },
   createHierarchyTable: function(hierarchyModelElementPath, attributes, dontFireEvent){
     var table = this.createElement("Table", attributes);
 
