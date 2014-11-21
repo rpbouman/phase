@@ -957,14 +957,23 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
     }
   },
   refreshCodeMirror: function(){
+    var tab = this.tabPane.getSelectedTab();
+    //TODO: make a proper check to see if this is the code mirror tab.
+    if (tab.text !== "Source") {
+      return;
+    }
     var codeMirror = this.codeMirror;
     if (!codeMirror) {
       return;
     }
-    var tab = this.tabPane.getSelectedTab();
-    if (tab.text !== "Source") {
-      return;
+    var value;
+    if (this.model) {
+      value = this.model.toXml();
     }
+    else {
+      value = "";
+    }
+    codeMirror.getDoc().setValue(value);
     window.setTimeout(function(){
       codeMirror.setSize(
         tab.component.clientWidth,
@@ -977,15 +986,7 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
     if (!this.codeMirror) {
       this.createCodeMirror();
     }
-    var value;
-    if (this.model) {
-      value = this.model.toXml();
-    }
-    else {
-      value = "";
-    }
     var codeMirror = this.codeMirror;
-    codeMirror.getDoc().setValue(value);
     codeMirror.focus();
     this.refreshCodeMirror();
   },
