@@ -1474,6 +1474,9 @@ adopt(SchemaEditor, GenericEditor);
         break;
     }
     switch (event) {
+      case "modelElementAttributeSet":
+        this.diagramNeedsUpdate = true;
+        break;
       case "modelElementCreated":
       case "modelElementRemoved":
         if (this.diagramActivated()) {
@@ -2227,22 +2230,10 @@ adopt(DimensionUsageEditor, GenericEditor);
     }
   },
   handleModelEvent: function(event, data){
-  /*
-    switch (data.modelElementPath.type) {
-      case "Table":
-        if (event === "modelElementCreated") {
-          var modelElement = data.modelElement;
-          var attributes = modelElement.attributes;
-          var annotationPrefix = this.getHierarchyTableAnnotationPrefix(attributes.alias, attributes.name);
-          var x = parseInt(this.model.getAnnotationValue(this.modelElement, annotationPrefix + "x"), 10);
-          var y = parseInt(this.model.getAnnotationValue(this.modelElement, annotationPrefix + "y"), 10);
-          data.x = x;
-          data.y = y;
-        }
-        break;
-    }
-  */
     switch (event) {
+      case "modelElementAttributeSet":
+        this.diagramNeedsUpdate = true;
+        break;
       case "modelElementCreated":
       case "modelElementRemoved":
         if (this.diagramActivated()) {
