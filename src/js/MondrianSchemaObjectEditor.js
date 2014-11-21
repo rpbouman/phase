@@ -2374,7 +2374,7 @@ adopt(DimensionUsageEditor, GenericEditor);
     if (!x) {
       x = this.getDom().clientWidth - 250;
     }
-    var y = parseInt(model.getAnnotationValue(level, "phase.x"), 10);
+    var y = parseInt(model.getAnnotationValue(level, "phase.y"), 10);
     if (!y) {
       var diagram = this.diagram;
       var diagramModel = diagram.getDiagramModel();
