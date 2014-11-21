@@ -89,3 +89,9 @@ o    AnalyzerCustomAction: http://help.pentaho.com/Documentation/5.1/0N0/020/070
 Conditional Formatting: http://help.pentaho.com/Documentation/5.1/0N0/020/090/060/010/000
 
 #14 Inline editing in diagram of Captions of dimensions, levels, measures
+
+#15 Automatically set level type according to JDBC data type of level key column.
+
+#16 Support for virtual cubes.
+
+#17 Create standard date dimension
