@@ -78,7 +78,7 @@ var fields = {
     tagName: "select",
     labelText: "Data Type",
     dataPath: ["modelElement", "attributes", "datatype"],
-    options: ["", "Boolean", "Date", "Integer", "Numeric", "String", "Time", "Timestamp"],
+    options: ["Boolean", "Date", "Integer", "Numeric", "String", "Time", "Timestamp"],
     defaultValue: "",
     tooltipText: "The datatype of this item."
   },
@@ -93,7 +93,7 @@ var fields = {
     choose: {
       namedFormat: {
         dataPath: ["modelElement", "attributes", "formatString"],
-        options: ["", "Currency", "Fixed", "General Date", "General Number", "Long Date", "Long Time", "Medium Date", "Medium Time", "Short Date", "Short Time", "On/Off", "Percent", "Scientific", "Standard", "True/False", "Yes/No"],
+        options: ["Currency", "Fixed", "General Date", "General Number", "Long Date", "Long Time", "Medium Date", "Medium Time", "Short Date", "Short Time", "On/Off", "Percent", "Scientific", "Standard", "True/False", "Yes/No"],
         defaultValue: ""
       },
       formatString: {
@@ -237,7 +237,7 @@ var GenericEditor;
     this.clearSelectField(fieldName);
     var relationsInfo = this.getHierarchyRelations();
     var relations = relationsInfo.relations;
-    var relation, options = [""];
+    var options = [], relation;
     var i, n = relations.length;
     for (i = 0; i < n; i++){
       relation = relations[i];
@@ -270,7 +270,7 @@ var GenericEditor;
       return;
     }
     this.getRelationInfo(relation, function(table){
-      var options = [""], info = table.info, columns = info.columns, column, i, n = columns.length;
+      var options = [], info = table.info, columns = info.columns, column, i, n = columns.length;
       for (i = 0; i < n; i++) {
         column = columns[i];
         options.push(column.COLUMN_NAME);
@@ -352,9 +352,16 @@ var GenericEditor;
     }
     return true;
   },
+  isFieldMandatory: function(field){
+    if (iStr(field)) {
+      field = this.getFieldDefinition(field);
+    }
+    return field.mandatory === true;
+  },
   createField: function(fieldset, key, definition, tabIndex) {
-    var children = [], mandatoryClass;
+    var children = [], mandatory;
     if (key && definition) {
+      mandatory = this.isFieldMandatory(definition);
       var id = this.getFieldId(key);
       children.push(
         cEl("label", {
@@ -368,14 +375,17 @@ var GenericEditor;
         "type": definition.inputType || "text",
         tabindex: tabIndex
       };
-
-      if (definition.mandatory === true) {
+      if (mandatory) {
         inputConf.required = true;
       }
       var input = cEl(definition.tagName || "input", inputConf);
       if (definition.options) {
         if (definition.tagName === "select") {
-          var i, option, optionDefinition, options = definition.options, n = options.length;
+          var i, option, optionDefinition, options = definition.options;
+          if (!mandatory) {
+            options = [""].concat(options);
+          }
+          var n = options.length;
           for (i = 0; i < n; i++){
             optionDefinition = options[i];
             if (iStr(optionDefinition)) {
@@ -406,8 +416,6 @@ var GenericEditor;
           )
         );
       }
-
-      mandatoryClass = definition.mandatory === true ? " mandatory" : "";
     }
     var pureClasses = "pure-control-group";
     if (this.columnCount > 1) {
@@ -415,7 +423,7 @@ var GenericEditor;
     }
 
     var item = cEl("div", {
-      "class": pureClasses + (mandatoryClass ? mandatoryClass : "")
+      "class": pureClasses + (mandatory ? " mandatory" : "")
     }, children, fieldset);
     this.fieldCreated(fieldset, key, definition, tabIndex);
     return item;
@@ -755,6 +763,9 @@ var GenericEditor;
       return r;
     });
     var fieldElement = this.getFieldElement(fieldName);
+    if (!this.isFieldMandatory(fieldName)){
+      options = [""].concat(options);
+    }
     var n = options.length, option, i;
     for (i = 0; i < n; i++) {
       option = options[i];
@@ -1287,7 +1298,7 @@ adopt(SchemaEditor, GenericEditor);
   updateDefaultMeasuresField: function(){
     var fieldName = "defaultMeasure";
     var cube = this.modelElement;
-    var options = [""];
+    var options = [];
     this.model.eachMeasure(cube, function(measure){
       options.push(measure.attributes.name);
     });
@@ -1620,7 +1631,7 @@ adopt(CubeEditor, GenericEditor);
     var fieldName = "column";
     this.clearSelectField(fieldName);
     this.getCubeRelationInfo(function(data){
-      var options = [""];
+      var options = [];
       if (data) {
         var metadata = data.metadata;
         var info = metadata.info;
@@ -1815,7 +1826,7 @@ adopt(SharedDimensionEditor, GenericEditor);
     var fieldName = "foreignKey";
     this.clearSelectField(fieldName);
     this.getCubeRelationInfo(function(data){
-      var options = [""];
+      var options = [];
       if (data) {
         var metadata = data.metadata;
         var info = metadata.info;
@@ -1885,7 +1896,7 @@ adopt(PrivateDimensionEditor, GenericEditor);
   },
   updateSharedDimensionsField: function(){
     var fieldName = "source";
-    var options = [""];
+    var options = [];
     this.model.eachSharedDimension(function(sharedDimension){
       options.push(sharedDimension.attributes.name);
     });
@@ -2024,6 +2035,12 @@ adopt(DimensionUsageEditor, GenericEditor);
     }
   },
   handleModelEvent: function(event, data){
+    switch (data.modelElementPath.type) {
+      case "Table":
+      case "Join":
+        this.updatePrimaryKeyTableField();
+        break;
+    }
     switch (event) {
       case "modelElementAttributeSet":
         this.diagramNeedsUpdate = true;
@@ -2446,7 +2463,7 @@ adopt(DimensionUsageEditor, GenericEditor);
   },
   updateUniqueKeyLevelNameField: function(){
     var fieldName = "uniqueKeyLevelName";
-    var options = [""];
+    var options = [];
     this.model.eachHierarchyLevel(this.modelElement, function(level, index){
       options.push(level.attributes.name);
     });
