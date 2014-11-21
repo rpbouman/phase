@@ -197,7 +197,7 @@ Pham.prototype = {
               "\r\nContent-Disposition: form-data; name=\"parameters\"" +
               "\r\n\r\nDataSource="       + options.datasource +
                       ";overwrite="       + String(iDef(options.overwrite) ?  options.overwrite : false) +
-                      ";xmlaEnabledFlag=" + String(iDef(options.enableXmla) ?  options.enableXmla : false) +
+                      ";EnableXmla=" + String(iDef(options.enableXmla) ?  options.enableXmla : false) +
               "\r\n--" + boundary + "--";
 
     options.data = msg;
