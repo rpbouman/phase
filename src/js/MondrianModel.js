@@ -1227,7 +1227,7 @@ adopt(MondrianModel, Observable);
 
 MondrianModel.SchemaInfoValues = {
   bool: ["true", "false"],
-  dataType: ["String", "Numeric", "Integer", "Boolean", "Date", "Time", "Timestamp"],
+  dataType: ["Boolean", "Date", "Integer", "Numeric", "String", "Time", "Timestamp"],
   internalType: ["int", "long", "Object", "String"],
   levelType: ["Regular", "TimeYears", "TimeHalfYears", "TimeHalfYear", "TimeQuarters", "TimeMonths", "TimeWeeks", "TimeDays", "TimeHours", "TimeMinutes", "TimeSeconds", "TimeUndefined"],
   aggregator: [ "sum", "count", "min", "max", "avg", "distinct-count"],
