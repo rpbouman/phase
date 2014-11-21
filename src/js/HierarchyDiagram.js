@@ -290,12 +290,20 @@ var HierarchyDiagram;
         break;
     }
     var objectInfo = this.getDiagramElementObjectInfo(div);
-    var model = this.getDiagramModel();
+    var diagramModel = this.getDiagramModel();
     switch (className) {
       case "checkbox":
         var prefix = this.getTableColumnId(objectInfo.objectIndex, "");
         var column = target.parentNode.id.substr(prefix.length);
-        model.setPrimaryKey(objectInfo.objectIndex, column);
+        //TODO: we're currently updating both our diagram model and sending an event
+        //to make the editor update the mondrian model.
+        diagramModel.setPrimaryKey(objectInfo.objectIndex, column);
+        var table = diagramModel.getTable(objectInfo.objectIndex);
+        this.fireEvent("primaryKeySet", {
+          tableAlias: table.alias,
+          table: table.metadata,
+          columnName: column
+        })
         break;
       case "relationship-menu":
         var relationshipInfo = null;

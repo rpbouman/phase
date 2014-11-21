@@ -1948,6 +1948,13 @@ adopt(DimensionUsageEditor, GenericEditor);
       tableRelationshipCreated: function(diagram, event, data){
         this.handleTableRelationshipCreated(data);
       },
+      primaryKeySet: function(diagram, event, data){
+        this.model.setHierarchyPrimaryKey(
+          this.modelElementPath,
+          data.tableAlias || data.table.TABLE_NAME,
+          data.columnName
+        );
+      }
     }
   });
 
@@ -2458,6 +2465,7 @@ adopt(DimensionUsageEditor, GenericEditor);
     this.diagramNeedsUpdate = false;
   },
   tabSelected: function(tabPane, event, data){
+    this.saveFieldValues();
     this.updateDiagramIfDisplayed();
     this.updateFieldValues();
   },
