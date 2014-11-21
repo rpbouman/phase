@@ -1213,7 +1213,7 @@ var MondrianModel;
         continue;
       }
       v = descendant[p];
-      if (!v) {
+      if (iUnd(v)) {
         return false;
       }
       if (!v === ancestor[p]) {
