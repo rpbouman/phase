@@ -338,14 +338,6 @@ var HierarchyDiagram;
         return;
       }
     }
-/*
-    diagramModel.addTableRelationship({
-      leftTable: sourceTableIndex,
-      leftColumn: sourceColumn,
-      rightTable: targetTableIndex,
-      rightColumn: targetColumn
-    });
-*/
     this.fireEvent("tableRelationshipCreated", {
       leftTable: sourceTableIndex,
       leftColumn: sourceColumn,
@@ -364,7 +356,6 @@ var HierarchyDiagram;
       relationship.rightTable, relationship.rightColumn
     );
     this.renderRelationship(fromTr, toTr, id, "=");
-    //this.fireEvent("tableRelationshipCreated", data);
   },
   addLevel: function(rec){
     var diagramModel = this.getDiagramModel();
