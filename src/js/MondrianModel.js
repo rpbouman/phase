@@ -829,14 +829,32 @@ var MondrianModel;
     return this.datasourceInfo;
   },
   getDataSourceName: function(){
-    if (!this.datasourceInfo) return null;
-    if (!this.datasourceInfo.DataSource) return null;
-    return this.datasourceInfo.DataSource;
+    var datasourceInfo = this.getDataSourceInfo();
+    if (!datasourceInfo) {
+      return null;
+    }
+
+    var datasource = datasourceInfo.DataSource;
+    if (!datasource) {
+      return null;
+    }
+
+    return datasource;
   },
   getXmlaEnabled: function(){
-    if (!this.datasourceInfo) return null;
-    if (!this.datasourceInfo.EnableXmla) return null;
-    return this.datasourceInfo.EnableXmla === "true" ? true : false;
+    var datasourceInfo = this.getDataSourceInfo();
+    if (!datasourceInfo) {
+      return null;
+    }
+
+    var enableXmla = datasourceInfo.EnableXmla;
+    if (!enableXmla) {
+      return null;
+    }
+    if (enableXmla === "true" || enableXmla === true) {
+      return true;
+    }
+    return false;
   },
   setDataSourceInfo: function(datasourceInfo){
     this.datasourceInfo = datasourceInfo;

@@ -165,20 +165,20 @@ Pham.prototype = {
     url.push("postAnalysis");
     options.url = url.join("/");
 
-    var xml = "";
-    if (options.model instanceof MondrianModel) {
-      xml = options.model.toXml();
+    var xml = "", model = options.model;
+    if (model instanceof MondrianModel) {
+      xml = model.toXml();
       xml = xml.substr(xml.indexOf("?>") + 2);
       if (!options.datasource) {
-        options.datasource = options.model.getDataSourceName();
+        options.datasource = model.getDataSourceName();
       }
-      if (!options.enableXmla){
-        options.enableXmla = String(options.model.getXmlaEnabled());
+      if (!options.EnableXmla){
+        options.EnableXmla = String(model.getXmlaEnabled());
       }
     }
     else
-    if (typeof(options.model) === "string") {
-      xml = options.model;
+    if (typeof(model) === "string") {
+      xml = model;
     }
 
     var boundary = '---------------------------';
@@ -197,7 +197,7 @@ Pham.prototype = {
               "\r\nContent-Disposition: form-data; name=\"parameters\"" +
               "\r\n\r\nDataSource="       + options.datasource +
                       ";overwrite="       + String(iDef(options.overwrite) ?  options.overwrite : false) +
-                      ";EnableXmla=" + String(iDef(options.enableXmla) ?  options.enableXmla : false) +
+                      ";EnableXmla=" + String(iDef(options.EnableXmla) ?  options.EnableXmla : false) +
               "\r\n--" + boundary + "--";
 
     options.data = msg;
