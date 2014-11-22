@@ -33,6 +33,9 @@ var DiagramModel;
   getTable: function(index) {
     return this.tables[index];
   },
+  removeTable: function(index){
+    return this.tables.splice(index, 1);
+  },
   getTableIndex: function(rec){
     var index = -1;
     this.eachTable(function(table, i){

@@ -195,16 +195,40 @@ var MondrianModel;
       "Annotations"
     );
     index = index + 1;
+    var childNodes = hierarchy.childNodes, oldRelation;
 
+    //see if there is an existing relation
     var relationIndex = this.getRelationIndex(hierarchy);
-    hierarchy.childNodes.splice(index, relationIndex === -1 ? 0 : 1, table);
+    if (relationIndex !== -1) {
+      //yes, existing. save it and remove it.
+      oldRelation = hierarchy.childNodes[relationIndex];
+      childNodes.splice(index, 1);
+    }
+    else //no existing relation
+    if (!table) { //no ne relation
+      return; //bail out.
+    }
+    //store the new relation
+    if (table) {
+      childNodes.splice(index, 0, table);
+    }
     if (dontFireEvent !== true) {
+      var eventType;
       var modelElementPath = merge({}, hierarchyModelElementPath);
-      modelElementPath.type = table.tagName;
-      modelElementPath[modelElementPath.type] = table.attributes.name || "";
+      if (table) {
+        eventType = "modelElementCreated";
+        modelElementPath.type = table.tagName;
+        modelElementPath[modelElementPath.type] = table.attributes.name || "";
+      }
+      else
+      if (oldRelation) {
+        eventType = "modelElementRemoved";
+        modelElementPath.type = oldRelation.tagName;
+        modelElementPath[modelElementPath.type] = oldRelation.attributes.name || "";
+      }
       var eventData = {
         modelElementPath: modelElementPath,
-        modelElement: table
+        modelElement: table || oldRelation
       };
       this.fireEvent("modelElementCreated", eventData);
     }

@@ -163,6 +163,7 @@ var MondrianSchemaTreeView;
     var treeNode = this.getTreeNodeForPath(modelElementPath);
     if (!treeNode) {
       //it's possible that the parent node of this node never loaded its children -bail.
+      //it's also possible someone sloppily asked us to remove a type of treenode that doesn't even exist (like Table, Join etc).
       return;
     };
     this.removeTreeNode(treeNode);
@@ -471,6 +472,7 @@ var MondrianSchemaTreeView;
     return data;
   },
   getTreeNodeIdForPath: function(path){
+    var pathCopy = merge({}, path);
     var dimensionElements = {
       Hierarchy: {
         Level: null
@@ -491,12 +493,21 @@ var MondrianSchemaTreeView;
     outer: do {
       for (name in value) {
         if (iDef(path[name])) {
+          delete pathCopy[name];
           id += ":" + name + ":" + path[name];
           break;
         }
       }
       value = value[name];
     } while (value);
+    for (name in pathCopy) {
+      if (name === name.toLowerCase()) {
+        continue;
+      }
+      //if we arrive here, the argument path contains elements that are not in our tree of predefined elements.
+      //that means the path reaches deeper than what we depict in our tree so we cannot generate an id for it.
+      return null;
+    }
     return TreeNode.prefix + id;
   },
   getTreeNodeForPath: function(path){

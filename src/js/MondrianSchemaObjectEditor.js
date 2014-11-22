@@ -2040,9 +2040,8 @@ adopt(DimensionUsageEditor, GenericEditor);
             modelElementPath[modelElementPath.type] = object.level.attributes.name;
             break;
           case "relation":
-            //TODO: remove table.
-            debugger;
-            break;
+            this.removeHierarchyRelation(data);
+            //fall through intentionally
           default:
             return;
         }
@@ -2171,6 +2170,12 @@ adopt(DimensionUsageEditor, GenericEditor);
       dataPath: ["modelElement", "attributes", "allMemberCaption"],
       tooltipText: "The human-friendly label for the \"All\" member to be used in graphical front-ends."
     }
+  },
+  removeHierarchyRelation: function(objectInfo){
+    var diagram = this.getDiagram();
+    var diagramModel = diagram.getDiagramModel();
+    diagramModel.removeTable(objectInfo.objectIndex);
+    this.recalculateHierarchyRelations();
   },
   handleModelEvent: function(event, data){
     var modelElement = data.modelElement;
