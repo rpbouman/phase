@@ -13,9 +13,13 @@ div.Cube > div.head >  span.toggle,
 }
 
 div.SharedDimension > div.head >  span.toggle,
-.tree div.PrivateDimension > div.head >  span.toggle,
 .tree div.SharedDimension > div.head >  span.toggle {
   background-image: url('../images/dimension.png');
+}
+
+div.PrivateDimension > div.head >  span.toggle,
+.tree div.PrivateDimension > div.head >  span.toggle {
+  background-image: url('../images/private-dimension.png');
 }
 
 div.Hierarchy > div.head >  span.toggle,
