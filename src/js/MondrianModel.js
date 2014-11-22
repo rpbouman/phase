@@ -985,9 +985,9 @@ var MondrianModel;
       function(hierarchy, index){
         var name = hierarchy.attributes.name;
         return (
-          (iUnd(hierarchyName) || hierarchyName === "") &&
-          (iUnd(name)) || name === ""
-        ) || (name === hierarchyName);
+          ((iUnd(hierarchyName) || hierarchyName === "") && (iUnd(name) || name === "")) ||
+          (hierarchyName === name)
+        );
       }
     );
     return hierarchyNode;
