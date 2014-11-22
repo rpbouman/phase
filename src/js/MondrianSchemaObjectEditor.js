@@ -365,6 +365,15 @@ var GenericEditor;
     }
     return field.mandatory === true;
   },
+  isFieldDefault: function(field, value){
+    if (iStr(field)) {
+      field = this.getFieldDefinition(field);
+    }
+    if (iDef(field.defaultValue) && field.defaultValue === value) {
+      return true;
+    }
+    return false;
+  },
   createField: function(fieldset, key, definition, tabIndex) {
     var children = [], mandatory;
     if (key && definition) {
@@ -620,9 +629,11 @@ var GenericEditor;
       element.select();
     }
   },
-  getFieldValue: function(field) {
+  getFieldValue: function(field, fieldDef) {
     var fieldEl = this.getFieldElement(field);
-    var fieldDef = this.getFieldDefinition(field);
+    if (!fieldDef){
+      fieldDef = this.getFieldDefinition(field);
+    }
     var value;
     switch (fieldEl.tagName.toLowerCase()) {
       case "select":
@@ -642,15 +653,16 @@ var GenericEditor;
             value = fieldEl.checked;
             break;
         }
+        break;
       case "textarea":
         value = fieldEl.value;
         break;
-        break;
       default:
-        throw "Unknown field type"
+        throw "Unknown field type";
     }
-    if ((value === "") ||
-        (fieldDef.defaultValue && (fieldDef.defaultValue === value))
+    if (
+      (!this.isFieldMandatory(fieldDef) && this.isFieldDefault(fieldDef, value)) ||
+      value === ""
     ) {
       value = undefined;
     }
@@ -658,6 +670,46 @@ var GenericEditor;
   },
   beforeCreateNew: function(){
     return this.saveFieldValues();
+  },
+  saveFieldValue: function(field, fieldDef){
+    if (!fieldDef){
+      fieldDef = this.getFieldDefinition(field);
+    }
+    var value = this.getFieldValue(field, fieldDef);
+    var path = fieldDef.dataPath;
+    if (!path) return;
+    if ((path.length === 3) &&
+        (path[0] === "modelElement") &&
+        (path[1] === "attributes")
+    ) {
+      var attribute = path[2], result;
+      result = this.model.setAttributeValue(
+        this.modelElementPath,
+        attribute,
+        value
+      );
+      if (result === false) {
+        success = false;
+      }
+    }
+    else {
+      var data = this[path[0]];
+      var i, n = path.length - 1, pathItem = null;
+      for (i = 1; i < n; i++){
+        pathItem = path[i];
+        data = data[pathItem];
+      }
+      var key = path[path.length-1];
+      if (!this.isFieldMandatory(fieldDef) && this.isFieldDefault(fieldDef, value)) {
+        value = "";
+      }
+      if (iUnd(value) || (value === "")) {
+        delete data[key];
+      }
+      else {
+        data[key] = value;
+      }
+    }
   },
   saveFieldValues: function(){
     var model = this.model;
@@ -671,38 +723,7 @@ var GenericEditor;
     }
     var success = true;
     this.forEachField(function(field, fieldDef){
-      var value = this.getFieldValue(field);
-      var path = fieldDef.dataPath;
-      if (!path) return;
-      if ((path.length === 3) &&
-          (path[0] === "modelElement") &&
-          (path[1] === "attributes")
-      ) {
-        var attribute = path[2], result;
-        result = this.model.setAttributeValue(
-          modelElementPath,
-          attribute,
-          value
-        );
-        if (result === false) {
-          success = false;
-        }
-      }
-      else {
-        var data = this[path[0]];
-        var i, n = path.length - 1, pathItem = null;
-        for (i = 1; i < n; i++){
-          pathItem = path[i];
-          data = data[pathItem];
-        }
-        var key = path[path.length-1];
-        if (iUnd(value) || (value === "") || (fieldDef.defaultValue && (fieldDef.defaultValue === value))) {
-          delete data[key];
-        }
-        else {
-          data[key] = value;
-        }
-      }
+      this.saveFieldValue(field, fieldDef);
     }, this);
     if (success === false) {
       //if we some fields were prevented from being saved,
@@ -1680,7 +1701,7 @@ adopt(CubeEditor, GenericEditor);
       dataPath: ["modelElement", "attributes", "aggregator"],
       options: ["avg", "count", "distinct-count", "min", "max", "sum"],
       mandatory: true,
-      defaultValue: "distinct-count",
+      defaultValue: "",
       tooltipText: "The function used to aggregate this measure's values."
     },
     column: {

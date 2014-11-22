@@ -317,7 +317,7 @@ var MondrianModel;
     }
     var measure = this.createElement(type, {
       name: name,
-      aggregator: "distinct-count"
+      aggregator: "sum"
     }, attributes);
     if (annotations) {
       var key, value;
