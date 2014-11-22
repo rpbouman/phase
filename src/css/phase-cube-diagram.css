@@ -32,7 +32,7 @@ input.celleditor {
 }
 
 .phase-cube-diagram > div.privatedimension > table.privatedimension > tbody > tr.privatedimension > td.icon {
-  background-image: url('../images/dimension.png');
+  background-image: url('../images/private-dimension.png');
 }
 
 .phase-cube-diagram > div.measure > table.measure > tbody > tr.measure > td.icon {

@@ -19,4 +19,22 @@
   background-image: url('../images/level.png');
 }
 
+.phase-hierarchy-diagram div.level > table.level > tbody > tr.level-column-column > td.icon {
+  background-image: url('../images/column_16x16.png');
+}
 
+.phase-hierarchy-diagram div.level > table.level > tbody > tr.level-column-nameColumn > td.icon {
+  background-image: url('../images/column-text.png');
+}
+
+.phase-hierarchy-diagram div.level > table.level > tbody > tr.level-column-captionColumn > td.icon {
+  background-image: url('../images/label.png');
+}
+
+.phase-hierarchy-diagram div.level > table.level > tbody > tr.level-column-ordinalColumn > td.icon {
+  background-image: url('../images/sort-az.png');
+}
+
+.phase-hierarchy-diagram div.level > table.level > tbody > tr.level-column-parentColumn > td.icon {
+  background-image: url('../images/parent.png');
+}
