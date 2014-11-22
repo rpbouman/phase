@@ -295,15 +295,7 @@ var HierarchyDiagram;
       case "checkbox":
         var prefix = this.getTableColumnId(objectInfo.objectIndex, "");
         var column = target.parentNode.id.substr(prefix.length);
-        //TODO: we're currently updating both our diagram model and sending an event
-        //to make the editor update the mondrian model.
-        diagramModel.setPrimaryKey(objectInfo.objectIndex, column);
-        var table = diagramModel.getTable(objectInfo.objectIndex);
-        this.fireEvent("primaryKeySet", {
-          tableAlias: table.alias,
-          table: table.metadata,
-          columnName: column
-        })
+        this.setPrimaryKey(objectInfo, column);
         break;
       case "relationship-menu":
         var relationshipInfo = null;
@@ -459,6 +451,29 @@ var HierarchyDiagram;
     var newKey = data.newKey;
     var newId = this.getTableColumnId(newKey.table, newKey.column);
     aCls(newId, "dimension-primary-key", "");
+  },
+  setPrimaryKey: function(objectInfo, columnName){
+    var diagramModel = this.getDiagramModel();
+    var objectIndex = objectInfo.objectIndex;
+    var eventData;
+    if (diagramModel.comparePrimaryKey(objectIndex, columnName)) {
+      diagramModel.clearPrimaryKey();
+      eventData = {
+        tableAlias: null,
+        table: null,
+        columnName: null
+      };
+    }
+    else {
+      diagramModel.setPrimaryKey(objectIndex, columnName);
+      var table = diagramModel.getTable(objectIndex);
+      eventData = {
+        tableAlias: table.alias,
+        table: table.metadata,
+        columnName: columnName
+      };
+    }
+    this.fireEvent("primaryKeySet", eventData);
   },
   updateTableLevelRelationships: function(tableIndex){
     //todo: only update things for this table

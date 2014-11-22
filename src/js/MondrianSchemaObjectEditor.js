@@ -2019,9 +2019,13 @@ adopt(DimensionUsageEditor, GenericEditor);
       primaryKeySet: function(diagram, event, data){
         this.model.setHierarchyPrimaryKey(
           this.modelElementPath,
-          data.tableAlias || data.table.TABLE_NAME,
+          data.tableAlias || (data.table ? data.table.TABLE_NAME : null),
           data.columnName
         );
+        this.updatePrimaryKeyTableField();
+        this.updateFieldValue("primaryKeyTable");
+        this.updatePrimaryKeyField();
+        this.updateFieldValue("primaryKey");
       }
     }
   });

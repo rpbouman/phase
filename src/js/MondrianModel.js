@@ -211,8 +211,8 @@ var MondrianModel;
   },
   setHierarchyPrimaryKey: function(hierarchyPath, table, column){
     var hierarchy = this.getHierarchy(hierarchyPath);
-    this.setAttributeValue(hierarchyPath, "primaryKeyTable", table);
-    this.setAttributeValue(hierarchyPath, "primaryKey", column);
+    this.setAttributeValue(hierarchyPath, "primaryKeyTable", table || undefined);
+    this.setAttributeValue(hierarchyPath, "primaryKey", column || undefined);
   },
   createHierarchyTable: function(hierarchyModelElementPath, attributes, dontFireEvent){
     var table = this.createElement("Table", attributes);

@@ -9,19 +9,23 @@ var HierarchyDiagramModel;
   arguments.callee._super.apply(this, [conf]);
 }).prototype = {
   initModel: function(){
-    this.primaryKey = {
-      table: null,
-      column: null
-    };
+    this.clearPrimaryKey();
     this.tables = [];
     this.levels = [];
     this.relationships = [];
   },
+  comparePrimaryKey: function(table, column) {
+    return  (this.primaryKey.table === table) &&
+            (this.primaryKey.column === column)
+    ;
+  },
   setPrimaryKey: function(table, column){
     var oldKey = this.primaryKey;
-    if (oldKey.table === table && oldKey.column === column) {
-      table = null;
-      column = null;
+    if (oldKey) {
+      if (oldKey.table === table && oldKey.column === column) {
+        table = null;
+        column = null;
+      }
     }
     var primaryKey = primaryKey = {
       table: table,
@@ -39,6 +43,9 @@ var HierarchyDiagramModel;
       newKey: primaryKey
     });
     return true;
+  },
+  clearPrimaryKey: function(){
+    this.setPrimaryKey(null, null);
   },
   addLevel: function(rec){
     var levels = this.levels, index = levels.length;
