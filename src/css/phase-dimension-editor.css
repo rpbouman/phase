@@ -6,6 +6,14 @@
   content: "Dimension";
 }
 
+.phase-shared-dimension-editor form fieldset legend:after {
+  content: "Shared Dimension";
+}
+
+.phase-private-dimension-editor form fieldset legend:after {
+  content: "Private Dimension";
+}
+
 .toolbar .new-hierarchy {
   background-image: url('../images/new-hierarchy.png');
 }
