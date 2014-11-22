@@ -193,9 +193,7 @@ var PhaseDiagram;
     }
     else {
       div = cEl("div", {
-        id: id,
-        "data-from-id": fromTrId,
-        "data-to-id": toTrId
+        id: id
       }, [
         cEl("div", {
           "class": [
@@ -212,6 +210,10 @@ var PhaseDiagram;
         })
       ], dom);
     }
+    sAtts(div, {
+      "data-from-id": fromTrId,
+      "data-to-id": toTrId
+    })
     this.drawLine(div, relationshipOperator, x1, y1, x2, y2);
     sAtts(divFrom, attsFrom);
     sAtts(divTo, attsTo);
