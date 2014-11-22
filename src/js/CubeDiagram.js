@@ -313,10 +313,10 @@ var CubeDiagram;
     var className = target.className;
     var eventName;
     switch (className) {
-      case "label":
+      case "name":
       case "remove":
       case "edit":
-      case "aggregator-label":
+      case "aggregator":
       case "relationship-menu":
         break;
       default:
@@ -341,14 +341,14 @@ var CubeDiagram;
         var objectInfo = this.getDiagramElementObjectInfo(div);
         this.fireEvent(className + "DiagramElement", objectInfo);
         break;
-      case "label":
-      case "aggregator-label":
+      case "name":
+      case "aggregator":
         var editor = null;
         switch (className) {
-          case "label":
+          case "name":
             editor = this.nameCellEditor;
             break;
-          case "aggregator-label":
+          case "aggregator":
             editor = this.aggregatorCellEditor;
             break;
         }
@@ -413,7 +413,7 @@ var CubeDiagram;
     this.createIconCell(row);
 
     cell = row.insertCell(cells.length);
-    cell.className = "label";
+    cell.className = "name";
     cell.innerHTML =  measure.attributes.name;
 
     cell = row.insertCell(cells.length);
@@ -430,7 +430,7 @@ var CubeDiagram;
     this.createIconCell(row);
 
     cell = row.insertCell(cells.length);
-    cell.className = "aggregator-label";
+    cell.className = "aggregator";
     cell.colSpan = 3;
     cell.innerHTML =  measure.attributes.aggregator || MeasureEditor.prototype.fields.aggregator.defaultValue;
 
@@ -579,7 +579,7 @@ var CubeDiagram;
     this.createIconCell(row);
 
     cell = row.insertCell(cells.length);
-    cell.className = "label";
+    cell.className = "name";
     cell.innerHTML =  dimension.attributes.name;
 
     cell = row.insertCell(cells.length);

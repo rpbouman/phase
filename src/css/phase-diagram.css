@@ -52,13 +52,12 @@ div.phase-diagram .celleditor {
   cursor: pointer !important;
   background-image: url('../mui/images/edit16x16.png');
 }
-
 .phase-diagram .label,
 .phase-diagram .name  {
   white-space: nowrap;
 }
 
-.phase-diagram .label {
+.phase-diagram .name {
   cursor: text;
 }
 
