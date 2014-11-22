@@ -746,6 +746,7 @@ var GenericEditor;
     //noop. Override.
   },
   clearData: function(){
+    this.clearDiagram();
     this.setData(null, null);
   },
   setData: function(model, modelElementPath){
@@ -758,6 +759,9 @@ var GenericEditor;
     }
     this.setModel(model);
     this.setModelElement(modelElementPath);
+    if (model === null && modelElementPath === null) {
+      return;
+    }
     if (oldModel !== model) {
       this.modelChanged();
       this.modelElementChanged();
@@ -767,8 +771,6 @@ var GenericEditor;
       this.modelElementChanged();
     }
     this.updateFieldValues();
-    this.diagramNeedsUpdate = true;
-    //this.updateDiagramIfDisplayed();
   },
   clearSelectField: function(fieldName) {
     var fieldEl = this.getFieldElement(fieldName);
@@ -808,6 +810,12 @@ var GenericEditor;
   },
   getDiagram: function(){
     return this.diagram;
+  },
+  clearDiagram: function(){
+    if (!this.diagram) {
+      return;
+    }
+    this.diagram.clear();
   },
   saveDiagram: function(){
   },
@@ -1348,13 +1356,13 @@ adopt(SchemaEditor, GenericEditor);
     description: fields.description
   },
   handleModelEvent: function(event, data){
+    var modelElement = data.modelElement;
     switch (data.modelElementPath.type) {
       case "Measure":
         this.updateDefaultMeasuresField();
         break;
       case "Table":
         if (event === "modelElementCreated") {
-          var modelElement = data.modelElement;
           var attributes = modelElement.attributes;
           var annotationPrefix = this.getCubeTableAnnotationPrefix(attributes.alias, attributes.name);
           var x = parseInt(this.model.getAnnotationValue(this.modelElement, annotationPrefix + "x"), 10);
@@ -1368,10 +1376,14 @@ adopt(SchemaEditor, GenericEditor);
       case "modelElementAttributeSet":
         this.diagramNeedsUpdate = true;
         break;
-      case "modelElementCreated":
       case "modelElementRemoved":
+        if (modelElement === this.modelElement) {
+          this.clearData();
+          break;
+        }
+        //fall through is intentional.
+      case "modelElementCreated":
         if (this.diagramActivated()) {
-          //this.diagram.handleModelEvent(event, data);
           this.updateDiagram();
         }
         else {
@@ -1570,7 +1582,7 @@ adopt(SchemaEditor, GenericEditor);
   },
   updateDiagram: function(){
     this.saveDiagram();
-    this.diagram.clear();
+    this.clearDiagram();
     this.addCubeRelationToDiagram();
     this.diagramNeedsUpdate = false;
   },
@@ -1582,7 +1594,7 @@ adopt(SchemaEditor, GenericEditor);
   modelElementChanged: function(){
     this.updateDefaultMeasuresField();
 
-    this.diagram.clear();
+    this.clearDiagram();
     this.diagramNeedsUpdate = true;
 
     this.updateDiagramIfDisplayed();
@@ -2161,6 +2173,7 @@ adopt(DimensionUsageEditor, GenericEditor);
     }
   },
   handleModelEvent: function(event, data){
+    var modelElement = data.modelElement;
     switch (data.modelElementPath.type) {
       case "Table":
       case "Join":
@@ -2171,8 +2184,13 @@ adopt(DimensionUsageEditor, GenericEditor);
       case "modelElementAttributeSet":
         this.diagramNeedsUpdate = true;
         break;
-      case "modelElementCreated":
       case "modelElementRemoved":
+        if (modelElement === this.modelElement) {
+          this.clearData();
+          break;
+        }
+        //fall through is intentional.
+      case "modelElementCreated":
         if (this.diagramActivated()) {
           //this.diagram.handleModelEvent(event, data);
           this.updateDiagram();
@@ -2219,11 +2237,11 @@ adopt(DimensionUsageEditor, GenericEditor);
       this.updateDiagramIfDisplayed();
     }
   },
-  handleTableRelationshipCreated: function(data){
+  recalculateHierarchyRelations: function(){
     var model = this.model;
     var diagram = this.getDiagram();
     var diagramModel = diagram.getDiagramModel();
-    diagramModel.relationships.push(data);
+
     var tableRelationship, roots = {}, tableRelationships = {
     };
     diagramModel.eachTableRelationship(function(relationship, index){
@@ -2287,22 +2305,31 @@ adopt(DimensionUsageEditor, GenericEditor);
         prevJoinElement = joinElement;
         tableElement = createTableElement(relationship.rightTable);
         joinElement = model.createElement("Join", {
-          leftTable: left.alias,
-          leftKey: relationship.leftColumn,
-          rightTable: tableElement.attributes.alias,
-          rightKey:relationship.rightColumn
+          leftAlias: tableElement.attributes.alias,
+          leftKey: relationship.rightColumn,
+          rightAlias: left.alias,
+          rightKey: relationship.leftColumn
         });
-        joinElement.childNodes[0] = prevJoinElement;
-        joinElement.childNodes[1] = tableElement;
+        joinElement.childNodes[0] = tableElement;
+        joinElement.childNodes[1] = prevJoinElement;
+
         makeJoinElement(relationship.rightTable);
       }
     }
+
     var item, nodes = [];
     for (item in roots) {
       joinElement = createTableElement(parseInt(item, 10));
       makeJoinElement(parseInt(item, 10));
     }
     model.setHierarchyTable(this.modelElementPath, joinElement);
+  },
+  handleTableRelationshipCreated: function(data){
+    var model = this.model;
+    var diagram = this.getDiagram();
+    var diagramModel = diagram.getDiagramModel();
+    diagramModel.relationships.push(data);
+    this.recalcHierarchyRelations();
   },
   getHierarchyRelationsInfo: function(relations, index, callback1, callback2, scope){
     if (!index) {
@@ -2454,12 +2481,19 @@ adopt(DimensionUsageEditor, GenericEditor);
     }
     var rightIndex = diagramModel.getTableIndex(rec);
     var rightColumn = joinAttributes.rightKey;
-
+/*
     diagramModel.addTableRelationship({
       leftTable: leftIndex,
       leftColumn: leftColumn,
       rightTable: rightIndex,
       rightColumn: rightColumn
+    });
+*/
+    diagramModel.addTableRelationship({
+      leftTable: rightIndex,
+      leftColumn: rightColumn,
+      rightTable: leftIndex,
+      rightColumn: leftColumn
     });
   },
   addTableRelationshipsToDiagram: function(){
@@ -2579,7 +2613,7 @@ adopt(DimensionUsageEditor, GenericEditor);
   },
   updateDiagram: function(){
     this.saveDiagram();
-    this.diagram.clear();
+    this.clearDiagram();
     this.addHierarchyRelationsToDiagram();
     this.diagramNeedsUpdate = false;
   },
@@ -2630,7 +2664,7 @@ adopt(DimensionUsageEditor, GenericEditor);
     this.updateUniqueKeyLevelNameField();
     this.updatePrimaryKeyTableField();
 
-    this.diagram.clear();
+    this.clearDiagram();
     this.diagramNeedsUpdate = true;
 
     this.updateDiagramIfDisplayed();
@@ -2639,7 +2673,7 @@ adopt(DimensionUsageEditor, GenericEditor);
     this.updateUniqueKeyLevelNameField();
     this.updatePrimaryKeyTableField();
 
-    this.diagram.clear();
+    this.clearDiagram();
     this.diagramNeedsUpdate = true;
 
     this.updateDiagramIfDisplayed();
