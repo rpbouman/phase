@@ -19,6 +19,7 @@ var PhaseDiagram;
   }
 
 }).prototype = {
+  renderTableAlias: true,
   getDiagramModel: function(){
     return this.diagramModel;
   },
@@ -390,9 +391,11 @@ var PhaseDiagram;
     cell.colSpan = 2;
     cell.innerHTML =  diagramModel.getFullyQualifiedTableName(index);
 
-    cell = row.insertCell(cells.length);
-    cell.className = "label";
-    cell.innerHTML =  diagramModel.getTableAlias(index);
+    if (this.renderTableAlias) {
+      cell = row.insertCell(cells.length);
+      cell.className = "label";
+      cell.innerHTML =  diagramModel.getTableAlias(index);
+    }
 
     cell = row.insertCell(cells.length);
     cell.className = "remove";
@@ -412,7 +415,7 @@ var PhaseDiagram;
       cell = row.insertCell(cells.length);
       cell.className = "name";
       cell.innerHTML = columnName;
-      cell.colSpan = 3;
+      cell.colSpan = this.renderTableAlias ? 3 : 2;
 
     }, this);
 

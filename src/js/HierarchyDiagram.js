@@ -210,6 +210,7 @@ var HierarchyDiagram;
   });
   arguments.callee._super.apply(this, [conf]);
 }).prototype = {
+  renderTableAlias: true,
   levelColumnAttributes: {
     "column": "Key",
     "nameColumn": "Name",

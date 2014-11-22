@@ -224,6 +224,7 @@ var CubeDiagram;
 
   arguments.callee._super.apply(this, [conf]);
 }).prototype = {
+  renderTableAlias: false,
   getDiagramElementObjectInfo: function(dom){
     var objectType, objectIndex, object;
     while(dom && dom.nodeType === 1) {
