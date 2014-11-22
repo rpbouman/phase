@@ -222,6 +222,14 @@ function doSaveModel(model, overwrite, removeOld) {
             });
           }
           break;
+        default:
+          confirmDialog.show({
+            title: "Error saving model!",
+            message: "There was an error saving the model:\n" + message,
+            yes: {
+              label: "Ok"
+            }
+          });
       }
     },
   });
