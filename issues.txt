@@ -95,3 +95,9 @@ Conditional Formatting: http://help.pentaho.com/Documentation/5.1/0N0/020/090/06
 #16 Support for virtual cubes.
 
 #17 Create standard date dimension
+
+#18 Make the levels in the hierarchy diagram collapsible so as to hide all the "extra" columns.
+
+#19 Add the data type to the levels in the hierarchy diagram
+
+#20 Automatically set the data type of the level right after choosing the key column
