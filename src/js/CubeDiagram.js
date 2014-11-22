@@ -373,17 +373,8 @@ var CubeDiagram;
     return this.getId() + ":measure" + index + ":relationship";
   },
   updateMeasureRelationship: function(index){
-    var diagramModel = this.diagramModel;
-    var rec = diagramModel.getMeasure(index);
-    var measure = rec.measure;
     var id = this.getMeasureRelationshipId(index);
-    var relationshipDom = gEl(id);
-    if (!relationshipDom) {
-      return;
-    }
-    var fromTr = gEl(gAtt(relationshipDom, "data-from-id"));
-    var toTr = gEl(gAtt(relationshipDom, "data-to-id"));
-    this.renderRelationship(fromTr, toTr, id, "");
+    this.updateRelationship(id);
   },
   setMeasureColumn: function(objectInfo, columnDom, columnName) {
     var object = objectInfo.object;
@@ -559,23 +550,11 @@ var CubeDiagram;
   },
   updateCubeDimensionRelationship: function(index){
     var id = this.getCubeDimensionRelationshipId(index);
-    var relationshipDom = gEl(id);
-    if (!relationshipDom) {
-      return;
-    }
-    var fromTr = gEl(gAtt(relationshipDom, "data-from-id"));
-    var toTr = gEl(gAtt(relationshipDom, "data-to-id"));
-    this.renderRelationship(fromTr, toTr, id, "");
+    this.updateRelationship(id);
   },
   updateDimensionUsageRelationship: function(index){
     var id = this.getDimensionId(index, "dimensionusage") + ":sharedDimension";
-    var relationshipDom = gEl(id);
-    if (!relationshipDom) {
-      return;
-    }
-    var fromTr = gEl(gAtt(relationshipDom, "data-from-id"));
-    var toTr = gEl(gAtt(relationshipDom, "data-to-id"));
-    this.renderRelationship(fromTr, toTr, id, "");
+    this.updateRelationship(id);
   },
   getDimensionId: function(index, type){
     return this.getId() + ":" + type + index;
