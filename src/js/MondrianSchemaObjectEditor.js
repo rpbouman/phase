@@ -1806,6 +1806,7 @@ adopt(CalculatedMemberEditor, GenericEditor);
     conf.classes = [];
   }
   conf.classes.push("phase-dimension-editor");
+  conf.classes.push("phase-shared-dimension-editor");
 
   if (!conf.toolbar) {
     conf.toolbar = {};
@@ -1869,6 +1870,7 @@ adopt(SharedDimensionEditor, GenericEditor);
     conf.classes = [];
   }
   conf.classes.push("phase-dimension-editor");
+  conf.classes.push("phase-private-dimension-editor");
 
   if (!conf.toolbar) {
     conf.toolbar = {};
