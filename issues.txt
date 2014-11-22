@@ -73,12 +73,6 @@ If the code view tab is unselected, pop up a dialog if the parse is invalid.
 
 #10 when creating a new object, a new treenode is created for it and that's selected. we should scroll the treeview so the new node is in view.
 
-#11 consolidate mondrian schema structure metadata
-- struct used as code mirror xml hint schema
-- fields for editors.
-Ideally editors should be rewritten to use the hint schema for field defs
-MondrianModel should be rewritten to refer to the hint schema for things like element order and attribute validation
-
 #12
 Support for analyzer specific Annotations
 o    AnalyzerDateFormat: http://help.pentaho.com/Documentation/5.1/0N0/020/070/030/000
@@ -105,3 +99,5 @@ Conditional Formatting: http://help.pentaho.com/Documentation/5.1/0N0/020/090/06
 #21 Validation of the schema.
 
 #22 Inline editing of names in the Hierarchy diagram.
+
+#23 Maybe use one "coordinates" annotation element instead of a separate x and y element. Schemas get crowded quickly.
