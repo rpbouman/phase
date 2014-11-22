@@ -331,6 +331,7 @@ var CubeDiagram;
         div = target.parentNode;
         break;
     }
+    var objectInfo = this.getDiagramElementObjectInfo(div);
     switch (className) {
       case "relationship-menu":
         var relationshipInfo = null;
@@ -338,11 +339,13 @@ var CubeDiagram;
         break;
       case "remove":
       case "edit":
-        var objectInfo = this.getDiagramElementObjectInfo(div);
         this.fireEvent(className + "DiagramElement", objectInfo);
         break;
       case "name":
       case "aggregator":
+        if (objectInfo.objectType === "relation") {
+          return;
+        }
         var editor = null;
         switch (className) {
           case "name":

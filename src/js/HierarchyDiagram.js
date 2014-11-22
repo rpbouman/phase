@@ -306,6 +306,9 @@ var HierarchyDiagram;
         this.fireEvent(className + "DiagramElement", objectInfo);
         break;
       case "name":
+        if (objectInfo.objectType === "relation") {
+          return;
+        }
         var editor = this.nameCellEditor;
         editor.startEditing(target);
         this.moveDiagramElement(div, parseInt(div.style.left, 10), parseInt(div.style.top, 10));
