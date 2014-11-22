@@ -272,7 +272,7 @@ var HierarchyDiagram;
     var eventName;
     switch (className) {
       case "checkbox":
-      case "label":
+      case "name":
       case "remove":
       case "edit":
       case "relationship-menu":
@@ -305,7 +305,7 @@ var HierarchyDiagram;
       case "edit":
         this.fireEvent(className + "DiagramElement", objectInfo);
         break;
-      case "label":
+      case "name":
         var editor = this.nameCellEditor;
         editor.startEditing(target);
         this.moveDiagramElement(div, parseInt(div.style.left, 10), parseInt(div.style.top, 10));

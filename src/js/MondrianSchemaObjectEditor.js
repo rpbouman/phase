@@ -2039,6 +2039,17 @@ adopt(DimensionUsageEditor, GenericEditor);
       changeName: function(diagram, event, data){
       },
       nameChanged: function(diagram, event, data){
+        var modelElementPath = merge({}, this.modelElementPath);
+        switch (data.objectType) {
+          case "level":
+            modelElementPath.type = "Level";
+            modelElementPath[modelElementPath.type] = data.object.level.attributes.name;
+            this.model.setAttributeValue(modelElementPath, "name", data.newValue);
+            break;
+          case "relation":
+            break;
+          default:
+        }
       },
       createTable: function(diagram, event, conf) {
         this.createHierarchyRelation(conf);
