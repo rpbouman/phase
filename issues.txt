@@ -101,3 +101,7 @@ Conditional Formatting: http://help.pentaho.com/Documentation/5.1/0N0/020/090/06
 #19 Add the data type to the levels in the hierarchy diagram
 
 #20 Automatically set the data type of the level right after choosing the key column
+
+#21 Validation of the schema.
+
+#22 Inline editing of names in the Hierarchy diagram.
