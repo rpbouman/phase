@@ -1175,10 +1175,7 @@ adopt(SchemaEditor, GenericEditor);
       removeDiagramElement: function(diagram, event, data){
         var objectType = data.objectType;
         var object = data.object;
-        var modelElementPath = {
-          Schema: this.model.getSchemaName(),
-          Cube: this.getCubeName()
-        };
+        var modelElementPath = merge({}, this.modelElementPath);
         switch (objectType){
           case "privatedimension":
             modelElementPath.type = "PrivateDimension";
@@ -2022,6 +2019,22 @@ adopt(DimensionUsageEditor, GenericEditor);
         this.fireEvent(event, data);
       },
       removeDiagramElement: function(diagram, event, data){
+        var objectType = data.objectType;
+        var object = data.object;
+        var modelElementPath = merge({}, this.modelElementPath);
+        switch (objectType){
+          case "level":
+            modelElementPath.type = "Level";
+            modelElementPath[modelElementPath.type] = object.level.attributes.name;
+            break;
+          case "relation":
+            //TODO: remove table.
+            debugger;
+            break;
+          default:
+            return;
+        }
+        this.model.removeModelElement(modelElementPath);
       },
       changeName: function(diagram, event, data){
       },
