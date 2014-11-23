@@ -2300,41 +2300,42 @@ adopt(DimensionUsageEditor, GenericEditor);
       return model.createElement("Table", attributes);
     }
 
-    var joinElement;
-    var makeJoinElement = function(tableIndex){
-      var relationships = tableRelationships[tableIndex].left;
-      var i, n = relationships.length, prevJoinElement, left, tableElement;
-      for (i = 0; i < n; i++) {
+    var makeRelation = function(tableIndex) {
+      var leftRelation, tableRelationship, relationships;
+
+      leftRelation = createTableElement(tableIndex);
+      tableRelationship = tableRelationships[tableIndex];
+      relationships = tableRelationship.left;
+
+      var i, n = relationships.length, attributes, right, relationship, joinElement;
+      for (i = 0; i < n; i++){
         relationship = relationships[i];
-        left = diagramModel.getTable(relationship.leftTable);
-        prevJoinElement = joinElement;
-        tableElement = createTableElement(relationship.rightTable);
-        joinElement = model.createElement("Join", {
-          leftAlias: tableElement.attributes.alias,
-          leftKey: relationship.rightColumn,
-          rightAlias: left.alias,
-          rightKey: relationship.leftColumn
-        });
-        joinElement.childNodes[0] = tableElement;
-        joinElement.childNodes[1] = prevJoinElement;
-
-        makeJoinElement(relationship.rightTable);
+        right = diagramModel.getTable(relationship.rightTable);
+        attributes = {
+          leftAlias: leftRelation.attributes.alias,
+          leftKey: relationship.leftColumn,
+          rightAlias: right.alias || right.metadata.TABLE_NAME,
+          rightKey: relationship.rightColumn
+        }
+        joinElement = model.createElement("Join", attributes)
+        joinElement.childNodes[0] = leftRelation;
+        joinElement.childNodes[1] = makeRelation(relationship.rightTable);
+        leftRelation = joinElement;
       }
+      return leftRelation;
     }
-
-    var item, nodes = [];
+    var rootRelation;
     for (item in roots) {
-      joinElement = createTableElement(parseInt(item, 10));
-      makeJoinElement(parseInt(item, 10));
+      rootRelation = makeRelation(parseInt(item, 10));
     }
-    model.setHierarchyTable(this.modelElementPath, joinElement);
+    model.setHierarchyTable(this.modelElementPath, rootRelation);
   },
   handleTableRelationshipCreated: function(data){
     var model = this.model;
     var diagram = this.getDiagram();
     var diagramModel = diagram.getDiagramModel();
     diagramModel.relationships.push(data);
-    this.recalcHierarchyRelations();
+    this.recalculateHierarchyRelations();
   },
   getHierarchyRelationsInfo: function(relations, index, callback1, callback2, scope){
     if (!index) {
@@ -2459,8 +2460,8 @@ adopt(DimensionUsageEditor, GenericEditor);
 
     var rec;
     rec = {};
-    if (joinAttributes.leftTable) {
-      rec.alias = joinAttributes.leftTable;
+    if (joinAttributes.leftAlias) {
+      rec.alias = joinAttributes.leftAlias;
     }
     else
     if (join.childNodes[0].attributes.alias){
@@ -2474,8 +2475,8 @@ adopt(DimensionUsageEditor, GenericEditor);
     var leftColumn = joinAttributes.leftKey;
 
     rec = {};
-    if (joinAttributes.rightTable) {
-      rec.alias = joinAttributes.rightTable;
+    if (joinAttributes.rightAlias) {
+      rec.alias = joinAttributes.rightAlias;
     }
     else
     if (join.childNodes[1].attributes.alias){
@@ -2486,19 +2487,11 @@ adopt(DimensionUsageEditor, GenericEditor);
     }
     var rightIndex = diagramModel.getTableIndex(rec);
     var rightColumn = joinAttributes.rightKey;
-/*
     diagramModel.addTableRelationship({
       leftTable: leftIndex,
       leftColumn: leftColumn,
       rightTable: rightIndex,
       rightColumn: rightColumn
-    });
-*/
-    diagramModel.addTableRelationship({
-      leftTable: rightIndex,
-      leftColumn: rightColumn,
-      rightTable: leftIndex,
-      rightColumn: leftColumn
     });
   },
   addTableRelationshipsToDiagram: function(){
