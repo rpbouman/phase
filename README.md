@@ -1,7 +1,10 @@
 phase
 =====
+Phase is a Pentaho Analysis Editor - essentially a mondrian schema editor which can be run right from inside the user console of the Pentaho BI Server.
 
-Pentaho Analysis Editor
+Here's a quick Youtube demonstration of what you can do with Phase:
+
+[https://www.youtube.com/watch?v=2ZRkOkOFjqw&feature=youtu.be](https://www.youtube.com/watch?v=2ZRkOkOFjqw&feature=youtu.be)
 
 The plan is to release phase via the pentaho community marketplace, but some extra work is needed before this makes sense. For interested users and/or developers, here are some quick and dirty setup instructions:
 
