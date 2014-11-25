@@ -39,9 +39,17 @@ var MondrianSchemaTreeView;
         return false;
       }
 
+      if (this.getTreeNodeType(treeNode) === "Schema") {
+        //we could technically do things by dragging schemas, like merging them,
+        //but we'll hold that off for now. Later perhaps.
+        return false;
+      }
+
       var dom = treeNode.getDom();
       var proxy = ddHandler.dragProxy;
       ddHandler.treeNode = treeNode;
+      ddHandler.parentTreeNode = treeNode.getParentTreeNode();
+      ddHandler.treeNodeType = this.getTreeNodeType(treeNode);
       ddHandler.proxyClassName = proxy.className;
       proxy.innerHTML = "<div class=\"head\">" + treeNode.getDomHead().innerHTML + "</head>";
 
@@ -71,6 +79,16 @@ var MondrianSchemaTreeView;
       style.left = (1+xy.x) + "px";
       style.top = (1+xy.y) + "px";
       clearBrowserSelection();
+
+      //handle dnd inside the schema tree
+      var target = event.getTarget();
+      var treeNode = TreeNode.lookup(target);
+      if (!treeNode) {
+        return false;
+      }
+
+      this.dragTreeNodeOverTreeNode(ddHandler, treeNode);
+
     },
     endDrag: function(event, ddHandler) {
       var target = event.getTarget();
@@ -78,6 +96,7 @@ var MondrianSchemaTreeView;
       proxy.className = ddHandler.proxyClassName;
       proxy.style.display = "";
       clearBrowserSelection();
+      this.cleanUpInsertBelowTreeNodeMark(ddHandler);
     }
   });
 
@@ -85,6 +104,88 @@ var MondrianSchemaTreeView;
     this.listen(conf.listeners);
   }
 }).prototype = {
+  insertBelowClass: "insert-below-treenode",
+  dragTreeNodeOverTreeNode: function(ddHandler, overTreeNode){
+    var treeNode = ddHandler.treeNode;
+    //treeNode is being dragged, overTreeNode is some node sitting in our tree.
+
+    //bail if overTreeNode happens to be in a different treeview.
+    if (overTreeNode.getTree() !== this.getDom()){
+      return false;
+    }
+
+    //determine if a drop would be valid, and if so where the drop would occur.
+    var type = this.getTreeNodeType(treeNode);
+    var overType = this.getTreeNodeType(overTreeNode);
+    var cls = this.insertBelowClass, insertionPoint;
+    if (type === overType) {
+      if (treeNode === overTreeNode) {
+        console.log("same node");
+      }
+      else
+      if (treeNode.getPreviousSiblingTreeNode() === overTreeNode) {
+        console.log("sibling node");
+      }
+      else {
+        insertionPoint = overTreeNode;
+      }
+    }
+    else {
+      var comp = this.compareTreeNode.call(overTreeNode, treeNode);
+      console.log("compare: " + comp);
+      if (comp === null){
+      }
+      else {
+        var sibling = overTreeNode, prev, c;
+        switch (comp) {
+          case -1:
+            do {
+              c = this.compareTreeNode.call(sibling, treeNode);
+              if (this.getTreeNodeType(sibling) === type || c !== comp) {
+                insertionPoint = prev;
+                break;
+              }
+              prev = sibling;
+            } while (sibling = sibling.getNextSiblingTreeNode());
+            break;
+          case 1:
+            do {
+              if (this.getTreeNodeType(sibling) === type) {
+                insertionPoint = sibling;
+                break;
+              }
+              else
+              if (this.compareTreeNode.call(sibling, treeNode) !== comp){
+                insertionPoint = sibling;
+                break;
+              }
+              prev = sibling;
+            } while (sibling = sibling.getPreviousSiblingTreeNode());
+            break;
+        }
+      }
+    }
+
+    if (insertionPoint) {
+      if (ddHandler.prevOverTreeNode !== insertionPoint) {
+        this.cleanUpInsertBelowTreeNodeMark(ddHandler);
+      }
+      var domHead = insertionPoint.getDomHead();
+      if (!hCls(domHead, cls)) {
+        aCls(domHead, cls);
+      }
+      ddHandler.prevOverTreeNode = insertionPoint;
+    }
+    else {
+      this.cleanUpInsertBelowTreeNodeMark(ddHandler);
+    }
+    //
+  },
+  cleanUpInsertBelowTreeNodeMark: function(ddHandler) {
+    if (ddHandler.prevOverTreeNode) {
+      rCls(ddHandler.prevOverTreeNode.getDomHead(), this.insertBelowClass, "");
+    }
+  },
   handleModelElementRenamed: function(mondrianSchemaCache, event, data){
     var eventData = data.eventData;
     this.handleModelElementNameChange(
@@ -108,7 +209,30 @@ var MondrianSchemaTreeView;
       case "modelDirty":
         this.markDirty(model, eventData.dirty);
         break;
+      case "modelElementAttributeSet":
+        switch (eventData.attribute){
+          case "visible":
+            this.setVisibility(modelElementPath, eventData.newValue);
+            break;
+        }
     }
+  },
+  setVisibility: function(modelElementPath, visibility){
+    var treeNode = this.getTreeNodeForPath(modelElementPath);
+    if (!treeNode) {
+      return;
+    }
+    var removeClass, addClass;
+    if (String(visibility) === "false") {
+      removeClass = "visible-true";
+      addClass = "visible-false";
+    }
+    else {
+      removeClass = "visible-false";
+      addClass = "visible-true";
+    }
+    var dom = treeNode.getDom();
+    rCls(dom, removeClass, addClass);
   },
   markDirty: function(model, dirty){
     var schemaName = model.getSchemaName();
@@ -357,34 +481,48 @@ var MondrianSchemaTreeView;
             switch (thatType) {
               case thisType:
                 return TreeNode.prototype.compare.call(this, treeNode);
-              default:
+              case "SharedDimension":
+              case "VirtualCube":
                 return -1;
+              default:
+                return null;
             }
-          case "Dimension":
+          case "SharedDimension":
             switch (thatType) {
               case thisType:
                 return TreeNode.prototype.compare.call(this, treeNode);
               case "Cube":
                 return 1;
-              default:
+              case "VirtualCube":
                 return -1;
+              default:
+                return null;
             }
           case "VirtualCube":
             switch (thatType) {
               case thisType:
                 return TreeNode.prototype.compare.call(this, treeNode);
-              default:
+              case "SharedDimension":
+              case "VirtualCube":
                 return 1;
+              default:
+                return null;
             }
         }
+        return null;
+        break;
       case "Cube":
         switch (thisType){
           case "Measure":
             switch (thatType){
               case thisType:
                 return TreeNode.prototype.compare.call(this, treeNode);
-              default:
+              case "CalculatedMember":
+              case "PrivateDimension":
+              case "DimensionUsage":
                 return -1;
+              default:
+                return null;
             }
           case "CalculatedMember":
             switch (thatType){
@@ -392,8 +530,11 @@ var MondrianSchemaTreeView;
                 return TreeNode.prototype.compare.call(this, treeNode);
               case "Measure":
                 return 1;
-              default:
+              case "PrivateDimension":
+              case "DimensionUsage":
                 return -1;
+              default:
+                return null;
             }
           case "PrivateDimension":
             switch (thatType) {
@@ -402,29 +543,69 @@ var MondrianSchemaTreeView;
               case "Measure":
               case "CalculatedMember":
                 return 1;
-              default:
+              case "DimensionUsage":
                 return -1;
+              default:
+                return null;
             }
           case "DimensionUsage":
             switch (thatType){
               case thisType:
                 return TreeNode.prototype.compare.call(this, treeNode);
-              default:
+              case "Measure":
+              case "CalculatedMember":
+              case "PrivateDimension":
                 return 1;
+              default:
+                return null;
             }
         }
+        return null;
+        break;
       case "SharedDimension":
       case "PrivateDimension":
-        return TreeNode.prototype.compare.call(this, treeNode);
+        switch (thisType) {
+          case "Hierarchy":
+            switch (thatType) {
+              case thisType:
+                return TreeNode.prototype.compare.call(this, treeNode);
+              default:
+                return null;
+            }
+          default:
+            return null;
+        }
       case "VirtualCube":
         return TreeNode.prototype.compare.call(this, treeNode);
+      case "Hierarchy":
+        switch (thisType){
+          case "Level":
+            switch (thatType){
+              case thisType:
+                return TreeNode.prototype.compare.call(this, treeNode);
+              default:
+                return null;
+            }
+          default:
+            return null;
+        }
+        break;
     }
+    return null;
   },
   createModelElementTreeNode: function (modelElement, parentTreeNode, type, childLoader){
     var me = this, name = modelElement.attributes.name || "";
+    var visibility;
+    if (modelElement.attributes && modelElement.attributes.visible && String(modelElement.attributes.visible) === "false") {
+      visibility = "visible-false";
+    }
+    else {
+      visibility = "visible-true";
+    }
+    var classes = [type, visibility];
     var treeNode = new TreeNode({
       id: parentTreeNode.id + ":" + type + ":" + name,
-      classes: [type],
+      classes: classes,
       parentTreeNode: parentTreeNode,
       title: name,
       tooltip: name,
@@ -470,6 +651,9 @@ var MondrianSchemaTreeView;
     }
     data.type = key;
     return data;
+  },
+  getTreeNodeType: function(treeNode){
+    return this.parseModelElementPath(treeNode).type;
   },
   getTreeNodeIdForPath: function(path){
     var pathCopy = merge({}, path);

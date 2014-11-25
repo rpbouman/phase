@@ -1,3 +1,9 @@
+div.mondrian-schema-tree div.node > div.head {
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: white;
+}
+
 div.Schema > div.head >  span.toggle,
 .mondrian-schema-tree div.Schema > div.head >  span.toggle {
   background-image: url('../images/schema.png');
@@ -47,7 +53,17 @@ div.DimensionUsage > div.head >  span.toggle,
   background-image: url('../images/dimension-usage.png');
 }
 
-.mondrian-schema-tree div.dirty > div.head > span.label {
+div.mondrian-schema-tree div.dirty > div.head > span.label {
   font-style: italic;
 }
 
+div.mondrian-schema-tree div.visible-false > div.head > span.label {
+  /* NOTE: keep darkgrey. Lighter grey is not readable anymore when the node is selected */
+  color: darkgrey;
+}
+
+div.mondrian-schema-tree div.node > div.insert-below-treenode {
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: green;
+}
