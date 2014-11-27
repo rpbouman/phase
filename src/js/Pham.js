@@ -13,7 +13,7 @@ var Pham;
 
 Pham = function(options) {
   this.options = options || {
-    url: "../../../../plugin/data-access/api/datasource/analysis/catalog"
+    url: "../../../../plugin/data-access/api/datasource/analysis"
   };
 };
 
@@ -106,7 +106,6 @@ Pham.prototype = {
     }
     var path = this.options.url.split("/");
     path.pop();
-    path.pop();
     options.url = path.join("/") + "/" + options.modelName + "/getAnalysisDatasourceInfo";
     this.request(options);
   },
@@ -125,7 +124,7 @@ Pham.prototype = {
       }
       if (oldSuccess) oldSuccess.call(scope, models);
     }
-    options.url = this.options.url;
+    options.url = this.options.url + "/ids";
     this.request(options);
   },
   getModel: function(options){
@@ -140,13 +139,13 @@ Pham.prototype = {
       model.setName(options.modelName);
       if (oldSuccess) oldSuccess.call(scope, model);
     }
-    options.url = this.options.url + "/" + options.modelName;
+    options.url = this.options.url + "/" + options.modelName + "/download";
     this.request(options);
   },
   deleteModel: function(options){
     var scope = options.scope || null;
     options.method = "DELETE";
-    options.url = this.options.url + "/" + options.modelName;
+    options.url = this.options.url + "/catalog/" + options.modelName;
     this.request(options);
   },
   postModel: function(options){
@@ -158,7 +157,6 @@ Pham.prototype = {
     };
 
     var url = this.options.url.split("/");
-    url.pop();
     url.pop();
     url.pop();
     url.push("mondrian");
