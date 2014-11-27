@@ -96,7 +96,13 @@ var MondrianSchemaTreeView;
       proxy.className = ddHandler.proxyClassName;
       proxy.style.display = "";
       clearBrowserSelection();
+      if (ddHandler.insertionPoint) {
+        this.handleMoveTreeNode(ddHandler.treeNode, ddHandler.insertionPoint);
+        delete ddHandler.insertionPoint;
+      }
       this.cleanUpInsertBelowTreeNodeMark(ddHandler);
+      delete ddHandler.treeNode;
+      delete ddHandler.prevOverTreeNode;
     }
   });
 
@@ -106,7 +112,7 @@ var MondrianSchemaTreeView;
 }).prototype = {
   insertBelowClass: "insert-below-treenode",
   dragTreeNodeOverTreeNode: function(ddHandler, overTreeNode){
-    var treeNode = ddHandler.treeNode;
+    var cursor = "", treeNode = ddHandler.treeNode;
     //treeNode is being dragged, overTreeNode is some node sitting in our tree.
 
     //bail if overTreeNode happens to be in a different treeview.
@@ -120,11 +126,11 @@ var MondrianSchemaTreeView;
     var cls = this.insertBelowClass, insertionPoint;
     if (type === overType) {
       if (treeNode === overTreeNode) {
-        console.log("same node");
+        cursor = "no-drop";
       }
       else
       if (treeNode.getPreviousSiblingTreeNode() === overTreeNode) {
-        console.log("sibling node");
+        cursor = "no-drop";
       }
       else {
         insertionPoint = overTreeNode;
@@ -134,6 +140,16 @@ var MondrianSchemaTreeView;
       var comp = this.compareTreeNode.call(overTreeNode, treeNode);
       console.log("compare: " + comp);
       if (comp === null){
+        var parentTreeNode = treeNode.getParentTreeNode();
+        if (parentTreeNode && this.getTreeNodeType(parentTreeNode) === overType) {
+          if (parentTreeNode !== overTreeNode) {
+            cursor = "copy";
+          }
+          insertionPoint = overTreeNode;
+        }
+        else {
+          cursor = "no-drop";
+        }
       }
       else {
         var sibling = overTreeNode, prev, c;
@@ -166,25 +182,57 @@ var MondrianSchemaTreeView;
       }
     }
 
+    if (ddHandler.prevOverTreeNode) {
+      ddHandler.prevOverTreeNode.getDomHead().cursor = "";
+    }
     if (insertionPoint) {
       if (ddHandler.prevOverTreeNode !== insertionPoint) {
         this.cleanUpInsertBelowTreeNodeMark(ddHandler);
       }
+
       var domHead = insertionPoint.getDomHead();
-      if (!hCls(domHead, cls)) {
+      domHead.style.cursor = cursor;
+      if (cursor !== "copy" && !hCls(domHead, cls)) {
         aCls(domHead, cls);
       }
       ddHandler.prevOverTreeNode = insertionPoint;
     }
     else {
-      this.cleanUpInsertBelowTreeNodeMark(ddHandler);
+      //overTreeNode.getDomHead().style.cursor = cursor;
+      //ddHandler.prevOverTreeNode = overTreeNode;
     }
-    //
+    ddHandler.insertionPoint = insertionPoint;
   },
   cleanUpInsertBelowTreeNodeMark: function(ddHandler) {
+    var head;
     if (ddHandler.prevOverTreeNode) {
-      rCls(ddHandler.prevOverTreeNode.getDomHead(), this.insertBelowClass, "");
+      head = ddHandler.prevOverTreeNode.getDomHead();
+      rCls(head, this.insertBelowClass, "");
+      head.style.cursor = "";
     }
+    if (ddHandler.treeNode) {
+      head = ddHandler.treeNode.getDomHead();
+      head.style.cursor = "";
+      var parentTreeNode = ddHandler.treeNode.getParentTreeNode();
+      if (parentTreeNode) {
+        head = parentTreeNode.getDomHead();
+        head.style.cursor = "";
+      }
+    }
+  },
+  handleMoveTreeNode: function(treeNode, toTreeNode){
+    var modelElement = this.parseModelElementPath(treeNode);
+    var parentTreeNode = treeNode.getParentTreeNode();
+
+    var toModelElement = this.parseModelElementPath(toTreeNode);
+    var parentToTreeNode = toTreeNode.getParentTreeNode();
+
+    var eventType = "moveModelElement";
+    var eventData = {
+      moveModelElement: modelElement,
+      toModelElement: toModelElement
+    };
+    this.fireEvent(eventType, eventData);
   },
   handleModelElementRenamed: function(mondrianSchemaCache, event, data){
     var eventData = data.eventData;
@@ -200,6 +248,12 @@ var MondrianSchemaTreeView;
     var eventData = data.eventData;
     var modelElementPath = eventData.modelElementPath;
     switch (modelEvent) {
+      case "modelElementMoved":
+        debugger;
+        break;
+      case "modelElementRepositioned":
+        this.handleModelElementRepositioned(modelElementPath, eventData.afterModelElementPath);
+        break;
       case "modelElementCreated":
         this.handleModelElementCreated(modelElementPath);
         break;
@@ -215,6 +269,19 @@ var MondrianSchemaTreeView;
             this.setVisibility(modelElementPath, eventData.newValue);
             break;
         }
+    }
+  },
+  handleModelElementRepositioned: function(modelElementPath, afterModelElementPath){
+    var treeNode = this.getTreeNodeForPath(modelElementPath);
+    var dom = treeNode.getDom(), parentNode = dom.parentNode;
+    parentNode.removeChild(dom);
+    var afterTreeNode = this.getTreeNodeForPath(afterModelElementPath);
+    var next = afterTreeNode.getNextSiblingTreeNode();
+    if (next) {
+      parentNode.insertBefore(dom, next.getDom());
+    }
+    else {
+      parentNode.appendChild(dom);
     }
   },
   setVisibility: function(modelElementPath, visibility){

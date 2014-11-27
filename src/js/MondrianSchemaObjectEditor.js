@@ -1077,12 +1077,18 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
     this.refreshCodeMirror();
   },
   handleModelEvent: function(event, data){
-
-    if (event === "modelDirty"){
-      if (!this.codeMirror) {
-        return;
-      }
-      this.initSourceCodeEditor();
+    switch (event) {
+      case "modelElementRemoved":
+      case "modelElementCreated":
+      case "modelElementMoved":
+      case "modelElementRepositioned":
+      case "modelElementAttributeSet":
+      case "modelDirty":
+        if (!this.codeMirror) {
+          return;
+        }
+        this.initSourceCodeEditor();
+        break;
     }
   },
   modelChanged: function(){

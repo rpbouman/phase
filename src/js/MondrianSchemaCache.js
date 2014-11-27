@@ -9,12 +9,14 @@ var MondrianSchemaCache;
   this.modelListeners = {
     documentSet: this.handleModelEvent,
     modelDirty: this.handleModelEvent,
-    modelElementCreated: this.handleModelEvent,
-    modelElementRemoved: this.handleModelEvent,
     modelElementAttributeSet: this.handleModelEvent,
-    setModelElementAttribute: this.handleModelEvent,
+    modelElementCreated: this.handleModelEvent,
+    modelElementMoved: this.handleModelEvent,
+    modelElementRemoved: this.handleModelEvent,
     modelElementRenamed: this.handleModelElementRenamed,
+    modelElementRepositioned: this.handleModelEvent,
     renameModelElement: this.handleRenameModelElement,
+    setModelElementAttribute: this.handleModelEvent,
     scope: this
   };
 }).prototype = {

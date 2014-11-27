@@ -51,7 +51,9 @@ var MondrianModel;
     switch (event) {
       case "modelElementAttributeSet":
       case "modelElementCreated":
+      case "modelElementMoved":
       case "modelElementRemoved":
+      case "modelElementRepositioned":
         this.setDirty(true);
     }
     return Observable.prototype.fireEvent.call(this, event, eventData);
@@ -823,6 +825,18 @@ var MondrianModel;
     });
     return count;
   },
+  getIndexOfModelElement: function(modelElementPath){
+    var parentElement = this.getModelElementParent(modelElementPath);
+    var modelElement = this.getModelElement(modelElementPath);
+    var index = -1;
+    this.eachChild(parentElement, function(node, i){
+      index = i;
+      return false;
+    }, this, function(node, i){
+      return node === modelElement;
+    });
+    return index;
+  },
   getIndexOfLastElementWithTagName: function(element) {
     var tagNames = this.getTagNamesFromArguments.apply(this, arguments);
     var index = -1;
@@ -1105,70 +1119,122 @@ var MondrianModel;
     });
     return modelElementToDelete;
   },
-  getModelElement: function(selection){
+  moveModelElement: function(fromModelElementPath, toModelElementPath, toIndex){
+  },
+  repositionModelElement: function(fromModelElementPath, toModelElementPath, dontFireEvent){
+    var schema = fromModelElementPath.Schema;
+    if (this.getSchemaName() !== schema) {
+      throw "From element is not from this model";
+    }
+    if (toModelElementPath.Schema !== schema) {
+      throw "To element is not from this model";
+    }
+    var modelElement = this.getModelElement(fromModelElementPath);
+    if (!modelElement) {
+      throw "Invalid model element path";
+    }
+    var fromModelElementParent = this.getModelElementParent(fromModelElementPath);
+    var toModelElementParent = this.getModelElementParent(toModelElementPath);
+    if (fromModelElementParent !== toModelElementParent) {
+      throw "Paths do not have the same parent";
+    }
+    var oldIndex;
+    this.eachChild(fromModelElementParent, function(node, i){
+      oldIndex = i;
+    }, this, function(node, i){
+      return node === modelElement;
+    });
+
+    var toModelElement = this.getModelElement(toModelElementPath);
+    if (!toModelElement) {
+      throw "Invalid model element path";
+    }
+    fromModelElementParent.childNodes.splice(oldIndex, 1);
+
+    var newIndex;
+    this.eachChild(fromModelElementParent, function(node, i){
+      newIndex = i;
+    }, this, function(node, i){
+      return node === toModelElement;
+    });
+    newIndex = newIndex + 1;
+    fromModelElementParent.childNodes.splice(newIndex, 0, modelElement);
+
+    if (dontFireEvent !== true) {
+      this.fireEvent("modelElementRepositioned", {
+        modelElement: modelElement,
+        modelElementPath: fromModelElementPath,
+        afterModelElementPath: toModelElementPath,
+        oldIndex: oldIndex,
+        newIndex: newIndex
+      });
+    }
+    return modelElement;
+  },
+  getModelElement: function(modelElementPath){
     var data;
-    switch (selection.type) {
+    switch (modelElementPath.type) {
       case "Schema":
         data = this.getSchema();
         break;
       case "Cube":
-        data = this.getCube(selection.Cube);
+        data = this.getCube(modelElementPath.Cube);
         break;
       case "SharedDimension":
-        data = this.getSharedDimension(selection.SharedDimension);
+        data = this.getSharedDimension(modelElementPath.SharedDimension);
         break;
       case "PrivateDimension":
-        var cube = this.getCube(selection.Cube);
-        data = this.getPrivateDimension(cube, selection.PrivateDimension);
+        var cube = this.getCube(modelElementPath.Cube);
+        data = this.getPrivateDimension(cube, modelElementPath.PrivateDimension);
         break;
       case "DimensionUsage":
-        var cube = this.getCube(selection.Cube);
-        data = this.getDimensionUsage(cube, selection.DimensionUsage);
+        var cube = this.getCube(modelElementPath.Cube);
+        data = this.getDimensionUsage(cube, modelElementPath.DimensionUsage);
         break;
       case "Hierarchy":
-        var hierarchy = selection.Hierarchy === "" ? undefined : selection.Hierarchy;
-        if (selection.SharedDimension) {
+        var hierarchy = modelElementPath.Hierarchy === "" ? undefined : modelElementPath.Hierarchy;
+        if (modelElementPath.SharedDimension) {
           data = this.getSharedDimensionHierarchy(
-            selection.SharedDimension,
+            modelElementPath.SharedDimension,
             hierarchy
           );
         }
         else
-        if (selection.PrivateDimension) {
-          var cube = this.getCube(selection.Cube);
+        if (modelElementPath.PrivateDimension) {
+          var cube = this.getCube(modelElementPath.Cube);
           data = this.getPrivateDimensionHierarchy(
             cube,
-            selection.PrivateDimension,
+            modelElementPath.PrivateDimension,
             hierarchy
           );
         }
         break;
       case "Level":
-        var level = selection.Level === "" ? undefined : selection.Level;
-        if (selection.SharedDimension) {
-          data = this.getSharedDimensionLevel(selection.SharedDimension, selection.Hierarchy, level);
+        var level = modelElementPath.Level === "" ? undefined : modelElementPath.Level;
+        if (modelElementPath.SharedDimension) {
+          data = this.getSharedDimensionLevel(modelElementPath.SharedDimension, modelElementPath.Hierarchy, level);
         }
         else
-        if (selection.PrivateDimension) {
-          data = this.getPrivateDimensionLevel(selection.Cube, selection.PrivateDimension, selection.Hierarchy, level);
+        if (modelElementPath.PrivateDimension) {
+          data = this.getPrivateDimensionLevel(modelElementPath.Cube, modelElementPath.PrivateDimension, modelElementPath.Hierarchy, level);
         }
         break;
       case "Measure":
-        var cube = this.getCube(selection.Cube);
-        data = this.getMeasure(cube, selection.Measure);
+        var cube = this.getCube(modelElementPath.Cube);
+        data = this.getMeasure(cube, modelElementPath.Measure);
         break;
       case "CalculatedMember":
-        if (selection.Cube) {
-          var cube = this.getCube(selection.Cube);
-          data = this.getCubeCalculatedMember(cube, selection.CalculatedMember);
+        if (modelElementPath.Cube) {
+          var cube = this.getCube(modelElementPath.Cube);
+          data = this.getCubeCalculatedMember(cube, modelElementPath.CalculatedMember);
         }
         else {
           throw "TODO: get calculated member for this context."
         }
         break;
       case "Table":
-        if (selection.Cube) {
-          var cube = this.getCube(selection.Cube);
+        if (modelElementPath.Cube) {
+          var cube = this.getCube(modelElementPath.Cube);
           var table = this.getCubeTable(cube);
           data = table;
         }
@@ -1252,15 +1318,39 @@ var MondrianModel;
     );
     return relationIndex;
   },
-  getModelElementsForPath: function(selection){
-    var componentPath = [], component;
+  getModelElementPaths: function(modelElementPath) {
+    var paths = [], component;
     var parentObject = {};
     var key, value;
-    for (key in selection) {
+    for (key in modelElementPath) {
       if (key === key.toLowerCase()) {
         continue;
       }
-      value = selection[key];
+      value = modelElementPath[key];
+      parentObject[key] = value;
+      parentObject.type = key;
+      paths.push(merge({}, parentObject));
+    }
+    return paths;
+  },
+  getModelElementParentPath: function(modelElementPath){
+    var paths = this.getModelElementPaths(modelElementPath);
+    paths.pop();
+    return paths.pop();
+  },
+  getModelElementParent: function(modelElementPath){
+    var modelElementParentPath = this.getModelElementParentPath(modelElementPath);
+    return this.getModelElement(modelElementParentPath);
+  },
+  getModelElementsForPath: function(modelElementPath){
+    var componentPath = [], component;
+    var parentObject = {};
+    var key, value;
+    for (key in modelElementPath) {
+      if (key === key.toLowerCase()) {
+        continue;
+      }
+      value = modelElementPath[key];
       parentObject[key] = value;
       parentObject.type = key;
       component = this.getModelElement(parentObject);

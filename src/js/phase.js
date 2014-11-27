@@ -394,9 +394,58 @@ var mondrianSchemaTreeView = new MondrianSchemaTreeView({
       }
       treeNode.expandAncestors();
       mondrianSchemaTreeView.setSelectedTreeNode(treeNode);
+    },
+    moveModelElement: function(mondrianSchemaTreeView, event, eventData){
+      var modelElement = eventData.moveModelElement;
+      var toModelElement = eventData.toModelElement;
+      if (modelElement.Schema === toModelElement.Schema) {
+        moveModelElement(modelElement, toModelElement);
+      }
+      else {
+        confirmDialog.show({
+          message: "Do you want to move or copy this element to another model?",
+          title: "Move or Copy?",
+          yes: {
+            label: "Move",
+            handler: function(){
+              moveModelElement(modelElement, toModelElement);
+            }
+          },
+          no: {
+            label: "Copy",
+            handler: function(){
+              copyModelElement(modelElement, toModelElement);
+            }
+          }
+        });
+      }
     }
   }
 });
+
+function moveModelElement(fromModelElementPath, toModelElementPath){
+  var fromSchema = fromModelElementPath.Schema;
+  var fromModel = mondrianSchemaCache.getModel(fromSchema);
+  if (!fromSchema) {
+    throw "Model not found in cache!";
+  }
+  if (fromSchema === toModelElementPath.Schema) {
+    var fromModelElementParentPath = model.getModelElementParentPath(fromModelElementPath);
+
+    var destinationPath, destinationIndex;
+    if (fromModelElementParentPath.type === toModelElementPath.type) {
+      destinationIndex = model.firstAvailableIndexForType(toModelElementPath, fromModelElementPath.type);
+      model.moveModelElement(fromModelElementPath, toModelElementPath, destinationIndex);
+    }
+    else {
+      model.repositionModelElement(fromModelElementPath, toModelElementPath);
+    }
+  }
+}
+
+function copyModelElement(fromModelElement, toModelElement){
+}
+
 var connectionTreeView = new ConnectionTreeView({
   pedis: pedis,
   pedisCache: pedisCache,
