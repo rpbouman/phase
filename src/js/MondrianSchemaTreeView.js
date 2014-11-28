@@ -849,6 +849,7 @@ var MondrianSchemaTreeView;
     return TreeNode.getInstance(TreeNode.prefix + ":Schema:" + modelName);
   },
   renderModelTreeNodes: function(modelNames){
+    this.clearAll();
     var n = modelNames.length, i, modelName;
     for (i = 0; i < n; i++) {
       modelName = modelNames[i];
