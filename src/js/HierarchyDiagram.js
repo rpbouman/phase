@@ -226,6 +226,47 @@ var HierarchyDiagram;
     "ordinalColumn": "Ordinal",
     "parentColumn": "Parent"
   },
+  getRelationshipInfo: function(dom) {
+    var diagramModel = this.getDiagramModel();
+    var id = dom.id;
+    var dataToId = gAtt(dom, "data-to-id");
+    var dataFromId = gAtt(dom, "data-from-id");
+    var prefix = this.getId() + ":";
+    var relationshipInfo = {
+      dom: dom,
+      id: id,
+      fromId: dataFromId,
+      toId: dataToId
+    };
+    var levelIdPrefix = this.getLevelId();
+    if (id.indexOf(prefix + "relationship:") === 0){
+      relationshipInfo.type = "tableRelationship";
+      var relationshipId = id.substr((prefix + "relationship:").length);
+      relationshipId = relationshipId.split(":=:");
+
+      relationshipInfo.leftTableIndex = parseInt(relationshipId[0].substr((prefix + "relation").length));
+      relationshipInfo.leftTable = diagramModel.getTable(relationshipInfo.leftTableIndex);
+      relationshipInfo.leftColumn = relationshipId[0].substr((prefix + "relation" + relationshipInfo.leftTableIndex + ":COLUMN:").length);
+
+      relationshipInfo.rightTableIndex = parseInt(relationshipId[1].substr((prefix + "relation").length));
+      relationshipInfo.rightTable = diagramModel.getTable(relationshipInfo.rightTableIndex);
+      relationshipInfo.rightColumn = relationshipId[0].substr((prefix + "relation" + relationshipInfo.rightTableIndex + ":COLUMN:").length);
+    }
+    else
+    if (id.indexOf(levelIdPrefix) === 0) {
+      relationshipInfo.type = "levelColumnRelationship";
+      relationshipInfo.levelIndex = parseInt(id.substr(levelIdPrefix.length), 10);
+      relationshipInfo.level = diagramModel.getLevel(relationshipInfo.levelIndex);
+      relationshipInfo.columnType = id.split(":")[3];
+      relationshipInfo.columName = dataToId.substr(dataToId.lastIndexOf(":")+1);
+      relationshipInfo.tableIndex = parseInt(dataToId.substr((prefix + "relation").length), 10);
+      relationshipInfo.table = diagramModel.getTable(relationshipInfo.tableIndex);
+    }
+    else {
+      relationshipInfo = null;
+    }
+    return relationshipInfo;
+  },
   getDiagramElementObjectInfo: function(dom){
     var objectType, objectIndex, object;
     while(dom && dom.nodeType === 1) {
@@ -289,16 +330,17 @@ var HierarchyDiagram;
       default:
         return;
     }
-    var div;
+    var div, objectInfo
     switch (target.tagName) {
       case "TD":  //entities here,
         div = target.parentNode.parentNode.parentNode.parentNode;
+        objectInfo = this.getDiagramElementObjectInfo(div);
         break;
       case "DIV": //relationships here
         div = target.parentNode;
+        objectInfo = this.getRelationshipInfo(div);
         break;
     }
-    var objectInfo = this.getDiagramElementObjectInfo(div);
     var diagramModel = this.getDiagramModel();
     switch (className) {
       case "checkbox":
@@ -308,7 +350,14 @@ var HierarchyDiagram;
         break;
       case "relationship-menu":
         var relationshipInfo = null;
-        this.fireEvent("removeRelationship", relationshipInfo);
+        switch (objectInfo.type) {
+          case "tableRelationship":
+            this.fireEvent("removeTableRelationship", objectInfo);
+            break;
+          case "levelColumnRelationship":
+            this.removeLevelColumnRelationship(objectInfo);
+            break;
+        }
         break;
       case "remove":
       case "edit":
@@ -646,20 +695,32 @@ var HierarchyDiagram;
   },
   setLevelColumn: function(levelColumnId, sourceTableIndex, columnName) {
     var diagramModel = this.getDiagramModel();
-    var table = diagramModel.getTable(sourceTableIndex);
-    var tableName = table.alias || table.metadata.TABLE_NAME;
+
     var levelIndex = this.getLevelIndex(levelColumnId);
     var level = diagramModel.getLevel(levelIndex);
     var levelModelElement = level.level;
     var levelAttributes = levelModelElement.attributes;
     var levelColumn = this.getLevelColumnName(levelColumnId);
 
-    levelAttributes.table = tableName;
-    levelAttributes[levelColumn] = columnName;
+    if (iDef(sourceTableIndex) && iDef(columnName)) {
+      var table = diagramModel.getTable(sourceTableIndex);
+      var tableName = table.alias || table.metadata.TABLE_NAME;
+
+      levelAttributes.table = tableName;
+      levelAttributes[levelColumn] = columnName;
+    }
+    else {
+      delete levelAttributes.table;
+      delete levelAttributes[levelColumn];
+    }
     var relationshipId = this.getLevelColumnRelationshipId(levelIndex, levelColumn);
     var columnId = this.getTableColumnId(sourceTableIndex, columnName);
     this.renderRelationship(gEl(levelColumnId), gEl(columnId), relationshipId, "");
     //TODO: check all other level columns to see if they match the table. If not, remove the relationship.
+  },
+  removeLevelColumnRelationship: function(objectInfo){
+    var levelColumnId = this.getLevelColumnId(objectInfo.levelIndex, objectInfo.columnType);
+    this.setLevelColumn(levelColumnId);
   }
 }
 
