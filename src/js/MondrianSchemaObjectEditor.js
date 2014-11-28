@@ -961,6 +961,12 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
       tooltipText: "The name of the default role for connections to this schema."
     }
   },
+  cloneModelElement: function(){
+    //override. We don't want to clone just the schema element, but the entire model.
+    this.fireEvent("cloneModel", {
+      model: this.model
+    })
+  },
   getSourceTextAreaId: function(){
     return this.getId() + "-textarea";
   },
@@ -975,7 +981,6 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
     return dom;
   },
   createCodeMirror: function(){
-
     function completeAfter(cm, pred) {
       var cur = cm.getCursor();
       if (!pred || pred()) setTimeout(function() {

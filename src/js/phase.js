@@ -108,10 +108,16 @@ mainToolbar.listen({
   }
 });
 
-function newModel(){
-  var model = new MondrianModel();
-  var schemaName = mondrianSchemaCache.newSchemaName();
-  model.setSchemaName(schemaName);
+function newModel(model){
+  var schemaName;
+  if (model) {
+    schemaName = model.getSchemaName();
+  }
+  else {
+    model = new MondrianModel();
+    schemaName = mondrianSchemaCache.newSchemaName();
+    model.setSchemaName(schemaName);
+  }
   var treeNode = mondrianSchemaTreeView.renderModelTreeNode(schemaName);
   mondrianSchemaCache.addModel(model);
   mondrianSchemaTreeView.setSelectedTreeNode(treeNode);
@@ -509,6 +515,13 @@ function getEditorForSelection(selection){
     dnd: dnd,
     dialog: confirmDialog,
     listeners: {
+      cloneModel: function(editor, event, data) {
+        var model = data.model;
+        var clone = model.clone();
+        var schemaName = mondrianSchemaCache.newSchemaName(model.getSchemaName());
+        clone.setSchemaName(schemaName);
+        newModel(clone);
+      },
       editDiagramElement: function(editor, event, data){
         var model = editor.getModel();
         var modelElementPath = editor.getModelElementPath();

@@ -2,29 +2,36 @@ var MondrianModel;
 (function(){
 
 (MondrianModel = function(doc){
-  this.doc = doc || {
-    childNodes: [
-      this.createElement("Schema", {
-        name: ""
-      })
-    ]
-  };
+  this.setDocument(
+    doc ||
+    this.createElement("Schema", {
+      name: ""
+    })
+  );
   this.datasourceInfo = {};
   this.setDirty();
 }).prototype = {
-  setDocument: function(document) {
+  setDocument: function(doc) {
+    if (iStr(doc)) {
+      doc = parseXmlText(doc);
+    }
+    if (iEmt(doc) && doc.tagName === "Schema") {
+      doc = {
+        nodeType: 9,
+        childNodes: [doc]
+      }
+    }
+    if (!iDoc(doc)) {
+      throw "Invalid document";
+    }
     var eventData = {
       oldDoc: this.doc,
-      newDoc: document,
-      modelElementPath: {
-        Schema: this.getSchemaName(),
-        type: "Schema"
-      }
+      newDoc: doc
     };
     if (this.fireEvent("setDocument", eventData)===false) {
       return false;
     }
-    this.doc = document;
+    this.doc = doc;
     return this.fireEvent("documentSet", eventData);
   },
   isDirty: function(){
@@ -63,6 +70,9 @@ var MondrianModel;
   },
   toXml: function(){
     return serializeToXml(this.doc);
+  },
+  fromXml: function(xml){
+    this.setDocument(xml);
   },
   getNewModelElementName: function(modelElementPath, name){
     var type = modelElementPath.type;
@@ -144,6 +154,17 @@ var MondrianModel;
         throw "Invalid type " + type;
     }
     return newName;
+  },
+  clone: function(){
+    var xml = this.toXml();
+    var model = new MondrianModel(xml);
+    var srcDatasourceInfo = this.datasourceInfo,
+        tgtDatasourceInfo = model.datasourceInfo
+    ;
+    for (prop in srcDatasourceInfo) {
+      tgtDatasourceInfo[prop] = srcDatasourceInfo[prop];
+    }
+    return model;
   },
   cloneModelElement: function(modelElementPath, dontFireEvent){
     var modelElement = this.getModelElement(modelElementPath);
