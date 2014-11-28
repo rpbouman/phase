@@ -179,6 +179,17 @@ var GenericEditor;
   arguments.callee._super.apply(this, arguments);
 }).prototype = {
   fields: {},
+  cloneModelElement: function(){
+    var model = this.model;
+    if (!model) {
+      return;
+    }
+    var modelElementPath = this.modelElementPath;
+    if (!modelElementPath) {
+      return;
+    }
+    model.cloneModelElement(modelElementPath);
+  },
   getRelationInfo: function(relation, callback, scope){
     var pedisCache = this.pedisCache;
     var dataSourceName = this.model.getDataSourceName();
@@ -517,6 +528,26 @@ var GenericEditor;
     }
   },
   createDom: function(){
+    var conf = this.conf;
+    if (!conf) {
+      conf = {};
+    }
+    if (!conf.toolbar) {
+      conf.toolbar = {};
+    }
+    if (!conf.toolbar.buttons) {
+      conf.toolbar.buttons = [];
+    }
+    conf.toolbar.buttons.splice(
+      0, 0,
+      {"class": "clone", tooltip: "Clone this item", handler: function(){
+        this.cloneModelElement();
+      }}
+    );
+    this.conf.toolbar.buttons.splice(
+      1, 0,
+      {class: "separator"}
+    );
     var dom = GenericEditor._super.prototype.createDom.apply(this, arguments);
     var toolbar = this.toolbar;
     if (toolbar) {
@@ -531,7 +562,7 @@ var GenericEditor;
       });
     }
     this.tabPane.conf.container = dom;
-    this.tabPane.addTab(this.conf.tabs)
+    this.tabPane.addTab(conf.tabs)
     this.createForm(this.tabPane.getTabPage(0), this.getFields());
     return dom;
   },

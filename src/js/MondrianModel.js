@@ -64,6 +64,126 @@ var MondrianModel;
   toXml: function(){
     return serializeToXml(this.doc);
   },
+  getNewModelElementName: function(modelElementPath, name){
+    var type = modelElementPath.type;
+    var newName;
+    switch (type) {
+      case "Cube":
+        newName = this.newCubeName(name);
+        break;
+      case "VirtualCube":
+        newName = this.newVirtualCubeName(name);
+        break;
+      case "Measure":
+        newName = this.newMeasureName(
+          modelElementPath.Cube,
+          name
+        );
+        break;
+      case "CalculatedMember":
+        newName = this.newCalculatedMemberName(
+          modelElementPath.Cube,
+          name
+        );
+        break;
+      case "PrivateDimension":
+        newName = this.newPrivateDimensionName(
+          modelElementPath.Cube,
+          name
+        );
+        break;
+      case "PrivateDimensionHierarchy":
+        newName = this.newPrivateDimensionHierarchyName(
+          modelElementPath.Cube,
+          modelElementPath.PrivateDimension,
+          name
+        );
+        break;
+      case "DimensionUsage":
+        newName = this.newDimensionUsageName(
+          modelElementPath.Cube,
+          name
+        );
+        break;
+      case "SharedDimension":
+        newName = this.newSharedDimensionName(name);
+        break;
+      case "Hierarchy":
+        if (modelElementPath.SharedDimension) {
+          newName = this.newSharedDimensionHierarchyName(
+            modelElementPath.SharedDimension,
+            name
+          );
+        }
+        else {
+          newName = this.newPrivateDimensionHierarchyName(
+            modelElementPath.Cube,
+            modelElementPath.PrivateDimension,
+            name
+          );
+        }
+        break;
+      case "Level":
+        if (modelElementPath.SharedDimension) {
+          newName = this.newSharedDimensionLevelName(
+            modelElementPath.SharedDimension,
+            modelElementPath.Hierarchy,
+            name
+          );
+        }
+        else {
+          newName = this.newPrivateDimensionLevelName(
+            modelElementPath.Cube,
+            modelElementPath.PrivateDimension,
+            modelElementPath.Hierarchy,
+            name
+          );
+        }
+        break;
+      default:
+        throw "Invalid type " + type;
+    }
+    return newName;
+  },
+  cloneModelElement: function(modelElementPath, dontFireEvent){
+    var modelElement = this.getModelElement(modelElementPath);
+    if (!modelElement) {
+      throw "No such element";
+    }
+    var xml = serializeToXml(modelElement);
+    var newModelElement = parseXmlText(xml).childNodes[0];
+
+    var type = modelElementPath.type;
+    var newName = this.getNewModelElementName(
+      modelElementPath,
+      modelElement.attributes.name || type
+    );
+    newModelElement.attributes.name = newName;
+
+    var modelElementParent = this.getModelElementParent(modelElementPath);
+    var index = -1;
+    this.eachElementWithTag(modelElementParent, modelElement.tagName, function(node, i){
+      index = i;
+      if (node.attributes.name > newName) {
+        return false;
+      }
+      return true;
+    });
+    if (index === -1){
+      throw "Unexpected error cloning element";
+    }
+    modelElementParent.childNodes.splice(index, 0, newModelElement);
+
+    if (dontFireEvent !== true){
+      var newModelElementPath = merge({}, modelElementPath);
+      newModelElementPath[newModelElementPath.type] = newName;
+      this.fireEvent("modelElementCreated", {
+        modelElementPath: newModelElementPath,
+        modelElement: newModelElement
+      });
+    }
+    return newModelElement;
+  },
   createElement: function(tagName, standardAttributes, extraAttributes){
     return {
       nodeType: 1,
@@ -128,7 +248,7 @@ var MondrianModel;
     this.setDirty();
   },
   newCubeName: function(){
-    return this.newName(this.getCube, [], "new Cube");
+    return this.newName([this.getCube, this.getVirtualCube], [], "new Cube");
   },
   createCube: function(attributes, dontFireEvent){
     var type = "Cube";
@@ -295,8 +415,8 @@ var MondrianModel;
       });
     }, this);
   },
-  newSharedDimensionName: function(){
-    return this.newName(this.getSharedDimension, [], "new Dimension");
+  newSharedDimensionName: function(name){
+    return this.newName(this.getSharedDimension, [], name || "new Dimension");
   },
   createSharedDimension: function(attributes, dontFireEvent){
     var name = this.newSharedDimensionName();
@@ -380,8 +500,8 @@ var MondrianModel;
     }
     return measure;
   },
-  newCalculatedMemberName: function(cube){
-    return this.newName(this.getCalculatedMember, [cube], "new CalculatedMember");
+  newCalculatedMemberName: function(cube, name){
+    return this.newName(this.getCalculatedMember, [cube], name || "new CalculatedMember");
   },
   createCalculatedMember: function(cubeName, attributes, dontFireEvent){
     var schema = this.getSchema();
@@ -419,8 +539,8 @@ var MondrianModel;
     }
     return calculatedMember;
   },
-  newPrivateDimensionName: function(cube){
-    return this.newName([this.getPrivateDimension, this.getDimensionUsage], [cube], "new Dimension");
+  newPrivateDimensionName: function(cube, name){
+    return this.newName([this.getPrivateDimension, this.getDimensionUsage], [cube], name || "new Dimension");
   },
   createPrivateDimension: function(cubeName, attributes, dontFireEvent){
     var schema = this.getSchema();
@@ -456,8 +576,8 @@ var MondrianModel;
     }
     return dimension;
   },
-  newDimensionUsageName: function(cube){
-    return this.newName([this.getPrivateDimension, this.getDimensionUsage], [cube], "new Dimension");
+  newDimensionUsageName: function(cube, name){
+    return this.newName([this.getPrivateDimension, this.getDimensionUsage], [cube], name || "new Dimension");
   },
   createDimensionUsage: function(cubeName, attributes, dontFireEvent){
     var schema = this.getSchema();
@@ -494,11 +614,16 @@ var MondrianModel;
     }
     return dimensionUsage;
   },
-  newSharedDimensionHierarchyName: function(sharedDimension){
-    var name = "";
-    var unnamedHierarchy = this.getSharedDimensionHierarchy(sharedDimension, "");
-    if (unnamedHierarchy) {
-      name = this.newName(this.getSharedDimensionHierarchy, [sharedDimension], "new Hierarchy");
+  newSharedDimensionHierarchyName: function(sharedDimension, name){
+    if (iUnd(name)) {
+      name = "";
+      unnamedHierarchy = this.getSharedDimensionHierarchy(sharedDimension, name);
+      if (unnamedHierarchy) {
+        name = this.newName(this.getSharedDimensionHierarchy, [sharedDimension], "new Hierarchy");
+      }
+    }
+    else {
+      name = this.newName(this.getSharedDimensionHierarchy, [sharedDimension], name);
     }
     return name;
   },
@@ -536,11 +661,16 @@ var MondrianModel;
     }
     return hierarchy;
   },
-  newPrivateDimensionHierarchyName: function(cube, privateDimension){
-    var name = "";
-    var unnamedHierarchy = this.getPrivateDimensionHierarchy(cube, privateDimension, name);
-    if (unnamedHierarchy) {
-      name = this.newName(this.getPrivateDimensionHierarchy, [cube, privateDimension], "new Hierarchy");
+  newPrivateDimensionHierarchyName: function(cube, privateDimension, name){
+    if (iUnd(name)) {
+      name = "";
+      var unnamedHierarchy = this.getPrivateDimensionHierarchy(cube, privateDimension, name);
+      if (unnamedHierarchy) {
+        name = this.newName(this.getPrivateDimensionHierarchy, [cube, privateDimension], "new Hierarchy");
+      }
+    }
+    else {
+      name = this.newName(this.getPrivateDimensionHierarchy, [cube, privateDimension], name);
     }
     return name;
   },
@@ -580,8 +710,8 @@ var MondrianModel;
     }
     return hierarchy;
   },
-  newSharedDimensionLevelName: function(dimensionName, hierarchyName){
-    return this.newName(this.getSharedDimensionLevel, [dimensionName, hierarchyName], "new Level");
+  newSharedDimensionLevelName: function(dimensionName, hierarchyName, name){
+    return this.newName(this.getSharedDimensionLevel, [dimensionName, hierarchyName], name || "new Level");
   },
   getLevelCount: function(hierarchy) {
     var count = this.getCountOfElementsWithTagName(hierarchy, "Level");
@@ -628,8 +758,8 @@ var MondrianModel;
     }
     return level;
   },
-  newPrivateDimensionLevelName: function(cubeName, dimensionName, hierarchyName){
-    return this.newName(this.getPrivateDimensionLevel, [cubeName, dimensionName, hierarchyName], "new Level");
+  newPrivateDimensionLevelName: function(cubeName, dimensionName, hierarchyName, name){
+    return this.newName(this.getPrivateDimensionLevel, [cubeName, dimensionName, hierarchyName], name || "new Level");
   },
   createPrivateDimensionLevel: function(cubeName, dimensionName, hierarchyName, attributes, dontFireEvent){
     var schema = this.getSchema();
@@ -919,10 +1049,21 @@ var MondrianModel;
     var cubeNode = null;
     this.eachCube(function(cube, index){
       cubeNode = cube;
+      return false;
     }, this, function(cube, index){
       return cube.attributes.name === cubeName;
     })
     return cubeNode;
+  },
+  getVirtualCube: function(virtualCubeName){
+    var virtualCubeNode = null;
+    this.eachVirtualCube(function(virtualCube, index){
+      virtualCubeNode = virtualCube;
+      return false;
+    }, this, function(virtualCube, index){
+      return virtualCube.attributes.name === virtualCubeName;
+    })
+    return virtualCubeNode;
   },
   getCubeTable: function(cube){
     var table = null;
@@ -1240,6 +1381,9 @@ var MondrianModel;
         }
         else {
         }
+        break;
+      case "VirtualCube":
+        data = this.getVirtualCube(modelElementPath.VirtualCube);
         break;
       default:
         data = null;

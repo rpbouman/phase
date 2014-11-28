@@ -45,3 +45,7 @@
   font-size: 18pt;
   text-indent: 20px;
 }
+
+.phase-editor .toolbar .clone {
+  background-image: url('../images/copy.png');
+}
