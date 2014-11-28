@@ -183,7 +183,15 @@ var HierarchyDiagram;
               this.createTableRelationship(sourceColumnId, target.parentNode.id);
               break;
             case "level":
-              this.setLevelColumn(target.parentNode.id, sourceTableIndex, columnName);
+              var row = target.parentNode, levelColumnId;
+              if (hCls(row, "level")) {  //header of level.
+                levelColumnId = this.getLevelColumnId(objectInfo.objectIndex, "column");
+              }
+              else
+              if (hCls(row, "level-column")) {
+                levelColumnId = row.id;
+              }
+              this.setLevelColumn(levelColumnId, sourceTableIndex, columnName);
               break;
             default:
           }
@@ -548,7 +556,7 @@ var HierarchyDiagram;
     var rows = tab.rows;
     var row = tab.insertRow(rows.length);
     row.id = this.getLevelColumnId(levelIndex, attribute);
-    row.className = "level-column-" + attribute;
+    row.className = "level-column level-column-" + attribute;
 
     this.createIconCell(row);
 
