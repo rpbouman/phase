@@ -1,3 +1,5 @@
+div.system_view > div.head >  span.toggle,
+.phase-diagram > div.system_view > table.relation > tbody > tr.view > td.icon,
 div.view > div.head >  span.toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.view > td.icon {
   background-image: url('../images/view_16x16.png');
