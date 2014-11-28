@@ -1,6 +1,6 @@
 var editors = {
 };
-var SchemaEditor, CubeEditor,
+var SchemaEditor, CubeEditor, VirtualCubeEditor,
     SharedDimensionEditor, PrivateDimensionEditor, DimensionUsageEditor,
     HierarchyEditor, LevelEditor, MeasureEditor
 ;
@@ -538,16 +538,19 @@ var GenericEditor;
     if (!conf.toolbar.buttons) {
       conf.toolbar.buttons = [];
     }
-    conf.toolbar.buttons.splice(
-      0, 0,
-      {"class": "clone", tooltip: "Clone this item", handler: function(){
-        this.cloneModelElement();
-      }}
-    );
-    this.conf.toolbar.buttons.splice(
-      1, 0,
-      {class: "separator"}
-    );
+    //add the clone button and separator, if necessary.
+    if (!conf.toolbar.buttons.length || conf.toolbar.buttons[0]["class"] !== "clone") {
+      conf.toolbar.buttons.splice(
+        0, 0,
+        {"class": "clone", tooltip: "Clone this item", handler: function(){
+          this.cloneModelElement();
+        }}
+      );
+      this.conf.toolbar.buttons.splice(
+        1, 0,
+        {class: "separator"}
+      );
+    }
     var dom = GenericEditor._super.prototype.createDom.apply(this, arguments);
     var toolbar = this.toolbar;
     if (toolbar) {
