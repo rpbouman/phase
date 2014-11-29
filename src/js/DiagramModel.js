@@ -34,6 +34,47 @@ var DiagramModel;
     return this.tables[index];
   },
   removeTable: function(index){
+    var relationshipsMap = {}, relationShipIndexes = [];
+    //mark relationships where this was a left table
+    this.eachTableRelationship(function(relationship, i){
+      if (relationshipsMap[i]) {
+        return true;
+      }
+      relationshipsMap[i] = true;
+      relationShipIndexes.push(i);
+    }, this, {
+      leftTable: index
+    });
+    //mark relationships where this was a right table
+    this.eachTableRelationship(function(relationship, i){
+      if (relationshipsMap[i]) {
+        return true;
+      }
+      relationshipsMap[i] = true;
+      relationShipIndexes.push(i);
+    }, this, {
+      rightTable: index
+    });
+    relationShipIndexes.sort();
+    var i, n = relationShipIndexes.length;
+    for (i = n - 1; i >= 0; i--){
+      this.relationships.splice(relationShipIndexes[i], 1);
+    }
+    //update remaining relationships to updated table index.
+    this.eachTableRelationship(function(relationship, i){
+      if (relationship.leftTable === index) {
+        throw "Found unupdated relationship - this should have been removed";
+      }
+      if (relationship.leftTable > index) {
+        relationship.leftTable--;
+      }
+      if (relationship.rightTable === index) {
+        throw "Found unupdated relationship - this should have been removed";
+      }
+      if (relationship.rightTable > index) {
+        relationship.rightTable--;
+      }
+    }, this);
     return this.tables.splice(index, 1);
   },
   getTableIndex: function(rec){
