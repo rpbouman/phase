@@ -1245,6 +1245,15 @@ adopt(SchemaEditor, GenericEditor);
           case "relation":
             modelElementPath.type = "Table";
             modelElementPath[modelElementPath.type] = object.metadata.alias || object.metadata.TABLE_NAME;
+            var relation = this.model.getCubeRelation(modelElementPath);
+            var annotationPrefix = this.getCubeTableAnnotationPrefix(
+              relation.attributes.alias,
+              relation.attributes.name
+            );
+            this.model.removeAnnotationsWithPrefix(
+              this.model.getModelElementParentPath(modelElementPath),
+              annotationPrefix
+            );
             break;
           default:
             return;
@@ -2083,14 +2092,14 @@ adopt(DimensionUsageEditor, GenericEditor);
           case "level":
             modelElementPath.type = "Level";
             modelElementPath[modelElementPath.type] = object.level.attributes.name;
+            this.model.removeModelElement(modelElementPath);
             break;
           case "relation":
             this.removeHierarchyRelation(data);
-            //fall through intentionally
+            return;
           default:
             return;
         }
-        this.model.removeModelElement(modelElementPath);
       },
       changeName: function(diagram, event, data){
       },
@@ -2116,9 +2125,6 @@ adopt(DimensionUsageEditor, GenericEditor);
         }
         this.createNewLevel(conf);
       },
-      tableRelationshipCreated: function(diagram, event, data){
-        this.handleTableRelationshipCreated(data);
-      },
       primaryKeySet: function(diagram, event, data){
         this.model.setHierarchyPrimaryKey(
           this.modelElementPath,
@@ -2129,6 +2135,12 @@ adopt(DimensionUsageEditor, GenericEditor);
         this.updateFieldValue("primaryKeyTable");
         this.updatePrimaryKeyField();
         this.updateFieldValue("primaryKey");
+      },
+      tableRelationshipCreated: function(diagram, event, data){
+        this.handleTableRelationshipCreated(data);
+      },
+      removeTableRelationship: function(diagram, event, data){
+        this.handleTableRelationshipRemoved(data);
       }
     }
   });
@@ -2220,6 +2232,11 @@ adopt(DimensionUsageEditor, GenericEditor);
     var diagram = this.getDiagram();
     var diagramModel = diagram.getDiagramModel();
     diagramModel.removeTable(objectInfo.objectIndex);
+    var annotationPrefix = this.getHierarchyTableAnnotationPrefix(
+      objectInfo.object.alias,
+      objectInfo.object.metadata.TABLE_NAME
+    );
+    this.model.removeAnnotationsWithPrefix(this.modelElementPath, annotationPrefix);
     this.recalculateHierarchyRelations();
   },
   handleModelEvent: function(event, data){
@@ -2350,36 +2367,81 @@ adopt(DimensionUsageEditor, GenericEditor);
 
       leftRelation = createTableElement(tableIndex);
       tableRelationship = tableRelationships[tableIndex];
-      relationships = tableRelationship.left;
+      if (tableRelationship) {
+        relationships = tableRelationship.left;
 
-      var i, n = relationships.length, attributes, right, relationship, joinElement;
-      for (i = 0; i < n; i++){
-        relationship = relationships[i];
-        right = diagramModel.getTable(relationship.rightTable);
-        attributes = {
-          leftAlias: leftRelation.attributes.alias,
-          leftKey: relationship.leftColumn,
-          rightAlias: right.alias || right.metadata.TABLE_NAME,
-          rightKey: relationship.rightColumn
+        var i, n = relationships.length, attributes, right, relationship, joinElement;
+        for (i = 0; i < n; i++){
+          relationship = relationships[i];
+          right = diagramModel.getTable(relationship.rightTable);
+          attributes = {
+            leftAlias: leftRelation.attributes.alias,
+            leftKey: relationship.leftColumn,
+            rightAlias: right.alias || right.metadata.TABLE_NAME,
+            rightKey: relationship.rightColumn
+          }
+          joinElement = model.createElement("Join", attributes)
+          joinElement.childNodes[0] = leftRelation;
+          joinElement.childNodes[1] = makeRelation(relationship.rightTable);
+          leftRelation = joinElement;
         }
-        joinElement = model.createElement("Join", attributes)
-        joinElement.childNodes[0] = leftRelation;
-        joinElement.childNodes[1] = makeRelation(relationship.rightTable);
-        leftRelation = joinElement;
       }
       return leftRelation;
     }
-    var rootRelation;
+    //
+    var prevRootRelation, rootRelation, attributes;
     for (item in roots) {
       rootRelation = makeRelation(parseInt(item, 10));
+      if (prevRootRelation) {
+        attributes = {};
+        joinElement = model.createElement("Join", attributes);
+        joinElement.childNodes[0] = prevRootRelation;
+        joinElement.childNodes[1] = rootRelation;
+        prevRootRelation = joinElement;
+      }
+      else {
+        prevRootRelation = rootRelation;
+      }
     }
-    model.setHierarchyTable(this.modelElementPath, rootRelation);
+    diagramModel.eachTable(function(table, i){
+      if (tableRelationships[i]) {
+        return true;
+      }
+      rootRelation = createTableElement(i);
+      if (prevRootRelation) {
+        attributes = {};
+        joinElement = model.createElement("Join", attributes);
+        joinElement.childNodes[0] = prevRootRelation;
+        joinElement.childNodes[1] = rootRelation;
+        prevRootRelation = joinElement;
+      }
+      else {
+        prevRootRelation = rootRelation;
+      }
+    }, this);
+    model.setHierarchyTable(this.modelElementPath, prevRootRelation || rootRelation);
   },
   handleTableRelationshipCreated: function(data){
     var model = this.model;
     var diagram = this.getDiagram();
     var diagramModel = diagram.getDiagramModel();
     diagramModel.relationships.push(data);
+    this.recalculateHierarchyRelations();
+  },
+  handleTableRelationshipRemoved: function(data){
+    var model = this.model;
+    var diagram = this.getDiagram();
+    var diagramModel = diagram.getDiagramModel();
+    var relationshipIndex = diagramModel.indexOfTableRelationship({
+      leftTable: data.leftTableIndex,
+      leftColumn: data.leftColumn,
+      rightTable: data.rightTableIndex,
+      rightColumn: data.rightColumn
+    });
+    if (relationshipIndex === -1) {
+      throw "Relationship not found!";
+    }
+    diagramModel.relationships.splice(relationshipIndex, 1);
     this.recalculateHierarchyRelations();
   },
   getHierarchyRelationsInfo: function(relations, index, callback1, callback2, scope){
