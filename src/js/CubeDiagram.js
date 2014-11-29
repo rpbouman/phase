@@ -17,7 +17,7 @@ var CubeDiagram;
       var eventName;
       switch (cellEditor) {
         case this.nameCellEditor:
-          eventName = "changeName";
+          eventName = "change" + container.className.charAt(0).toUpperCase() + container.className.substr(1);
           break;
         case this.aggregatorCellEditor:
           eventName = "changeAggregator";
@@ -26,7 +26,8 @@ var CubeDiagram;
       return this.fireEvent(eventName, objectInfo);
     },
     editingStopped: function(cellEditor, event, eventData){
-      var objectInfo = this.getDiagramElementObjectInfo(eventData.container);
+      var container = eventData.container;
+      var objectInfo = this.getDiagramElementObjectInfo(container);
       var div = objectInfo.dom;
       this.moveDiagramElement(div, parseInt(div.style.left, 10), parseInt(div.style.top, 10));
       if (eventData.newValue === eventData.oldValue) {
@@ -37,7 +38,7 @@ var CubeDiagram;
       var eventName;
       switch (cellEditor) {
         case this.nameCellEditor:
-          eventName = "nameChanged";
+          eventName = container.className + "Changed";
           break;
         case this.aggregatorCellEditor:
           eventName = "aggregatorChanged";
@@ -319,6 +320,7 @@ var CubeDiagram;
       case "edit":
       case "aggregator":
       case "relationship-menu":
+      case "caption":
         break;
       default:
         return;
@@ -343,6 +345,7 @@ var CubeDiagram;
         this.fireEvent(className + "DiagramElement", objectInfo);
         break;
       case "name":
+      case "caption":
       case "aggregator":
         if (objectInfo.objectType === "relation") {
           return;
@@ -350,6 +353,7 @@ var CubeDiagram;
         var editor = null;
         switch (className) {
           case "name":
+          case "caption":
             editor = this.nameCellEditor;
             break;
           case "aggregator":
@@ -421,6 +425,10 @@ var CubeDiagram;
     cell.innerHTML =  measure.attributes.name;
 
     cell = row.insertCell(cells.length);
+    cell.className = "caption";
+    cell.innerHTML =  measure.attributes.caption || "";
+
+    cell = row.insertCell(cells.length);
     cell.className = "edit";
 
     cell = row.insertCell(cells.length);
@@ -435,7 +443,7 @@ var CubeDiagram;
 
     cell = row.insertCell(cells.length);
     cell.className = "aggregator";
-    cell.colSpan = 3;
+    cell.colSpan = 4;
     cell.innerHTML =  measure.attributes.aggregator || MeasureEditor.prototype.fields.aggregator.defaultValue;
 
     var dom = this.getDom();
@@ -587,6 +595,10 @@ var CubeDiagram;
     cell.innerHTML =  dimension.attributes.name;
 
     cell = row.insertCell(cells.length);
+    cell.className = "caption";
+    cell.innerHTML =  dimension.attributes.caption || "";
+
+    cell = row.insertCell(cells.length);
     cell.className = "edit";
 
     cell = row.insertCell(cells.length);
@@ -631,7 +643,7 @@ var CubeDiagram;
       this.createIconCell(row);
 
       cell = row.insertCell(cells.length);
-      cell.colSpan = 3;
+      cell.colSpan = 4;
       cell.innerHTML = "source";
 
       //add relationship to connect to shared dimension

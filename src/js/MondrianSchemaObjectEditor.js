@@ -1262,34 +1262,56 @@ adopt(SchemaEditor, GenericEditor);
       },
       changeName: function(diagram, event, data){
       },
-      nameChanged: function(diagram, event, data){
+      captionChanged: function(diagram, event, data){
         var modelElementPath = merge({}, this.modelElementPath);
         switch (data.objectType) {
+          case "shareddimension":
+            debugger;
+            return;
           case "dimensionusage":
             modelElementPath.type = "DimensionUsage";
             modelElementPath[modelElementPath.type] = data.object.dimension.attributes.name;
-            this.model.setAttributeValue(modelElementPath, "name", data.newValue);
             break;
           case "privatedimension":
             modelElementPath.type = "PrivateDimension";
             modelElementPath[modelElementPath.type] = data.object.dimension.attributes.name;
-            this.model.setAttributeValue(modelElementPath, "name", data.newValue);
             break;
+          case "measure":
+            modelElementPath.type = "Measure";
+            modelElementPath[modelElementPath.type] = data.object.measure.attributes.name;
+            break;
+          case "relation":
+          default:
+            return;
+        }
+        this.model.setAttributeValue(modelElementPath, "caption", data.newValue);
+      },
+      nameChanged: function(diagram, event, data){
+        var modelElementPath = merge({}, this.modelElementPath);
+        switch (data.objectType) {
           case "shareddimension":
             this.model.changeSharedDimensionName(
               data.object.dimension.attributes.name,
               data.newValue
             );
+            return;
+          case "dimensionusage":
+            modelElementPath.type = "DimensionUsage";
+            modelElementPath[modelElementPath.type] = data.object.dimension.attributes.name;
+            break;
+          case "privatedimension":
+            modelElementPath.type = "PrivateDimension";
+            modelElementPath[modelElementPath.type] = data.object.dimension.attributes.name;
             break;
           case "measure":
             modelElementPath.type = "Measure";
             modelElementPath[modelElementPath.type] = data.object.measure.attributes.name;
-            this.model.setAttributeValue(modelElementPath, "name", data.newValue);
             break;
           case "relation":
-            break;
           default:
+            return;
         }
+        this.model.setAttributeValue(modelElementPath, "name", data.newValue);
       },
       aggregatorChanged: function(diagram, event, data){
         var modelElementPath = merge({}, this.modelElementPath);
@@ -2103,18 +2125,31 @@ adopt(DimensionUsageEditor, GenericEditor);
       },
       changeName: function(diagram, event, data){
       },
+      captionChanged: function(diagram, event, data){
+        var modelElementPath = merge({}, this.modelElementPath);
+        switch (data.objectType) {
+          case "level":
+            modelElementPath.type = "Level";
+            modelElementPath[modelElementPath.type] = data.object.level.attributes.name;
+            break;
+          case "relation":
+          default:
+            return;
+        }
+        this.model.setAttributeValue(modelElementPath, "caption", data.newValue);
+      },
       nameChanged: function(diagram, event, data){
         var modelElementPath = merge({}, this.modelElementPath);
         switch (data.objectType) {
           case "level":
             modelElementPath.type = "Level";
             modelElementPath[modelElementPath.type] = data.object.level.attributes.name;
-            this.model.setAttributeValue(modelElementPath, "name", data.newValue);
             break;
           case "relation":
-            break;
           default:
+            return;
         }
+        this.model.setAttributeValue(modelElementPath, "name", data.newValue);
       },
       createTable: function(diagram, event, conf) {
         this.createHierarchyRelation(conf);

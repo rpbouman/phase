@@ -11,14 +11,15 @@ var HierarchyDiagram;
     stopEditing: function(cellEditor, event, eventData){
       var dom;
       var container = eventData.container;
-      var objectInfo = this.getDiagramElementObjectInfo(eventData.container);
+      var objectInfo = this.getDiagramElementObjectInfo(container);
       objectInfo.newValue = eventData.newValue;
       objectInfo.oldValue = eventData.oldValue;
-      var eventName = "changeName";
+      var eventName = "change" + container.className.charAt(0).toUpperCase() + container.className.substr(1);
       return this.fireEvent(eventName, objectInfo);
     },
     editingStopped: function(cellEditor, event, eventData){
-      var objectInfo = this.getDiagramElementObjectInfo(eventData.container);
+      var container = eventData.container;
+      var objectInfo = this.getDiagramElementObjectInfo(container);
       var div = objectInfo.dom;
       this.moveDiagramElement(div, parseInt(div.style.left, 10), parseInt(div.style.top, 10));
       if (eventData.newValue === eventData.oldValue) {
@@ -26,7 +27,7 @@ var HierarchyDiagram;
       }
       objectInfo.newValue = eventData.newValue;
       objectInfo.oldValue = eventData.oldValue;
-      var eventName = "nameChanged";
+      var eventName = container.className + "Changed";
       return this.fireEvent(eventName, objectInfo);
     }
   };
@@ -323,6 +324,7 @@ var HierarchyDiagram;
     switch (className) {
       case "checkbox":
       case "name":
+      case "caption":
       case "remove":
       case "edit":
       case "relationship-menu":
@@ -364,6 +366,7 @@ var HierarchyDiagram;
         this.fireEvent(className + "DiagramElement", objectInfo);
         break;
       case "name":
+      case "caption":
         if (objectInfo.objectType === "relation") {
           return;
         }
@@ -611,7 +614,7 @@ var HierarchyDiagram;
 
     var cells = row.cells;
     cell = row.insertCell(cells.length);
-    cell.colSpan = 3;
+    cell.colSpan = 4;
     cell.innerHTML = label || attribute;
 
     //render the level relationship. There is at most just one.
@@ -666,6 +669,10 @@ var HierarchyDiagram;
     cell = row.insertCell(cells.length);
     cell.className = "name";
     cell.innerHTML =  metadata.attributes.name;
+
+    cell = row.insertCell(cells.length);
+    cell.className = "caption";
+    cell.innerHTML =  metadata.attributes.caption || "";
 
     cell = row.insertCell(cells.length);
     cell.className = "edit";
