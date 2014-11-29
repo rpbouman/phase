@@ -837,6 +837,48 @@ var MondrianModel;
     });
     return annotations;
   },
+  removeAnnotations: function(element) {
+    var index = -1
+    this.eachElementWithTag(element, "Annotations", function(node, i){
+      index = i;
+      return false;
+    });
+    if (index === -1) {
+      return;
+    }
+    element.childNodes.splice(index, 1);
+  },
+  removeAnnotation: function(modelElement, index) {
+    var annotations = this.getAnnotations(modelElement);
+    var childNodes = annotations.childNodes;
+    var ret = childNodes.splice(index, 1);
+    if (childNodes.length === 0){
+      this.removeAnnotations(modelElement);
+    }
+    return ret;
+  },
+  removeAnnotationsWithPrefix: function(element, prefix){
+    if (!iEmt(element)) {
+      element = this.getModelElement(element);
+    }
+    if (!iEmt(element)) {
+      throw "Invalid element";
+    }
+    var indexes = [];
+    this.eachAnnotation(element, function(annotation, i){
+      indexes.push(i);
+    }, this, function(annotation, i){
+      return
+        annotation.attributes &&
+        annotation.attributes.name &&
+        annotation.attributes.name.indexOf(prefix) === 0
+      ;
+    });
+    var i, n = indexes.length;
+    for (i = n - 1; i >= 0; i--) {
+      this.removeAnnotation(element, i);
+    }
+  },
   getElementText: function(element){
     if (!element.childNodes) {
       return null;
