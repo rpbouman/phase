@@ -1245,16 +1245,8 @@ adopt(SchemaEditor, GenericEditor);
           case "relation":
             modelElementPath.type = "Table";
             modelElementPath[modelElementPath.type] = object.metadata.alias || object.metadata.TABLE_NAME;
-            var relation = this.model.getCubeRelation(modelElementPath);
-            var annotationPrefix = this.getCubeTableAnnotationPrefix(
-              relation.attributes.alias,
-              relation.attributes.name
-            );
-            this.model.removeAnnotationsWithPrefix(
-              this.model.getModelElementParentPath(modelElementPath),
-              annotationPrefix
-            );
-            break;
+            this.removeCubeRelation(modelElementPath);
+            return;
           default:
             return;
         }
@@ -1430,6 +1422,18 @@ adopt(SchemaEditor, GenericEditor);
     enabled: fields.enabled,
     cache: fields.cache,
     description: fields.description
+  },
+  removeCubeRelation: function(modelElementPath){
+    var relation = this.model.getCubeRelation(modelElementPath);
+    var annotationPrefix = this.getCubeTableAnnotationPrefix(
+      relation.attributes.alias,
+      relation.attributes.name
+    );
+    this.model.removeAnnotationsWithPrefix(
+      this.model.getModelElementParentPath(modelElementPath),
+      annotationPrefix
+    );
+    this.model.removeModelElement(modelElementPath);
   },
   handleModelEvent: function(event, data){
     var modelElement = data.modelElement;
