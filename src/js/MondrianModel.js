@@ -1108,10 +1108,28 @@ var MondrianModel;
     if (iStr(virtualCube)) {
       virtualCube = this.getVirtualCube(virtualCube);
     }
-    if (!Emt(virtualCube)) {
+    if (!iEmt(virtualCube)) {
       throw "No such virtual cube.";
     }
     return this.eachElementWithTag(virtualCube, "CubeUsage", callback, scope, filter);
+  },
+  eachVirtualCubeMeasure: function(virtualCube, callback, scope, filter){
+    if (iStr(virtualCube)) {
+      virtualCube = this.getVirtualCube(virtualCube);
+    }
+    if (!iEmt(virtualCube)) {
+      throw "No such virtual cube.";
+    }
+    return this.eachElementWithTag(virtualCube, "VirtualCubeMeasure", callback, scope, filter);
+  },
+  eachVirtualCubeDimension: function(virtualCube, callback, scope, filter){
+    if (iStr(virtualCube)) {
+      virtualCube = this.getVirtualCube(virtualCube);
+    }
+    if (!iEmt(virtualCube)) {
+      throw "No such virtual cube.";
+    }
+    return this.eachElementWithTag(virtualCube, "VirtualCubeDimension", callback, scope, filter);
   },
   eachParameter: function(callback, scope, filter){
     var schemaNode = this.getSchema();
