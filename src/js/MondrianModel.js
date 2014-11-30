@@ -1182,7 +1182,7 @@ var MondrianModel;
     });
     return measureNode;
   },
-  eachCubeCalculatedMember: function(cube, callback, scope, filter){
+  eachCalculatedMember: function(cube, callback, scope, filter){
     if (iStr(cube)) {
       cube = this.getCube(cube);
     }
@@ -1212,24 +1212,6 @@ var MondrianModel;
       return dimension.attributes.name === dimensionName;
     })
     return dimensionNode;
-  },
-  eachCubeCalculatedMember: function(cube, callback, scope, filter){
-    if (iStr(cube)) {
-      cube = this.getCube(cube);
-    }
-    if (!iEmt(cube)) {
-      throw "Invalid cube";
-    }
-    return this.eachElementWithTag(cube, "CalculatedMember", callback, scope, filter);
-  },
-  getCubeCalculatedMember: function(cube, calculatedMemberName){
-    var calculatedMemberNode = null;
-    this.eachCubeCalculatedMember(cube, function(calculatedMember, index){
-      calculatedMemberNode = calculatedMember;
-    }, this, function(calculatedMember, index){
-      return calculatedMember.attributes.name === calculatedMemberName;
-    });
-    return calculatedMemberNode;
   },
   eachPrivateDimension: function(cube, callback, scope, filter){
     if (iStr(cube)) {
@@ -1479,7 +1461,7 @@ var MondrianModel;
       case "CalculatedMember":
         if (modelElementPath.Cube) {
           var cube = this.getCube(modelElementPath.Cube);
-          data = this.getCubeCalculatedMember(cube, modelElementPath.CalculatedMember);
+          data = this.getCalculatedMember(cube, modelElementPath.CalculatedMember);
         }
         else {
           throw "TODO: get calculated member for this context."

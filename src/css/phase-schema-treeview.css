@@ -9,6 +9,8 @@ div.Schema > div.head >  span.toggle,
   background-image: url('../images/schema.png');
 }
 
+div.CubeUsage > div.head >  span.toggle,
+.mondrian-schema-tree div.CubeUsage > div.head >  span.toggle,
 div.Cube > div.head >  span.toggle,
 .mondrian-schema-tree div.Cube > div.head >  span.toggle {
   background-image: url('../images/cube.png');

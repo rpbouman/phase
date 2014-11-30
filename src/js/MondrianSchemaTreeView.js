@@ -430,7 +430,7 @@ var MondrianSchemaTreeView;
     model.eachMeasure(cubeName, function(measure, index){
       this.createMeasureTreeNode(measure, parentTreeNode);
     }, this);
-    model.eachCubeCalculatedMember(cubeName, function(calculatedMember, index){
+    model.eachCalculatedMember(cubeName, function(calculatedMember, index){
       this.createCalculatedMemberTreeNode(calculatedMember, parentTreeNode);
     }, this);
     model.eachPrivateDimension(cubeName, function(dimension, index){
@@ -521,6 +521,65 @@ var MondrianSchemaTreeView;
       this.loadCubeTreeNodeChildren
     );
   },
+  loadVirtualCubeTreeNodeChildren: function(callback, parentTreeNode){
+    var me = this;
+    var modelSelection = this.parseModelElementPath(parentTreeNode.id);
+    var model = this.mondrianSchemaCache.getModel(modelSelection.Schema);
+    var virtualCubeName = modelSelection.VirtualCube;
+    var virtualCube = model.getVirtualCube(virtualCubeName);
+
+    //figure out which cubes are referenced by this virtual cube
+    var cubeUsages = {};
+    var cubeUsageData;
+    var getCubeUsageData = function(cubeName){
+      cubeUsageData = cubeUsages[cubeName];
+      if (iUnd(cubeUsageData)) {
+        cubeUsageData = {
+          attributes: {
+            name: cubeName
+          },
+          measures: {
+          },
+          dimensions: {
+          }
+        };
+        cubeUsages[cubeName] = cubeUsageData;
+      }
+      return cubeUsageData;
+    };
+    var sharedDimensions = {};
+    model.eachCubeUsage(virtualCube, function(cubeUsage, index){
+      var cubeName = cubeUsage.attributes.cubeName;
+      var cubeUsageData = getCubeUsageData(cubeName);
+    }, this);
+    model.eachVirtualCubeMeasure(virtualCube, function(virtualCubeMeasure, index){
+      var cubeName = virtualCubeMeasure.attributes.cubeName;
+      var cubeUsageData = getCubeUsageData(cubeName);
+      cubeUsageData.measures[virtualCubeMeasure.attributes.name] = virtualCubeMeasure;
+    }, this);
+    model.eachVirtualCubeDimension(virtualCube, function(virtualCubeDimension, index){
+      var dimensionName = virtualCubeDimension.attributes.name;
+      var cubeName = virtualCubeDimension.attributes.cubeName;
+      if (cubeName) {
+        var cubeUsageData = getCubeUsageData(cubeName);
+        cubeUsageData.dimensions[dimensionName] = virtualCubeDimension;
+      }
+      else {
+        sharedDimensions[dimensionName] = true;
+      }
+    }, this);
+
+    var cubeUsageTreeNode, measure, measures, dimension, dimensions, children;
+    for (cubeName in cubeUsages) {
+      cubeUsageData = getCubeUsageData(cubeName);
+      cubeUsageTreeNode = this.createCubeUsageTreeNode(cubeUsageData, parentTreeNode);
+    }
+
+    model.eachCalculatedMember(virtualCube, function(calculatedMember, index){
+      this.createCalculatedMemberTreeNode(calculatedMember, parentTreeNode);
+    }, this);
+    callback();
+  },
   createVirtualCubeTreeNode: function(virtualCube, parentTreeNode){
     return this.createModelElementTreeNode(
       virtualCube,
@@ -528,6 +587,26 @@ var MondrianSchemaTreeView;
       "VirtualCube",
       this.loadVirtualCubeTreeNodeChildren
     );
+  },
+  createCubeUsageTreeNode: function(cubeUsageData, parentTreeNode){
+    var cubeUsageTreeNode = this.createModelElementTreeNode(
+      cubeUsageData,
+      parentTreeNode,
+      "CubeUsage",
+      true
+    );
+
+    var measure, measures = cubeUsageData.measures;
+    for (measure in measures){
+      measure = measures[measure];
+      this.createMeasureTreeNode(measure, cubeUsageTreeNode);
+    }
+
+    var dimension, dimensions = cubeUsageData.dimensions;
+    for (dimension in dimensions){
+      dimension = dimensions[dimension];
+      this.createDimensionTreeNode(dimension, cubeUsageTreeNode);
+    }
   },
   compareTreeNode: function(treeNode){
     var thisId = this.conf.id.split(":");
@@ -670,19 +749,26 @@ var MondrianSchemaTreeView;
       visibility = "visible-true";
     }
     var classes = [type, visibility];
-    var treeNode = new TreeNode({
+    var conf = {
       id: parentTreeNode.id + ":" + type + ":" + name,
       classes: classes,
       parentTreeNode: parentTreeNode,
       title: name,
       tooltip: name,
       state: childLoader ? TreeNode.states.collapsed : TreeNode.states.leaf,
-      loadChildren: function(callback){
-        childLoader.call(me, callback, this);
-      },
       sorted: true,
       compare: this.compareTreeNode
-    });
+    }
+    if (iFun(childLoader)) {
+      conf.loadChildren = function(callback){
+        childLoader.call(me, callback, this);
+      };
+    }
+    else
+    if (iArr(childLoader)) {
+      conf.children = childLoader;
+    }
+    var treeNode = new TreeNode(conf);
     return treeNode;
   },
   renderModelTreeNodeChildren: function (parentTreeNode, callback){
