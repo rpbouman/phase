@@ -1104,6 +1104,15 @@ var MondrianModel;
     var schemaNode = this.getSchema();
     return this.eachElementWithTag(schemaNode, "VirtualCube", callback, scope, filter);
   },
+  eachCubeUsage: function(virtualCube, callback, scope, filter){
+    if (iStr(virtualCube)) {
+      virtualCube = this.getVirtualCube(virtualCube);
+    }
+    if (!Emt(virtualCube)) {
+      throw "No such virtual cube.";
+    }
+    return this.eachElementWithTag(virtualCube, "CubeUsage", callback, scope, filter);
+  },
   eachParameter: function(callback, scope, filter){
     var schemaNode = this.getSchema();
     return this.eachElementWithTag(schemaNode, "Parameter", callback, scope, filter);
@@ -1140,7 +1149,7 @@ var MondrianModel;
     if (iStr(cube)) {
       cube = this.getCube(cube);
     }
-    if (!iObj(cube)) {
+    if (!iEmt(cube)) {
       throw "Invalid cube";
     }
     var ret = this.eachElementWithTag(cube, "Measure", callback, scope, filter);
@@ -1156,8 +1165,12 @@ var MondrianModel;
     return measureNode;
   },
   eachCubeCalculatedMember: function(cube, callback, scope, filter){
-    if (iStr(cube)) cube = this.getCube(cube);
-    if (!iObj(cube)) throw "Invalid cube";
+    if (iStr(cube)) {
+      cube = this.getCube(cube);
+    }
+    if (!iEmt(cube)) {
+      throw "Invalid cube";
+    }
     return this.eachElementWithTag(cube, "CalculatedMember", callback, scope, filter);
   },
   getCalculatedMember: function(cube, calculatedMemberName){
@@ -1183,8 +1196,12 @@ var MondrianModel;
     return dimensionNode;
   },
   eachCubeCalculatedMember: function(cube, callback, scope, filter){
-    if (iStr(cube)) cube = this.getCube(cube);
-    if (!iObj(cube)) throw "Invalid cube";
+    if (iStr(cube)) {
+      cube = this.getCube(cube);
+    }
+    if (!iEmt(cube)) {
+      throw "Invalid cube";
+    }
     return this.eachElementWithTag(cube, "CalculatedMember", callback, scope, filter);
   },
   getCubeCalculatedMember: function(cube, calculatedMemberName){
@@ -1197,8 +1214,12 @@ var MondrianModel;
     return calculatedMemberNode;
   },
   eachPrivateDimension: function(cube, callback, scope, filter){
-    if (iStr(cube)) cube = this.getCube(cube);
-    if (!iObj(cube)) throw "Invalid cube";
+    if (iStr(cube)) {
+      cube = this.getCube(cube);
+    }
+    if (!iEmt(cube)) {
+      throw "Invalid cube";
+    }
     return this.eachElementWithTag(cube, "Dimension", callback, scope, filter);
   },
   getPrivateDimension: function(cube, dimensionName){
@@ -1211,8 +1232,12 @@ var MondrianModel;
     return dimensionNode;
   },
   eachDimensionUsage: function(cube, callback, scope, filter){
-    if (iStr(cube)) cube = this.getCube(cube);
-    if (!iObj(cube)) throw "Invalid cube";
+    if (iStr(cube)) {
+      cube = this.getCube(cube);
+    }
+    if (!iEmt(cube)) {
+      throw "Invalid cube";
+    }
     return this.eachElementWithTag(cube, "DimensionUsage", callback, scope, filter);
   },
   getDimensionUsage: function(cube, dimensionName){
@@ -1228,7 +1253,7 @@ var MondrianModel;
     if (iStr(dimension)) {
       dimension = this.getSharedDimension(dimension);
     }
-    if (!iObj(dimension)) {
+    if (!iEmt(dimension)) {
       throw "Invalid dimension";
     }
     var ret = this.eachElementWithTag(
@@ -1257,19 +1282,21 @@ var MondrianModel;
       if (iStr(cube)) {
         cube = this.getCube(cube);
       }
-      if (!iObj(cube)) {
+      if (!iEmt(cube)) {
         throw "Now such cube";
       }
       dimension = this.getPrivateDimension(cube, dimension);
     }
-    if (!iObj(dimension)) {
+    if (!iEmt(dimension)) {
       throw "Now such dimension";
     }
     return this.getSharedDimensionHierarchy(dimension, hierarchy);
   },
   eachHierarchyLevel: function(hierarchy, callback, scope, filter) {
     //TODO: accept string argument for hiearchy.
-    if (!iObj(hierarchy)) throw "Invalid hierarchy";
+    if (!iEmt(hierarchy)) {
+      throw "Invalid hierarchy";
+    }
     return this.eachElementWithTag(hierarchy, "Level", callback, scope, filter);
   },
   getPrivateDimensionLevel: function(cubeName, dimensionName, hierarchyName, levelName){
@@ -1295,8 +1322,12 @@ var MondrianModel;
     return l;
   },
   eachDimensionUsage: function(cube, callback, scope, filter){
-    if (iStr(cube)) cube = this.getCube(cube);
-    if (!iObj(cube)) throw "Invalid cube";
+    if (iStr(cube)) {
+      cube = this.getCube(cube);
+    }
+    if (!iEmt(cube)) {
+      throw "Invalid cube";
+    }
     return this.eachElementWithTag(cube, "DimensionUsage", callback, scope, filter);
   },
   removeModelElement: function(modelElementPath){
@@ -1467,9 +1498,6 @@ var MondrianModel;
     }
     var relation = this.getRelation(cube);
     return relation;
-  },
-  getRelationOrJoin: function(element){
-
   },
   getHierarchy: function(modelElementPath){
     var hierarchy = this.getModelElement(modelElementPath);
