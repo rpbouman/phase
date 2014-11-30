@@ -181,11 +181,11 @@ var CubeDiagram;
           if (ddHandler.isColumn) {
             switch (objectType) {
               case "measure":
-                this.setMeasureColumn(objectInfo, columnDom, columnName);
+                this.setMeasureColumn(objectInfo, columnDom.id);
                 break;
               case "privatedimension":
               case "dimensionusage":
-                this.setCubeDimensionForeignKey(objectInfo, columnDom, columnName);
+                this.setCubeDimensionForeignKey(objectInfo, columnDom.id);
                 break;
               case "shareddimension":
                 this.createDimensionUsage(objectInfo, columnDom, columnName);
@@ -196,7 +196,8 @@ var CubeDiagram;
           if (ddHandler.isDimensionUsageSource) {
             switch (objectType) {
               case "shareddimension":
-                this.setDimensionUsageSource(objectInfo, columnDom, columnName);
+                var cubeDimensionIndex = parseInt(columnName.substr("dimensionusage".length), 10);
+                this.setDimensionUsageSource(cubeDimensionIndex, objectInfo);
                 break;
             }
           }
@@ -226,6 +227,48 @@ var CubeDiagram;
   arguments.callee._super.apply(this, [conf]);
 }).prototype = {
   renderTableAlias: false,
+  getRelationshipInfo: function(dom) {
+    var diagramModel = this.getDiagramModel();
+    var id = dom.id;
+    var dataToId = gAtt(dom, "data-to-id");
+    var dataFromId = gAtt(dom, "data-from-id");
+    var prefix = this.getId() + ":";
+    var relationshipInfo = {
+      dom: dom,
+      id: id,
+      fromId: dataFromId,
+      toId: dataToId
+    };
+    var dimensionUsagePrefix = this.getDimensionId("dimensionusage"),
+        privateDimensionPrefix = this.getDimensionId("privatedimension"),
+        sharedDimensionPrefix = this.getDimensionId("shareddimension"),
+        measurePrefix = this.getMeasureId()
+    ;
+    if (id.indexOf(dimensionUsagePrefix) === 0) {
+      relationshipInfo.objectIndex = parseInt(id.substr(dimensionUsagePrefix.length), 10);
+      relationshipInfo.object = diagramModel.getCubeDimension(relationshipInfo.objectIndex);
+      dimensionUsagePrefix += relationshipInfo.objectIndex + ":";
+      relationshipInfo.type = id.substr(dimensionUsagePrefix.length);
+    }
+    else
+    if (id.indexOf(privateDimensionPrefix) === 0) {
+      relationshipInfo.objectIndex = parseInt(id.substr(privateDimensionPrefix.length), 10);
+      relationshipInfo.object = diagramModel.getCubeDimension(relationshipInfo.objectIndex);
+      privateDimensionPrefix += relationshipInfo.objectIndex + ":";
+      relationshipInfo.type = id.substr(privateDimensionPrefix.length);
+    }
+    else
+    if (id.indexOf(sharedDimensionPrefix) === 0) {
+      debugger;
+    }
+    else
+    if (id.indexOf(measurePrefix) === 0) {
+      relationshipInfo.type = "measure";
+      relationshipInfo.objectIndex = parseInt(id.substr(measurePrefix.length), 10);
+      relationshipInfo.object = diagramModel.getMeasure(relationshipInfo.objectIndex);
+    }
+    return relationshipInfo;
+  },
   getDiagramElementObjectInfo: function(dom){
     var objectType, objectIndex, object;
     while(dom && dom.nodeType === 1) {
@@ -307,9 +350,6 @@ var CubeDiagram;
       return false;
     }) === false;
   },
-  getPrivateDimensionId: function(cubeName, privateDimension, index){
-    return "privatedimension" + index;
-  },
   clickHandler: function(event){
     var target = event.getTarget();
     var className = target.className;
@@ -325,20 +365,31 @@ var CubeDiagram;
       default:
         return;
     }
-    var div;
+    var div, objectInfo;
     switch (target.tagName) {
       case "TD":  //entities here,
         div = target.parentNode.parentNode.parentNode.parentNode;
+        objectInfo = this.getDiagramElementObjectInfo(div);
         break;
       case "DIV": //relationships here
         div = target.parentNode;
+        objectInfo = this.getRelationshipInfo(div);
         break;
     }
-    var objectInfo = this.getDiagramElementObjectInfo(div);
     switch (className) {
       case "relationship-menu":
-        var relationshipInfo = null;
-        this.fireEvent("removeRelationship", relationshipInfo);
+        switch (objectInfo.type) {
+          case "measure":
+            this.setMeasureColumn(objectInfo, null);
+            break;
+          case "sharedDimension":
+            this.setDimensionUsageSource(objectInfo.objectIndex, null);
+            break;
+          case "foreignKey":
+            this.setCubeDimensionForeignKey(objectInfo, null);
+            break;
+        }
+        //this.fireEvent("removeRelationship", relationshipInfo);
         break;
       case "remove":
       case "edit":
@@ -384,7 +435,16 @@ var CubeDiagram;
     var id = this.getMeasureRelationshipId(index);
     this.updateRelationship(id);
   },
-  setMeasureColumn: function(objectInfo, columnDom, columnName) {
+  setMeasureColumn: function(objectInfo, columnId) {
+    var columnName;
+    if (columnId) {
+      var prefix = ":COLUMN:";
+      var i = columnId.lastIndexOf(prefix);
+      columnName = columnId.substr(i + prefix.length);
+    }
+    else {
+      columnName = "";
+    }
     var object = objectInfo.object;
     object.measure.attributes.column = columnName;
 
@@ -392,9 +452,12 @@ var CubeDiagram;
     var measureRelationshipId = this.getMeasureRelationshipId(objectIndex);
 
     var measureRelationship = gEl(measureRelationshipId);
-    sAtt(measureRelationship, "data-to-id", columnDom.id);
+    sAtt(measureRelationship, "data-to-id", columnId);
 
     this.updateMeasureRelationship(objectInfo.objectIndex);
+  },
+  getMeasureId: function(index){
+    return this.getId() + ":measure" + (iDef(index) ? index : "");
   },
   renderMeasure: function(index) {
     var diagramModel = this.diagramModel;
@@ -404,7 +467,7 @@ var CubeDiagram;
     var y = rec.y;
     var type = "measure";
     var classes = "diagram-element " + type;
-    var measureId = this.getId() + ":" + type + index;
+    var measureId = this.getMeasureId(index);
     var tab = cEl("table",
       {
         "class": classes,
@@ -517,28 +580,41 @@ var CubeDiagram;
       this.updateDimensionUsageRelationship(i);
     }, this, sharedDimensionIndex);
   },
-  setCubeDimensionForeignKey: function(objectInfo, columnDom, columnName) {
+  setCubeDimensionForeignKey: function(objectInfo, columnId) {
     var object = objectInfo.object;
+    var columnName;
+    if (columnId) {
+      var prefix = ":COLUMN:";
+      var i = columnId.lastIndexOf(prefix);
+      columnName = columnId.substr(i + prefix.length);
+    }
+    else {
+      columnName = "";
+    }
     object.dimension.attributes.foreignKey = columnName;
     var objectIndex = objectInfo.objectIndex;
     var cubeDimensionRelationshipId = this.getCubeDimensionRelationshipId(objectIndex);
     var cubeDimensionRelationship = gEl(cubeDimensionRelationshipId);
-    sAtt(cubeDimensionRelationship, "data-from-id", columnDom.id);
+    sAtt(cubeDimensionRelationship, "data-from-id", columnId);
     this.updateCubeDimensionRelationship(objectInfo.objectIndex);
   },
   createDimensionUsage: function(objectInfo, columnDom, columnName){
     debugger;
   },
-  setDimensionUsageSource: function(objectInfo, columnDom, columnName){
-    var cubeDimensionIndex = parseInt(columnName.substr("dimensionusage".length), 10);
+  setDimensionUsageSource: function(cubeDimensionIndex, objectInfo){
     var diagramModel = this.getDiagramModel();
     var dimensionUsage = diagramModel.getCubeDimension(cubeDimensionIndex);
-    var dimensionUsage = dimensionUsage.dimension;
-    var sharedDimension = objectInfo.object.dimension;
-    dimensionUsage.attributes.source = sharedDimension.attributes.name;
-    var id = "dimensionusage" + cubeDimensionIndex + ":sharedDimension";
+    dimensionUsage = dimensionUsage.dimension;
+    if (objectInfo){
+      var sharedDimension = objectInfo.object.dimension;
+      dimensionUsage.attributes.source = sharedDimension.attributes.name;
+    }
+    else {
+      delete dimensionUsage.attributes.source;
+    }
+    var id = this.getDimensionUsageRelationshipId(cubeDimensionIndex);
     var relationship = gEl(id);
-    sAtt(relationship, "data-to-id", objectInfo.dom.id);
+    sAtt(relationship, "data-to-id", objectInfo ? objectInfo.dom.id : "");
     this.updateDimensionUsageRelationship(cubeDimensionIndex);
   },
   getCubeDimensionRelationshipId: function(index){
@@ -560,20 +636,24 @@ var CubeDiagram;
     id += index + ":foreignKey";
     return this.getId() + ":" + id;
   },
+  getDimensionUsageRelationshipId: function(index){
+    var id = "dimensionusage" + (iDef(index) ? index : "") + ":sharedDimension";
+    return this.getId() + ":" + id;
+  },
   updateCubeDimensionRelationship: function(index){
     var id = this.getCubeDimensionRelationshipId(index);
     this.updateRelationship(id);
   },
   updateDimensionUsageRelationship: function(index){
-    var id = this.getDimensionId(index, "dimensionusage") + ":sharedDimension";
+    var id = this.getDimensionUsageRelationshipId(index);
     this.updateRelationship(id);
   },
-  getDimensionId: function(index, type){
-    return this.getId() + ":" + type + index;
+  getDimensionId: function(type, index){
+    return this.getId() + ":" + type + (iDef(index) ? index : "");
   },
   renderDimension: function(rec, index, type){
     var dimension = rec.dimension;
-    var dimensionId = this.getDimensionId(index, type);
+    var dimensionId = this.getDimensionId(type, index);
     var classes = "diagram-element " + type;
     var tab = cEl("table",
       {
@@ -652,20 +732,20 @@ var CubeDiagram;
         if (dimension.dimension.attributes.name !== source) {
           return true;
         }
-        sharedDimensionId = this.getDimensionId(index, "shareddimension");
+        sharedDimensionId = this.getDimensionId("shareddimension", index);
         return false;
       }, this);
       if (sharedDimensionId) {
         this.renderRelationship(
           row,
           gEl(sharedDimensionId),
-          dimensionId + ":sharedDimension",
+          this.getDimensionUsageRelationshipId(index),
           ""
         );
       }
     }
 
-    //render the dimension relationship. There is at most just one.
+    //render the foreign key relationship for this cube dimension. There is at most just one.
     if (type === "dimensionusage" || type === "privatedimension") {
       var foreignKey = dimension.attributes.foreignKey;
       var tableId, columnId, columnElement;

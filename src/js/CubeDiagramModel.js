@@ -103,6 +103,9 @@ var CubeDiagramModel;
   getSharedDimension: function(index){
     return this.sharedDimensions[index];
   },
+  getCubeDimension: function(index){
+    return this.cubeDimensions[index];
+  },
   addCubeDimension: function(cubeDimension){
     var cubeDimensions = this.cubeDimensions;
     cubeDimensions.push(cubeDimension);
