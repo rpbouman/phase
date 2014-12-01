@@ -427,17 +427,21 @@ var MondrianSchemaTreeView;
     var modelSelection = this.parseModelElementPath(parentTreeNode.id);
     var model = this.mondrianSchemaCache.getModel(modelSelection.Schema);
     var cubeName = modelSelection.Cube;
-    model.eachMeasure(cubeName, function(measure, index){
+    var cube = model.getCube(cubeName);
+    model.eachMeasure(cube, function(measure, index){
       this.createMeasureTreeNode(measure, parentTreeNode);
     }, this);
-    model.eachCalculatedMember(cubeName, function(calculatedMember, index){
+    model.eachCalculatedMember(cube, function(calculatedMember, index){
       this.createCalculatedMemberTreeNode(calculatedMember, parentTreeNode);
     }, this);
-    model.eachPrivateDimension(cubeName, function(dimension, index){
+    model.eachPrivateDimension(cube, function(dimension, index){
       this.createDimensionTreeNode(dimension, parentTreeNode);
     }, this);
-    model.eachDimensionUsage(cubeName, function(dimensionUsage, index){
+    model.eachDimensionUsage(cube, function(dimensionUsage, index){
       this.createDimensionUsageTreeNode(dimensionUsage, parentTreeNode)
+    }, this);
+    model.eachNamedSet(cube, function(namedSet, index){
+      this.createNamedSetTreeNode(namedSet, parentTreeNode)
     }, this);
 
     callback();
@@ -467,6 +471,13 @@ var MondrianSchemaTreeView;
       measure,
       parentTreeNode,
       "Measure"
+    );
+  },
+  createNamedSetTreeNode: function(namedSet, parentTreeNode) {
+    return this.createModelElementTreeNode(
+      namedSet,
+      parentTreeNode,
+      "NamedSet"
     );
   },
   createCalculatedMemberTreeNode: function(calculatedMember, parentTreeNode){
@@ -786,6 +797,9 @@ var MondrianSchemaTreeView;
     model.eachVirtualCube(function(virtualCube, index){
       me.createVirtualCubeTreeNode(virtualCube, parentTreeNode);
     });
+    model.eachNamedSet(model.getSchema(), function(namedSet, index){
+      me.createNamedSetTreeNode(namedSet, parentTreeNode);
+    });
 
     callback();
   },
@@ -822,6 +836,7 @@ var MondrianSchemaTreeView;
           CalculatedMember: null,
           PrivateDimension: dimensionElements,
           DimensionUsage: null,
+          NamedSet: null
         },
         SharedDimension: dimensionElements,
         VirtualCube: {
@@ -829,8 +844,10 @@ var MondrianSchemaTreeView;
             VirtualMeasure: null,
             VirtualDimension: null
           },
-          CalculatedMember: null
-        }
+          CalculatedMember: null,
+          NamedSet: null
+        },
+        NamedSet: null
       }
     }
     var id = "", name, value = elements;

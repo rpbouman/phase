@@ -1996,6 +1996,7 @@ adopt(MeasureEditor, GenericEditor);
     description: fields.description
   }
 };
+adopt(NamedSetEditor, GenericEditor);
 
 (CalculatedMemberEditor = function(conf){
   linkCss("../css/phase-calculated-member-editor.css");

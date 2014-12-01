@@ -1184,6 +1184,15 @@ var MondrianModel;
     });
     return measureNode;
   },
+  getNamedSet: function(container, name) {
+    var namedSet = null;
+    this.eachNamedSet(container, function(namedSetElement, i){
+      namedSet = namedSetElement;
+    }, this, function(namedSetElement, i){
+      return namedSetElement.attributes.name === name;
+    })
+    return namedSet;
+  },
   eachNamedSet: function(container, callback, scope, filter){
     if (iStr(container)) {
       container = this.getModelElement(container);
@@ -1481,13 +1490,23 @@ var MondrianModel;
         }
         break;
       case "Level":
+        var hierarchy = modelElementPath.Hierarchy;
         var level = modelElementPath.Level === "" ? undefined : modelElementPath.Level;
         if (modelElementPath.SharedDimension) {
-          data = this.getSharedDimensionLevel(modelElementPath.SharedDimension, modelElementPath.Hierarchy, level);
+          data = this.getSharedDimensionLevel(
+            modelElementPath.SharedDimension,
+            hierarchy,
+            level
+          );
         }
         else
         if (modelElementPath.PrivateDimension) {
-          data = this.getPrivateDimensionLevel(modelElementPath.Cube, modelElementPath.PrivateDimension, modelElementPath.Hierarchy, level);
+          data = this.getPrivateDimensionLevel(
+            modelElementPath.Cube,
+            modelElementPath.PrivateDimension,
+            hierarchy,
+            level
+          );
         }
         break;
       case "Measure":
@@ -1495,9 +1514,15 @@ var MondrianModel;
         data = this.getMeasure(cube, modelElementPath.Measure);
         break;
       case "CalculatedMember":
+        var name = modelElementPath.CalculatedMember;
         if (modelElementPath.Cube) {
           var cube = this.getCube(modelElementPath.Cube);
-          data = this.getCalculatedMember(cube, modelElementPath.CalculatedMember);
+          data = this.getCalculatedMember(cube, name);
+        }
+        else
+        if (modelElementPath.VirtualCube) {
+          var virtualCube = this.getCube(modelElementPath.VirtualCube);
+          data = this.getCalculatedMember(virtualCube, name);
         }
         else {
           throw "TODO: get calculated member for this context."
@@ -1514,6 +1539,21 @@ var MondrianModel;
         break;
       case "VirtualCube":
         data = this.getVirtualCube(modelElementPath.VirtualCube);
+        break;
+      case "NamedSet":
+        if (modelElementPath.Cube) {
+          var cube = this.getCube(modelElementPath.Cube);
+          data = this.getNamedSet(cube, modelElementPath.NamedSet);
+        }
+        else
+        if (modelElementPath.VirtualCube) {
+          var virtualCube = this.getCube(modelElementPath.VirtualCube);
+          data = this.getNamedSet(virtualCube, modelElementPath.NamedSet);
+        }
+        else {
+          var schema = this.getSchema;
+          data = this.getNamedSet(schema, modelElementPath.NamedSet);
+        }
         break;
       default:
         data = null;

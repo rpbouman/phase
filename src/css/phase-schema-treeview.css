@@ -53,6 +53,11 @@ div.CalculatedMember > div.head >  span.toggle,
   background-image: url('../images/calculated-member.png');
 }
 
+div.NamedSet > div.head >  span.toggle,
+.mondrian-schema-tree div.NamedSet > div.head >  span.toggle {
+  background-image: url('../images/named-set.png');
+}
+
 div.DimensionUsage > div.head >  span.toggle,
 .mondrian-schema-tree div.DimensionUsage > div.head >  span.toggle {
   background-image: url('../images/dimension-usage.png');
