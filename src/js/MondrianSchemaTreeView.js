@@ -818,12 +818,19 @@ var MondrianSchemaTreeView;
     var elements = {
       Schema: {
         Cube: {
+          Measure: null,
+          CalculatedMember: null,
           PrivateDimension: dimensionElements,
           DimensionUsage: null,
-          Measure: null,
-          CalculatedMember: null
         },
-        SharedDimension: dimensionElements
+        SharedDimension: dimensionElements,
+        VirtualCube: {
+          CubeUsage: {
+            VirtualMeasure: null,
+            VirtualDimension: null
+          },
+          CalculatedMember: null
+        }
       }
     }
     var id = "", name, value = elements;
