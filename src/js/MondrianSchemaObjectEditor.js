@@ -99,25 +99,6 @@ var fields = {
     labelText: "Format",
     dataPath: ["modelElement", "attributes", "formatString"],
     tooltipText: "Format string with which to format values of this item."
-  },
-  format: {
-    labelText: "Format",
-    tooltipText: "How to format values for this item.",
-    choose: {
-      namedFormat: {
-        dataPath: ["modelElement", "attributes", "formatString"],
-        options: ["Currency", "Fixed", "General Date", "General Number", "Long Date", "Long Time", "Medium Date", "Medium Time", "Short Date", "Short Time", "On/Off", "Percent", "Scientific", "Standard", "True/False", "Yes/No"],
-        defaultValue: ""
-      },
-      formatString: {
-        dataPath: ["modelElement", "attributes", "formatString"],
-        defaultValue: ""
-      },
-      expression: {
-        dataPath: ["modelElement", "childNodes", "CalculatedMemberProperty[@name='FORMAT_STRING']", "attributes", "expression"],
-        defaultValue: ""
-      }
-    }
   }
 };
 
