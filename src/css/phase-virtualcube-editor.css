@@ -1,0 +1,19 @@
+.phase-virtualcube-editor form fieldset legend {
+  background-image: url('../images/virtualcube.png');
+}
+
+.phase-virtualcube-editor form fieldset legend:after {
+  content: "Virtual Cube";
+}
+
+.toolbar .new-calculated-member {
+  background-image: url('../images/new-calculated-member.png');
+}
+
+.toolbar .new-virtual-dimension {
+  background-image: url('../images/new-dimension.png');
+}
+
+.toolbar .new-cube-usage {
+  background-image: url('../images/new-cube.png');
+}

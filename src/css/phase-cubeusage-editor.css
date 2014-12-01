@@ -1,0 +1,19 @@
+.phase-cube-editor form fieldset legend {
+  background-image: url('../images/cube.png');
+}
+
+.phase-cube-editor form fieldset legend:after {
+  content: "Cube Usage";
+}
+
+.toolbar .new-measure {
+  background-image: url('../images/new-measure.png');
+}
+
+.phase-cubeusage-editor .toolbar .new-dimension {
+  background-image: url('../images/new-private-dimension.png');
+}
+
+div.field-ignoreUnrelatedDimensions > label {
+  white-space: normal !important;
+}
