@@ -26,12 +26,14 @@ var MondrianModel;
     }
     var eventData = {
       oldDoc: this.doc,
+      oldSchema: this.doc ? this.getSchemaName() : "",
       newDoc: doc
     };
     if (this.fireEvent("setDocument", eventData)===false) {
       return false;
     }
     this.doc = doc;
+    eventData.newSchema = this.getSchemaName();
     return this.fireEvent("documentSet", eventData);
   },
   isDirty: function(){
@@ -1191,9 +1193,34 @@ var MondrianModel;
     }
     return this.eachElementWithTag(cube, "CalculatedMember", callback, scope, filter);
   },
+  eachCalculatedMeasure: function(cube, callback, scope, filter){
+    if (iStr(cube)) {
+      cube = this.getCube(cube);
+    }
+    if (!iEmt(cube)) {
+      throw "Invalid cube";
+    }
+    return this.eachElementWithTag(
+      cube, "CalculatedMember", callback, scope,
+      function(calculatedMember, i){
+        var ret;
+        if (calculatedMember.attributes.dimension !== "Measures") {
+          ret = false;
+        }
+        else
+        if (filter) {
+          ret = filter.call(scope, calculatedMember, i);
+        }
+        else {
+          ret = true;
+        }
+        return ret;
+      }
+    );
+  },
   getCalculatedMember: function(cube, calculatedMemberName){
     var calculatedMemberNode = null;
-    this.eachCubeCalculatedMember(cube, function(calculatedMember, index){
+    this.eachCalculatedMember(cube, function(calculatedMember, index){
       calculatedMemberNode = calculatedMember;
     }, this, function(calculatedMember, index){
       return calculatedMember.attributes.name === calculatedMemberName;
