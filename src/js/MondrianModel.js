@@ -965,6 +965,68 @@ var MondrianModel;
     }
     return true;
   },
+  setFormulaText: function(element, text){
+    var formulaElement = this.getFirstElementWithTag(element, "Formula");
+    if (formulaElement && text) {
+      var childNodes = formulaElement.childNodes;
+      if (!childNodes) {
+        formulaElement.childNodes = childNodes = [];
+      }
+      var textNode = childNodes[0];
+      if (!textNode) {
+        childNodes[0] = textNode = {
+          nodeType: 3
+        };
+      }
+      textNode.data = text;
+    }
+    else
+    if (formulaElement && !text) {
+      delete formulaElement.childNodes;
+    }
+    else
+    if (text) {
+      element.attributes.formula = text;
+    }
+    else {
+      delete element.attributes.formula;
+    }
+  },
+  getFormulaText: function(element){
+    var formula, attributes = element.attributes;
+    if (attributes && attributes.formula) {
+      formula = attributes.formula;
+    }
+    else {
+      var formulaElement = this.getFirstElementWithTag(element, "Formula");
+      formula = this.getNodeValue(formulaElement);
+    }
+    return formula;
+  },
+  getNodeValue: function(node){
+    var value;
+    if (node.childNodes){
+      node = node.childNodes[0];
+      if (node) {
+        value = node.data || null;
+      }
+      else {
+        value = null;
+      }
+    }
+    else {
+      value = null;
+    }
+    return value;
+  },
+  getFirstElementWithTag: function(node, tagName){
+    var element = null;
+    this.eachElementWithTag(node, tagName, function(e, i){
+      element = e;
+      return false;
+    }, this);
+    return element;
+  },
   eachElementWithTag: function(node, tagName, callback, scope, filter){
     var tagNames;
     if (iStr(tagName)) {

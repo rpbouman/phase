@@ -28,8 +28,14 @@ var fields = {
   formula: {
     tagName: "textarea",
     labelText: "Formula",
-    dataPath: ["modelElement", "attributes", "formula"],
-    alternativeDataPath: ["childNodes", "Formula"],
+    dataPath: {
+      getter: function(){
+        return this.model.getFormulaText(this.modelElement);
+      },
+      setter: function(value){
+        return this.model.setFormulaText(this.modelElement, value);
+      }
+    },
     tooltipText: "MDX expression to calculate this item."
   },
   visible: {
@@ -618,20 +624,37 @@ var GenericEditor;
     }
     return false;
   },
+  getDataForPath: function(path){
+    if (iObj(path) && iFun(path.getter)) {
+      return path.getter.call(this);
+    }
+    var data = this;
+    var i, n = path.length, pathElement;
+    for (i = 0; i < n; i++) {
+      pathElement = path[i];
+      switch(typeof (pathElement)) {
+        case "string":
+        case "number":
+          data = data[pathElement];
+          break;
+        case "function":
+          data = pathElement.call(this, data);
+          break;
+      }
+    }
+    return data;
+  },
   updateFieldValue: function(field, fieldDef) {
     if (!fieldDef) {
       fieldDef = this.getFields()[field];
     }
     var path = fieldDef.dataPath;
-    if (!path) return;
-    var data = this[path[0]];
-    var i, n = path.length, pathItem;
-    for (i = 1; i < n; i++){
-      if (data === null || iUnd(data)) {
-        break;
-      }
-      pathItem = path[i];
-      data = data[pathItem];
+    if (!path) {
+      return;
+    }
+    var data = this.getDataForPath(path);
+    if ((iUnd(data) || data === "") && fieldDef.alternativeDataPath) {
+      data = this.getDataForPath(fieldDef.alternativeDataPath);
     }
     var fieldEl = this.getFieldElement(field);
     if (data === null || iUnd(data)) {
@@ -719,7 +742,13 @@ var GenericEditor;
     }
     var value = this.getFieldValue(field, fieldDef);
     var path = fieldDef.dataPath;
-    if (!path) return;
+    if (!path) {
+      return;
+    }
+    if (iObj(path) && iFun(path.setter)) {
+      path.setter.call(this, value);
+    }
+    else
     if ((path.length === 3) &&
         (path[0] === "modelElement") &&
         (path[1] === "attributes")
