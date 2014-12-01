@@ -10,7 +10,10 @@ div.Schema > div.head >  span.toggle,
 }
 
 div.CubeUsage > div.head >  span.toggle,
-.mondrian-schema-tree div.CubeUsage > div.head >  span.toggle,
+.mondrian-schema-tree div.CubeUsage > div.head >  span.toggle {
+  background-image: url('../images/cube.png');
+}
+
 div.Cube > div.head >  span.toggle,
 .mondrian-schema-tree div.Cube > div.head >  span.toggle {
   background-image: url('../images/cube.png');

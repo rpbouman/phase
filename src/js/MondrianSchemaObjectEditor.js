@@ -450,7 +450,7 @@ var GenericEditor;
     }
 
     var item = cEl("div", {
-      "class": pureClasses + (mandatory ? " mandatory" : "")
+      "class": pureClasses + (mandatory ? " mandatory" : "") + " field-" + key
     }, children, fieldset);
     this.fieldCreated(fieldset, key, definition, tabIndex);
     return item;
@@ -1439,7 +1439,7 @@ adopt(SchemaEditor, GenericEditor);
     var modelElement = data.modelElement;
     switch (data.modelElementPath.type) {
       case "Measure":
-        this.updateDefaultMeasuresField();
+        this.updateDefaultMeasureField();
         break;
       case "Table":
         if (event === "modelElementCreated") {
@@ -1473,11 +1473,14 @@ adopt(SchemaEditor, GenericEditor);
       default:
     }
   },
-  updateDefaultMeasuresField: function(){
+  updateDefaultMeasureField: function(){
     var fieldName = "defaultMeasure";
     var cube = this.modelElement;
     var options = [];
     this.model.eachMeasure(cube, function(measure){
+      options.push(measure.attributes.name);
+    });
+    this.model.eachCalculatedMeasure(cube, function(measure){
       options.push(measure.attributes.name);
     });
     this.clearSelectField(fieldName);
@@ -1672,7 +1675,7 @@ adopt(SchemaEditor, GenericEditor);
     this.updateFieldValues();
   },
   modelElementChanged: function(){
-    this.updateDefaultMeasuresField();
+    this.updateDefaultMeasureField();
 
     this.clearDiagram();
     this.diagramNeedsUpdate = true;
@@ -1753,6 +1756,137 @@ adopt(SchemaEditor, GenericEditor);
   }
 };
 adopt(CubeEditor, GenericEditor);
+
+(VirtualCubeEditor = function(conf){
+  linkCss("../css/phase-virtualcube-editor.css");
+  if (!conf) {
+    conf = {};
+  }
+  if (!conf.classes) {
+    conf.classes = [];
+  }
+  conf.classes.push("phase-virtualcube-editor");
+
+  if (!conf.toolbar) {
+    conf.toolbar = {};
+  }
+  if (!conf.toolbar.buttons) {
+    conf.toolbar.buttons = [
+      {
+        "class": "new-cube-usage",
+        tooltip: "New Cube Usage",
+        handler: function(){
+          if (!this.beforeCreateNew()){
+            return;
+          }
+          this.createNewCubeUsage();
+        }
+      },
+      {
+        "class": "new-virtual-dimension",
+        tooltip: "New Virtual Dimension",
+        handler: function(){
+          if (!this.beforeCreateNew()){
+            return;
+          }
+          this.createNewCubeUsage();
+        }
+      },
+      {
+        "class": "new-calculated-member",
+        tooltip: "New Calculated Member",
+        handler: function(){
+          if (!this.beforeCreateNew()){
+            return;
+          }
+          this.createNewCalculatedMember();
+        }
+      }
+    ];
+  }
+  arguments.callee._super.apply(this, [conf]);
+}).prototype = {
+  objectType: "VirtualCube",
+  fields: CubeEditor.prototype.fields,
+  handleModelEvent: function(event, data){
+    var modelElement = data.modelElement;
+    switch (data.modelElementPath.type) {
+      case "VirtualCubeMeasure":
+        this.updateDefaultMeasureField();
+        break;
+    }
+  },
+  updateDefaultMeasureField: function(){
+    var fieldName = "defaultMeasure";
+    var virtualCube = this.modelElement;
+    var options = [];
+    this.model.eachVirtualMeasure(virtualCube, function(virtualCubeMeasure, i){
+      options.push(virtualCubeMeasure.attributes.name);
+    });
+    this.clearSelectField(fieldName);
+    this.populateSelectField(fieldName, options);
+  },
+  createNewCalculatedMember: function(){
+  }
+};
+adopt(VirtualCubeEditor, GenericEditor);
+
+(CubeUsageEditor = function(conf){
+  linkCss("../css/phase-cubeusage-editor.css");
+  if (!conf) {
+    conf = {};
+  }
+  if (!conf.classes) {
+    conf.classes = [];
+  }
+  conf.classes.push("phase-cubeusage-editor");
+
+  if (!conf.toolbar) {
+    conf.toolbar = {};
+  }
+  if (!conf.toolbar.buttons) {
+    conf.toolbar.buttons = [
+      {
+        "class": "new-measure",
+        tooltip: "New Virtual Measure",
+        handler: function(){
+          if (!this.beforeCreateNew()){
+            return;
+          }
+          this.createNewVirtualMeasure();
+        }
+      },
+      {
+        "class": "new-dimension",
+        tooltip: "New Virtual Dimension",
+        handler: function(){
+          if (!this.beforeCreateNew()){
+            return;
+          }
+          this.createNewVirtualDimension();
+        }
+      },
+    ];
+  }
+  arguments.callee._super.apply(this, [conf]);
+}).prototype = {
+  objectType: "Cube",
+  fields: {
+    name: fields.name,
+    ignoreUnrelatedDimensions: {
+      inputType: "checkbox",
+      labelText: "Rollup Unrelated Dimensions",
+      dataPath: ["modelElement", "attributes", "ignoreUnrelatedDimensions"],
+      defaultValue: false,
+      tooltipText: "Should dimensions that are not related to selected measures be pushed to top level member?"
+    }
+  },
+  createNewVirtualMeasure: function(){
+  },
+  createNewVirtualDimension: function(){
+  }
+};
+adopt(CubeUsageEditor, GenericEditor);
 
 (MeasureEditor = function(conf){
   linkCss("../css/phase-measure-editor.css");
@@ -2076,7 +2210,7 @@ adopt(PrivateDimensionEditor, GenericEditor);
   },
   updateSharedDimensionsField: function(){
     var fieldName = "source";
-    var options = [];
+    var options = [""];
     this.model.eachSharedDimension(function(sharedDimension){
       options.push(sharedDimension.attributes.name);
     });
