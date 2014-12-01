@@ -15,10 +15,8 @@ A static format string can either be stored in the "formatString" attribue of th
 
 #2 Dimension management:
 
-- copy a dimension
 - make a private dimension a shared dimension
 - make a private dimension out of a dimension usage.
-- move position of dimension within schema / cube.
 - drag shared dimension unto the graphical query canvas (to create a new dimension usage);
 
 #3 Drag and drop actions
@@ -26,7 +24,6 @@ A static format string can either be stored in the "formatString" attribue of th
 - drag shared dimension from the schema tree view unto cube diagram
   * droptarget diagram: create a new dimension usage
   * droptarget fact table column: create a new dimension usage and make the drop column the foreign key
-- drag column from the connection tree unto a query diagram to create a new measure based on that column
 - drag and drop within the mondrian tree:
 
   target: schema:
@@ -63,14 +60,6 @@ Would be nice to create new roles.
 
 - only allow drag from the connection tree if a query diagram is activated.
 -
-
-#9 Code view in schema editor should respond to edits.
-- maybe implement this by listening to the on change handler of code mirror, use that to trigger a timer
-and then use the timer expires event to trigger a parse action (and possibly, validation) .
-if the parse (and validation) succeeds, silently update the model.
-If not, post a message to some kind of unobnoxius notification area.
-If the code view tab is unselected, pop up a dialog if the parse is invalid.
-
 #10 when creating a new object, a new treenode is created for it and that's selected. we should scroll the treeview so the new node is in view.
 
 #12
@@ -82,8 +71,6 @@ o    AnalyzerCustomAction: http://help.pentaho.com/Documentation/5.1/0N0/020/070
 #13 support for conditional formatting.
 Conditional Formatting: http://help.pentaho.com/Documentation/5.1/0N0/020/090/060/010/000
 
-#14 Inline editing in diagram of Captions of dimensions, levels, measures
-
 #15 Automatically set level type according to JDBC data type of level key column.
 
 #16 Support for virtual cubes.
@@ -94,10 +81,12 @@ Conditional Formatting: http://help.pentaho.com/Documentation/5.1/0N0/020/090/06
 
 #19 Add the data type to the levels in the hierarchy diagram
 
-#20 Automatically set the data type of the level right after choosing the key column
-
 #21 Validation of the schema.
 
-#22 Inline editing of names in the Hierarchy diagram.
-
 #23 Maybe use one "coordinates" annotation element instead of a separate x and y element. Schemas get crowded quickly.
+
+#24 "Flashing" when the diagram is rebuilt. Instead of clearing the diagram, we should try and more intelligently replace only the objects that changed.
+
+#25: In the cube diagram, dragging a column out of the fact table and dropping it on the canvas could trigger an action to create a measure or a dimension. We should probably pop up a dialog to ask the user what they want, and we could choose a default intelligently by looking at the column properties
+
+#26 when connecting a measure to the fact table we should detect the data type of the column and decide whether it makes sense to make a measure out of it. If not, we should popup a dialog to confirm the user's choice.
