@@ -1,6 +1,6 @@
 var editors = {
 };
-var SchemaEditor, CubeEditor, VirtualCubeEditor,
+var SchemaEditor, CubeEditor, VirtualCubeEditor, NamedSetEditor,
     SharedDimensionEditor, PrivateDimensionEditor, DimensionUsageEditor,
     HierarchyEditor, LevelEditor, MeasureEditor
 ;
@@ -24,6 +24,13 @@ var fields = {
     tagName: "textarea",
     dataPath: ["modelElement", "attributes", "description"],
     tooltipText: "A human readable description for this item."
+  },
+  formula: {
+    tagName: "textarea",
+    labelText: "Formula",
+    dataPath: ["modelElement", "attributes", "formula"],
+    alternativeDataPath: ["childNodes", "Formula"],
+    tooltipText: "MDX expression to calculate this item."
   },
   visible: {
     inputType: "checkbox",
@@ -461,6 +468,7 @@ var GenericEditor;
   fieldUpdated: function(fieldName, value){
     //noop
   },
+
   getFormId: function(){
     return this.getId() + "-form";
   },
@@ -744,6 +752,10 @@ var GenericEditor;
         data[key] = value;
       }
     }
+    this.fieldSaved(field, value);
+  },
+  fieldSaved: function(field, value) {
+    //noop. override
   },
   saveFieldValues: function(){
     var model = this.model;
@@ -1964,6 +1976,27 @@ adopt(CubeUsageEditor, GenericEditor);
 };
 adopt(MeasureEditor, GenericEditor);
 
+(NamedSetEditor = function(conf){
+  linkCss("../css/phase-named-set-editor.css");
+  if (!conf) {
+    conf = {};
+  }
+  if (!conf.classes) {
+    conf.classes = [];
+  }
+  conf.classes.push("phase-named-set-editor");
+
+  arguments.callee._super.apply(this, [conf]);
+}).prototype = {
+  objectType: "Named Set",
+  fields: {
+    name: fields.name,
+    caption: fields.caption,
+    formula: fields.formula,
+    description: fields.description
+  }
+};
+
 (CalculatedMemberEditor = function(conf){
   linkCss("../css/phase-calculated-member-editor.css");
   if (!conf) {
@@ -1994,13 +2027,7 @@ adopt(MeasureEditor, GenericEditor);
   fields: {
     name: fields.name,
     caption: fields.caption,
-    formula: {
-      tagName: "textarea",
-      labelText: "Formula",
-      dataPath: ["modelElement", "attributes", "formula"],
-      alternativeDataPath: ["childNodes", "Formula"],
-      tooltipText: "MDX expression which gives the value of this member."
-    },
+    formula: fields.formula,
     hierarchy: {
       tagName: "select",
       labelText: "Hierarchy",
@@ -2016,7 +2043,89 @@ adopt(MeasureEditor, GenericEditor);
     formatString: fields.formatString,
     visible: fields.visible,
     description: fields.description
-  }
+  },
+  handleModelEvent:function(event, data){
+    switch (data.modelElementPath.type) {
+      case "Hierarchy":
+        switch (event) {
+          case "modelElementCreated":
+          case "modelElementRemoved":
+            this.updateHierarchyField();
+            break;
+          default:
+        }
+        break;
+      default:
+    }
+  },
+  fieldSaved: function(field, value) {
+    var modelElement = this.modelElement;
+    switch (field) {
+      case "hierarchy":
+        if (modelElement) {
+          if (modelElement.attributes.dimension) {
+            modelElement.attributes.dimension = value;
+          }
+        }
+        break;
+    }
+  },
+  fieldUpdated: function(field, value) {
+    var modelElement = this.modelElement;
+    switch (field) {
+      case "hierarchy":
+        if (modelElement) {
+          if (!modelElement.attributes.hierarchy && modelElement.attributes.dimension) {
+            this.setSelectFieldValue(field, modelElement.attributes.dimension);
+          }
+        }
+        break;
+    }
+  },
+  updateHierarchyField: function(){
+    var model = this.model;
+    var modelElementPath = this.modelElementPath;
+    var fieldName = "hierarchy";
+    var options = ["", "Measures"];
+    if (modelElementPath) {
+      if (modelElementPath.Cube) {
+        var cube = model.getCube(modelElementPath.Cube);
+        model.eachPrivateDimension(cube, function(privateDimension, i){
+          var dimensionName = privateDimension.attributes.name;
+          model.eachDimensionHierarchy(privateDimension, function(hierarchy, i){
+            var hierarchyName = dimensionName;
+            if (hierarchy.attributes.name) {
+              hierarchyName += hierarchy.attributes.name;
+            }
+            options.push(hierarchyName);
+          });
+        });
+        model.eachDimensionUsage(cube, function(dimensionUsage, i){
+          var dimensionName = dimensionUsage.attributes.name;
+          var sharedDimensionName = dimensionUsage.attributes.source;
+          model.eachDimensionHierarchy(sharedDimensionName, function(hierarchy, i){
+            var hierarchyName = dimensionName;
+            if (hierarchy.attributes.name) {
+              hierarchyName += hierarchy.attributes.name;
+            }
+            options.push(hierarchyName);
+          });
+        });
+      }
+      else
+      if (modelElementPath.VirtualCube){
+        var virtualCube = model.getVirtualCube(modelElementPath.VirtualCube);
+        model.eachVirtualCubeDimension(virtualCube, function(virtualCubeDimension, i){
+          //TODO: load hierarchies for virtual cubes.
+        });
+      }
+    }
+    this.clearSelectField(fieldName);
+    this.populateSelectField(fieldName, options);
+  },
+  modelChanged: function(){
+    this.updateHierarchyField();
+  },
 };
 adopt(CalculatedMemberEditor, GenericEditor);
 
