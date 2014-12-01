@@ -1184,6 +1184,15 @@ var MondrianModel;
     });
     return measureNode;
   },
+  eachNamedSet: function(container, callback, scope, filter){
+    if (iStr(container)) {
+      container = this.getModelElement(container);
+    }
+    if (!iEmt(container)) {
+      throw "Invalid container";
+    }
+    return this.eachElementWithTag(container, "NamedSet", callback, scope, filter);
+  },
   eachCalculatedMember: function(cube, callback, scope, filter){
     if (iStr(cube)) {
       cube = this.getCube(cube);
