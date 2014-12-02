@@ -72,7 +72,7 @@ var mondrianSchemaCache = new MondrianSchemaCache({
 
           var newSchemaName = eventData.newSchema;
           var treeNode = mondrianSchemaTreeView.renderModelTreeNode(newSchemaName);
-          mondrianSchemaTreeView.setSelectedTreeNode(treeNode);
+          selectMondrianSchemaTreeNode(treeNode);
           break;
       }
     }
@@ -140,7 +140,7 @@ function newModel(model){
   }
   var treeNode = mondrianSchemaTreeView.renderModelTreeNode(schemaName);
   mondrianSchemaCache.addModel(model);
-  mondrianSchemaTreeView.setSelectedTreeNode(treeNode);
+  selectMondrianSchemaTreeNode(treeNode);
 }
 
 function saveModel(){
@@ -213,7 +213,7 @@ function doSaveModel(model, overwrite, removeOld) {
       var schemaName = model.getSchemaName();
 
       var treeNode = mondrianSchemaTreeView.getModelTreeNode(schemaName)
-      mondrianSchemaTreeView.setSelectedTreeNode(treeNode);
+      selectMondrianSchemaTreeNode(treeNode);
 
       if (removeOld) {
         var modelName = model.getName();
@@ -419,7 +419,7 @@ var mondrianSchemaTreeView = new MondrianSchemaTreeView({
         return;
       }
       treeNode.expandAncestors();
-      mondrianSchemaTreeView.setSelectedTreeNode(treeNode);
+      selectMondrianSchemaTreeNode(treeNode);
     },
     moveModelElement: function(mondrianSchemaTreeView, event, eventData){
       var modelElement = eventData.moveModelElement;
@@ -448,6 +448,11 @@ var mondrianSchemaTreeView = new MondrianSchemaTreeView({
     }
   }
 });
+
+function selectMondrianSchemaTreeNode(treeNode){
+  mondrianSchemaTreeView.setSelectedTreeNode(treeNode);
+  treeNode.getDom().scrollIntoView(true);
+}
 
 function moveModelElement(fromModelElementPath, toModelElementPath){
   var fromSchema = fromModelElementPath.Schema;
@@ -581,7 +586,7 @@ function getEditorForSelection(selection){
               return;
             }
             treeNode.expandAncestors();
-            mondrianSchemaTreeView.setSelectedTreeNode(treeNode);
+            selectMondrianSchemaTreeNode(treeNode);
           })
         }
       }
