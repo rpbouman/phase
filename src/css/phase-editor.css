@@ -66,3 +66,7 @@ limitations under the License.
 .phase-editor .toolbar .clone {
   background-image: url('../images/copy.png');
 }
+
+.phase-editor .datagrid {
+  margin: 1em;
+}

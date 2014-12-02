@@ -145,7 +145,15 @@ var GenericEditor;
     listeners: {
       scope: this,
       beforeSelectTab: this.beforeSelectTab,
-      tabSelected: this.tabSelected
+      tabSelected: function(tabPane, event, data){
+        var tab = tabPane.getTab(data.newTab),
+            annotationsGrid = this.annotationsGrid
+        ;
+        if (tab.component === annotationsGrid) {
+          annotationsGrid.doLayout();
+        }
+        this.tabSelected(tabPane, event, data)
+      }
     }
   });
 
@@ -841,19 +849,22 @@ var GenericEditor;
       rows: [],
       cells: []
     }
+    var rowNum = 0;
     if (model && modelElement) {
       data.columns.push(
         {name: "value", label: "Value"},
         {name: "name", label: "Name"}
       );
       model.eachAnnotation(modelElement, function(annotation, i){
-        data.rows.push([i+1]);
+        data.rows.push([++rowNum]);
         data.cells.push([
           annotation.attributes.name,
           model.getNodeValue(annotation)
         ]);
       }, this);
     }
+    data.cells.push(["", ""]);
+    data.rows.push([data.cells.length]);
     annotationsGrid.setData(data);
   },
   setData: function(model, modelElementPath){
