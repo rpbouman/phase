@@ -637,18 +637,48 @@ var MondrianSchemaTreeView;
     }
   },
   compareTreeNode: function(treeNode){
+
     var thisId = this.conf.id.split(":");
+    var thisIdLength = thisId.length;
+    var thisName = thisId[thisIdLength - 1];
+    var thisType = thisId[thisIdLength - 2];
+
     var thatId = treeNode.conf.id.split(":");
+    var thatIdLength = thatId.length;
+    var thatName = thatId[thatIdLength - 1];
+    var thatType = thatId[thatIdLength - 2];
 
-    var thisName = thisId[thisId.length - 1];
-    var thatName = thatId[thatId.length - 1];
-
-    var thisType = thisId[thisId.length - 2];
-    var thatType = thatId[thatId.length - 2];
-
-    var parentType = thisId[thisId.length - 4];
+    var parentType;
+    if (thisIdLength >= 4) {
+      parentType = thisId[thisId.length - 4];
+    }
+    else {
+      parentType = "SchemaTreeView";
+    }
 
     switch (parentType) {
+      case "SchemaTreeView":
+        var thisTitle = this.getTitle();
+        var thatTitle = treeNode.getTitle();
+        if (thisTitle.toUpperCase() < thatTitle.toUpperCase()) {
+          return -1;
+        }
+        else
+        if (thisTitle.toUpperCase() > thatTitle.toUpperCase()) {
+          return 1;
+        }
+        else
+        if (thisTitle < thatTitle) {
+          return -1;
+        }
+        else
+        if (thisTitle > thatTitle) {
+          return 1;
+        }
+        else {
+          return 0;
+        }
+        break;
       case "Schema":
         switch (thisType) {
           case "Cube":
@@ -764,6 +794,8 @@ var MondrianSchemaTreeView;
             return null;
         }
         break;
+      default:
+        throw "Unknown node type " + parentType;
     }
     return null;
   },
@@ -953,23 +985,23 @@ var MondrianSchemaTreeView;
     var parentElement = this.getDom();
     if (append) {
       treeNode.appendToElement(parentElement);
+      return treeNode;
     }
     else {
       var i, childNodes = parentElement.childNodes, n = childNodes.length, childNode, removeTreeNode;
       childNodeLoop: for (i = 0; i < n; i++){
         childNode = childNodes[i];
         childNode = TreeNode.lookup(childNode);
-        switch (treeNode.compare(childNode)) {
+        switch (this.compareTreeNode.call(treeNode, childNode)) {
           case 0:
-            removeTreeNode = childNode;
-            break childNodeLoop;
+            throw "Such a treenode already exists";
           case -1:
             treeNode.addToElementBefore(parentElement, childNode);
-            break childNodeLoop;
+            return treeNode;
         }
       }
     }
-    treeNode.getDom();
+    treeNode.appendToElement(parentElement);
     return treeNode;
   },
   getModelTreeNode: function(modelName){

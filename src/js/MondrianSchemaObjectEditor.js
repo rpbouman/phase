@@ -133,10 +133,13 @@ var GenericEditor;
       selected: true,
       component: cEl("div")
     }, {
-      text: "Annotations",
-      component: cEl("div")
+      text: "Annotations"
     }];
   }
+
+  this.annotationsGrid = new DataGrid();
+  conf.tabs[1].component = this.annotationsGrid;
+
   this.dialog = conf.dialog || new Dialog();
   this.tabPane = new TabPane({
     listeners: {
@@ -154,7 +157,12 @@ var GenericEditor;
         return;
       }
       var eventData = data.eventData;
-      eventData.isDescendant = model.isModelElementPathAncestor(this.modelElementPath, eventData.modelElementPath);
+      if (eventData.modelElementPath) {
+        eventData.isDescendant = model.isModelElementPathAncestor(
+          this.modelElementPath,
+          eventData.modelElementPath
+        );
+      }
       this.handleModelEvent(data.modelEvent, eventData);
     },
     modelElementRenamed: function(mondrianSchemaCache, event, data){
@@ -576,12 +584,8 @@ var GenericEditor;
         }
       });
     }
-    if (conf.tabs && conf.tabs[1] && conf.tabs[1].text === "Annotations") {
-      this.annotationsGrid = new DataGrid();
-      conf.tabs.component = this.annotationsGrid;
-    }
     this.tabPane.conf.container = dom;
-    this.tabPane.addTab(conf.tabs)
+    this.tabPane.addTab(conf.tabs);
     this.createForm(this.tabPane.getTabPage(0), this.getFields());
     return dom;
   },
@@ -826,6 +830,32 @@ var GenericEditor;
     this.clearDiagram();
     this.setData(null, null);
   },
+  updateAnnotationsGrid: function() {
+    var annotationsGrid = this.annotationsGrid;
+    if (!annotationsGrid) {
+      return;
+    }
+    var model = this.model, modelElement = this.modelElement;
+    data = {
+      columns: [],
+      rows: [],
+      cells: []
+    }
+    if (model && modelElement) {
+      data.columns.push(
+        {name: "value", label: "Value"},
+        {name: "name", label: "Name"}
+      );
+      model.eachAnnotation(modelElement, function(annotation, i){
+        data.rows.push([i+1]);
+        data.cells.push([
+          annotation.attributes.name,
+          model.getNodeValue(annotation)
+        ]);
+      }, this);
+    }
+    annotationsGrid.setData(data);
+  },
   setData: function(model, modelElementPath){
     var oldModel = this.model;
     var oldModelElementPath = this.modelElementPath;
@@ -848,6 +878,7 @@ var GenericEditor;
       this.modelElementChanged();
     }
     this.updateFieldValues();
+    this.updateAnnotationsGrid();
   },
   clearSelectField: function(fieldName) {
     var fieldEl = this.getFieldElement(fieldName);
@@ -964,8 +995,7 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
       selected: true,
       component: cEl("div")
     }, {
-      text: "Annotations",
-      component: cEl("div")
+      text: "Annotations"
     }, {
       text: "Source",
       component: cEl("div")
@@ -1393,11 +1423,10 @@ adopt(SchemaEditor, GenericEditor);
       selected: true,
       component: cEl("div")
     }, {
+      text: "Annotations"
+    }, {
       text: "Diagram",
       component: this.diagram
-    }, {
-      text: "Annotations",
-      component: cEl("div")
     }];
   }
 
@@ -2465,11 +2494,10 @@ adopt(DimensionUsageEditor, GenericEditor);
       selected: true,
       component: cEl("div")
     }, {
+      text: "Annotations"
+    }, {
       text: "Diagram",
       component: this.diagram
-    }, {
-      text: "Annotations",
-      component: cEl("div")
     }];
   }
 

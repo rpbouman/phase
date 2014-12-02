@@ -65,12 +65,12 @@ var mondrianSchemaCache = new MondrianSchemaCache({
         case "documentSet":
           var oldDoc = eventData.oldDoc;
           var newDoc = eventData.newDoc;
-          var oldSchemaName = oldDoc.getSchemaName();
+          var oldSchemaName = eventData.oldSchema;
           mondrianSchemaTreeView.removeModelTreeNode(oldSchemaName);
           mondrianSchemaCache.purge(oldSchemaName);
           mondrianSchemaCache.addModel(model);
 
-          var newSchemaName = newDoc.getSchemaName();
+          var newSchemaName = eventData.newSchema;
           var treeNode = mondrianSchemaTreeView.renderModelTreeNode(newSchemaName);
           mondrianSchemaTreeView.setSelectedTreeNode(treeNode);
           break;
