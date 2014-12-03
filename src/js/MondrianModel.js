@@ -8,7 +8,7 @@ You may obtain a copy of the License at
 
   http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
+Unless required by applicable law or agreed to in writting, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
@@ -459,11 +459,19 @@ var MondrianModel;
     return this.newName(this.getSharedDimension, [], name || "new Dimension");
   },
   createSharedDimension: function(attributes, dontFireEvent){
-    var name = this.newSharedDimensionName();
-    var dimension = this.createElement("Dimension", {
-      name: name,
-      type: "StandardDimension"
-    }, attributes);
+    if (!attributes) {
+      attributes = {};
+    }
+    var name = this.newSharedDimensionName(attributes.name);
+    var atts = {};
+    if (attributes.name) {
+      attributes = merge({}, attributes);
+      attributes.name = name;
+    }
+    else {
+      atts.name = name;
+    }
+    var dimension = this.createElement("Dimension", atts, attributes);
 
     var schema = this.getSchema();
 
@@ -480,7 +488,7 @@ var MondrianModel;
       var eventData = {
         modelElementPath: {
           Schema: schema.attributes.name,
-          SharedDimension: name,
+          SharedDimension: dimension.attributes.name,
           type: "SharedDimension",
           index: index
         },
@@ -586,11 +594,16 @@ var MondrianModel;
     var schema = this.getSchema();
     var cube = this.getCube(cubeName);
     var type = "PrivateDimension";
-    var name = this.newPrivateDimensionName(cube);
-    var dimension = this.createElement("Dimension", {
-      name: name,
-      type: "StandardDimension"
-    }, attributes);
+    var name = this.newPrivateDimensionName(cube, attributes.name);
+    var atts = {};
+    if (attributes.name) {
+      attributes = merge({}, attributes);
+      attributes.name = name;
+    }
+    else {
+      atts.name = name;
+    }
+    var dimension = this.createElement("Dimension", atts, attributes);
 
     var index = this.getIndexOfLastElementWithTagName(
       cube,
@@ -606,7 +619,7 @@ var MondrianModel;
           modelElementPath: {
           Schema: schema.attributes.name,
           Cube: cubeName,
-          PrivateDimension: name,
+          PrivateDimension: dimension.attributes.name,
           type: type,
           index: index
         },
@@ -671,7 +684,10 @@ var MondrianModel;
     var schema = this.getSchema();
     var dimension = this.getSharedDimension(dimensionName);
     var type = "Hierarchy";
-    var name = this.newSharedDimensionHierarchyName(dimension);
+    if (!attributes) {
+      attributes = {};
+    }
+    var name = this.newSharedDimensionHierarchyName(dimension, attributes.name);
     var hierarchy = this.createElement("Hierarchy", {
       name: name,
       hasAll: true

@@ -24,6 +24,156 @@ var SchemaEditor, CubeEditor, VirtualCubeEditor, NamedSetEditor,
 
 (function(){
 
+var dimensionDecorations = {
+  standard: {
+    hierarchies: [
+      {
+        levels: [
+          {}
+        ]
+      }
+    ]
+  },
+  date: {
+    attributes: {
+      name: "Date",
+      type: "TimeDimension"
+    },
+    hierarchies: [
+      {
+        levels: [
+          {
+            attributes: {
+              name: "Year",
+              levelType: "TimeYears"
+            },
+            annotations: {"AnalyzerDateFormat": "[yyyy]"}
+          },
+          {
+            attributes: {
+              name: "Quarter",
+              levelType: "TimeQuarters"
+            },
+            annotations: {"AnalyzerDateFormat": "[yyyy].['Q'q]"}
+          },
+          {
+            attributes: {
+              name: "Month",
+              levelType: "TimeMonths"
+            },
+            annotations: {"AnalyzerDateFormat": "[yyyy].['Q'q].[M]"}
+          },
+          {
+            attributes: {
+              name: "Day",
+              levelType: "TimeDays"
+            },
+            annotations: {"AnalyzerDateFormat": "[yyyy].['Q'q].[M].[yyyy-MM-dd]"}
+          }
+        ]
+      },
+      {
+        attributes: {
+          name: "Weekly"
+        },
+        levels: [
+          {
+            attributes: {
+              name: "Year",
+              levelType: "TimeYears"
+            },
+            annotations: {"AnalyzerDateFormat": "[yyyy]"}
+          },
+          {
+            attributes: {
+              name: "Week",
+              levelType: "TimeWeeeks"
+            },
+            annotations: {"AnalyzerDateFormat": "[yyyy].['W'w]"}
+          },
+          {
+            attributes: {
+              name: "Day",
+              levelType: "TimeDays"
+            },
+            annotations: {"AnalyzerDateFormat": "[yyyy].['W'w].[yyyy-MM-dd]"}
+          }
+        ]
+      }
+    ]
+  },
+  time: {
+    attributes: {
+      name: "Time",
+      type: "TimeDimension"
+    },
+    hierarchies: [
+      {
+        levels: [
+          {
+            attributes: {
+              name: "Hour",
+              levelType: "TimeHours"
+            }
+          },
+          {
+            attributes: {
+              name: "Minutes",
+              levelType: "TimeMinutes"
+            }
+          },
+          {
+            attributes: {
+              name: "Seconds",
+              levelType: "TimeSeconds"
+            }
+          }
+        ]
+      },
+    ]
+  },
+  geography: {
+    attributes: {
+      name: "Geography"
+    },
+    hierarchies: [
+      {
+        levels: [
+          {
+            attributes: {
+              name: "Country"
+            },
+            annotations: {
+              "Data.Role": "Geography",
+              "Geo.Role": "country"
+            }
+          },
+          {
+            attributes: {
+              name: "State"
+            },
+            annotations: {
+              "Data.Role": "Geography",
+              "Geo.Role": "state",
+              "Geo.RequiredParents": "country"
+            }
+          },
+          {
+            attributes: {
+              name: "City"
+            },
+            annotations: {
+              "Data.Role": "Geography",
+              "Geo.Role": "city",
+              "Geo.RequiredParents": "country,state"
+            }
+          }
+        ]
+      }
+    ]
+  }
+};
+
 var fields = {
   name: {
     labelText: "Name",
@@ -988,9 +1138,28 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
         if (!this.beforeCreateNew()){
           return;
         }
-        this.createNewSharedDimension();
+        this.createNewSharedDimension(dimensionDecorations.standard);
       }},
       {class: "separator"},
+      {"class": "new-date-dimension", tooltip: "New Shared Date Dimension", handler: function(){
+        if (!this.beforeCreateNew()){
+          return;
+        }
+        this.createNewSharedDimension(dimensionDecorations.date);
+      }},
+      {"class": "new-time-dimension", tooltip: "New Shared Time Dimension", handler: function(){
+        if (!this.beforeCreateNew()){
+          return;
+        }
+        this.createNewSharedDimension(dimensionDecorations.time);
+      }},
+      {class: "separator"},
+      {"class": "new-geography-dimension", tooltip: "New Shared Geography Dimension", handler: function(){
+        if (!this.beforeCreateNew()){
+          return;
+        }
+        this.createNewSharedDimension(dimensionDecorations.geography);
+      }},
       {group: "code", "class": "save-code", style: {display: "none"}, tooltip: "Parse and save code changes", handler: function(){
         this.parseCodeAndSaveChanges();
       }},
@@ -1238,19 +1407,37 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
       modelElementPath: modelElementPath
     });
   },
-  createNewSharedDimension: function(){
+  createNewSharedDimension: function(conf){
+    if (!conf) {
+      conf = dimensionDecorations.standard;
+    }
     var model = this.model;
-    var dimension = model.createSharedDimension();
+    var dimension = model.createSharedDimension(conf.attributes || {});
 
-    //decorate the new dimension with a new hierarchy
+    //decorate the new dimension:
     var dimensionName = dimension.attributes.name;
-    var hierarchy = model.createSharedDimensionHierarchy(
-      dimensionName, null, true
-    );
-    var hierarchyName = hierarchy.attributes.name;
-    var level = model.createSharedDimensionLevel(
-      dimensionName, hierarchyName, null, true
-    );
+    //create hierarchies
+    for (var i = 0; i < conf.hierarchies.length; i++) {
+      var hierarchy = model.createSharedDimensionHierarchy(
+        dimensionName,
+        conf.hierarchies[i].attributes || {},
+        true
+      );
+      var hierarchyName = hierarchy.attributes.name;
+      //create levels
+      for (var j = 0; j < conf.hierarchies[i].levels.length; j++) {
+        var level = model.createSharedDimensionLevel(
+          dimensionName, hierarchyName,
+          conf.hierarchies[i].levels[j].attributes || {},
+          true
+        );
+        //create annotations
+        var annotation, annotations = conf.hierarchies[i].levels[j].annotations;
+        for (annotation in annotations) {
+          model.setAnnotationValue(level, annotation, annotations[annotation]);
+        }
+      }
+    }
     //end decoration
 
     var modelElementPath = merge({
@@ -1467,16 +1654,6 @@ adopt(SchemaEditor, GenericEditor);
         }
       },
       {
-        "class": "new-dimension",
-        tooltip: "New Private Dimension",
-        handler: function(){
-          if (!this.beforeCreateNew()){
-            return;
-          }
-          this.createNewPrivateDimension();
-        }
-      },
-      {
         "class": "new-dimension-usage",
         tooltip: "New Dimension Usage",
         handler: function(){
@@ -1485,7 +1662,38 @@ adopt(SchemaEditor, GenericEditor);
           }
           this.createNewDimensionUsage();
         }
-      }
+      },
+      {class: "separator"},
+      {
+        "class": "new-dimension",
+        tooltip: "New Private Dimension",
+        handler: function(){
+          if (!this.beforeCreateNew()){
+            return;
+          }
+          this.createNewPrivateDimension(dimensionDecorations.standard);
+        }
+      },
+      {class: "separator"},
+      {"class": "new-date-dimension", tooltip: "New Private Date Dimension", handler: function(){
+        if (!this.beforeCreateNew()){
+          return;
+        }
+        this.createNewPrivateDimension(dimensionDecorations.date);
+      }},
+      {"class": "new-time-dimension", tooltip: "New Private Time Dimension", handler: function(){
+        if (!this.beforeCreateNew()){
+          return;
+        }
+        this.createNewPrivateDimension(dimensionDecorations.time);
+      }},
+      {class: "separator"},
+      {"class": "new-geography-dimension", tooltip: "New Private Geography Dimension", handler: function(){
+        if (!this.beforeCreateNew()){
+          return;
+        }
+        this.createNewPrivateDimension(dimensionDecorations.geography);
+      }}
     ];
   }
   arguments.callee._super.apply(this, [conf]);
@@ -1800,20 +2008,39 @@ adopt(SchemaEditor, GenericEditor);
       modelElementPath: modelElementPath
     });
   },
-  createNewPrivateDimension: function(){
+  createNewPrivateDimension: function(conf){
+    if (!conf) {
+      conf = dimensionDecorations.standard;
+    }
     var model = this.model;
     var cubeName = this.modelElement.attributes.name;
-    var privateDimension = model.createPrivateDimension(cubeName);
+    var privateDimension = model.createPrivateDimension(cubeName, conf.attributes);
 
     //decorate the new dimension with a new hierarchy
     var dimensionName = privateDimension.attributes.name;
-    var hierarchy = model.createPrivateDimensionHierarchy(
-      cubeName, dimensionName, null, true
-    );
-    var hierarchyName = hierarchy.attributes.name;
-    var level = model.createPrivateDimensionLevel(
-      cubeName, dimensionName, hierarchyName, null, true
-    );
+    //create hierarchies
+    for (var i = 0; i < conf.hierarchies.length; i++) {
+      var hierarchy = model.createPrivateDimensionHierarchy(
+        cubeName,
+        dimensionName,
+        conf.hierarchies[i].attributes || {},
+        true
+      );
+      var hierarchyName = hierarchy.attributes.name;
+      //create levels
+      for (var j = 0; j < conf.hierarchies[i].levels.length; j++) {
+        var level = model.createPrivateDimensionLevel(
+          cubeName, dimensionName, hierarchyName,
+          conf.hierarchies[i].levels[j].attributes || {},
+          true
+        );
+        //create annotations
+        var annotation, annotations = conf.hierarchies[i].levels[j].annotations;
+        for (annotation in annotations) {
+          model.setAnnotationValue(level, annotation, annotations[annotation]);
+        }
+      }
+    }
     //end decoration
 
     var modelElementPath = merge({

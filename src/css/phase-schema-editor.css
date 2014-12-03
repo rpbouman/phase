@@ -31,6 +31,16 @@ limitations under the License.
   background-image: url('../images/new-dimension.png');
 }
 
+.phase-schema-editor .toolbar .new-time-dimension {
+  background-image: url('../images/new-time-dimension.png');
+}
+.phase-schema-editor .toolbar .new-date-dimension {
+  background-image: url('../images/new-date-dimension.png');
+}
+.phase-schema-editor .toolbar .new-geography-dimension {
+  background-image: url('../images/new-geography-dimension.png');
+}
+
 .toolbar .save-code {
   background-image: url('../images/save-code-changes.png');
 }

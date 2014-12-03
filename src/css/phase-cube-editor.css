@@ -38,3 +38,13 @@ limitations under the License.
 .toolbar .new-dimension-usage {
   background-image: url('../images/new-dimension-usage.png');
 }
+
+.phase-cube-editor .toolbar .new-time-dimension {
+  background-image: url('../images/new-time-dimension.png');
+}
+.phase-cube-editor .toolbar .new-date-dimension {
+  background-image: url('../images/new-date-dimension.png');
+}
+.phase-cube-editor .toolbar .new-geography-dimension {
+  background-image: url('../images/new-geography-dimension.png');
+}
