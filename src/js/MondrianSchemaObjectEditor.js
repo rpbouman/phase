@@ -577,6 +577,7 @@ var GenericEditor;
         "id": id,
         "name": key,
         "type": definition.inputType || "text",
+        "class": key,
         tabindex: tabIndex
       };
       if (mandatory) {
