@@ -410,14 +410,28 @@ var HierarchyDiagram;
     }
 
     var diagramModel = this.getDiagramModel();
+    //see if the targetTable is already a referenced table.
     var relationshipIndex = diagramModel.indexOfTableRelationship({
       rightTable: targetTableIndex
     });
     if (relationshipIndex !== -1) {
+      //yes, targetTable was already a target.
       var relationship = diagramModel.getTableRelationship(relationshipIndex);
+      //check if the source is different
       if (relationship.leftTable !== sourceTableIndex) {
+        //yes, the source is different. We cannot express this in mondrians join syntax.
+        //TODO pop up a message at this point to inform the user.
         return;
       }
+      //source is same - this basically means we need to update the existing relationship.
+      //lets remove it and create the new one. This has same effect as updating but is easier.
+      diagramModel.removeTableRelationship(relationshipIndex, true);
+    }
+    var relationshipIndex = diagramModel.indexOfTableRelationship({
+      leftTable: targetTableIndex
+    });
+    if (relationshipIndex !== -1) {
+      diagramModel.removeTableRelationship(relationshipIndex, true);
     }
     this.fireEvent("tableRelationshipCreated", {
       leftTable: sourceTableIndex,

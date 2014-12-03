@@ -127,6 +127,19 @@ var DiagramModel;
     }
     return true;
   },
+  removeTableRelationship: function(index, dontFireEvent){
+    var relationships = this.relationships;
+    if (index >= relationships.length) {
+      throw "No such index";
+    }
+    if (dontFireEvent !== true) {
+      this.fireEvent("removingTableRelationship", index);
+    }
+    relationships.splice(index, 1);
+    if (dontFireEvent !== true) {
+      this.fireEvent("tableRelationshipRemoved", index);
+    }
+  },
   getTableRelationship: function(index) {
     var relationships = this.relationships;
     return relationships[index];
