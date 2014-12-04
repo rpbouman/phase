@@ -38,6 +38,10 @@ limitations under the License.
   overflow: auto;
 }
 
+.phase-editor .pentaho-tab-deck-panel .datagrid {
+  overflow: hidden;
+}
+
 .phase-editor .pure-control-group label {
   white-space: nowrap;
 }

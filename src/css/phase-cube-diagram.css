@@ -28,14 +28,6 @@ limitations under the License.
   color: white;
 }
 
-
-input.celleditor {
-  border-style: none;
-  padding: 0px;
-  margin: 0px;
-  height: 14px;
-}
-
 .phase-cube-diagram > div.dimensionusage > table.dimensionusage > tbody > tr.dimensionusage > td.icon {
   background-image: url('../images/dimension-usage.png');
 }

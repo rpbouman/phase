@@ -517,7 +517,7 @@ var MondrianModel;
       var key, value;
       for (key in annotations) {
         value = annotations[key];
-        this.setAnnotationValue(measure, key, value, true)
+        this.setAnnotationValue(measure, key, value, true);
       }
     }
 

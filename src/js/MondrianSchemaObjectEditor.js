@@ -287,7 +287,9 @@ var GenericEditor;
     }];
   }
 
-  this.annotationsGrid = new DataGrid();
+  this.annotationsGrid = new EditableDataGrid({
+    rowIndexHeader: true
+  });
   conf.tabs[1].component = this.annotationsGrid;
 
   this.dialog = conf.dialog || new Dialog();
@@ -745,8 +747,52 @@ var GenericEditor;
     }
     this.tabPane.conf.container = dom;
     this.tabPane.addTab(conf.tabs);
+    this.annotationsGridCellEditor = new CellTextEditor({
+      listeners: {
+        scope: this,
+        editingStopped: this.annotationCellEdited
+      }
+    });
+    this.annotationsGrid.setColumns([
+      {name: "name", label: "Name", cellEditor: this.annotationsGridCellEditor},
+      {name: "value", label: "Value", cellEditor: this.annotationsGridCellEditor}
+    ]);
     this.createForm(this.tabPane.getTabPage(0), this.getFields());
     return dom;
+  },
+  annotationCellEdited: function(cellEditor, event, data){
+    var model = this.model;
+    if (!model){
+      return;
+    }
+    var modelElement = this.modelElement;
+    if (!modelElement){
+      return;
+    }
+    var cell = data.container;
+    var row = cell.parentNode;
+    var rowIndex = row.rowIndex - 1;
+    var oldValue = data.oldValue;
+    var newValue = data.newValue;
+    var annotationsGrid = this.annotationsGrid;
+    var column = annotationsGrid.getColumn(cell.cellIndex);
+    var columnIndex = column.index;
+    switch (column.name) {
+      case "name":
+        model.eachAnnotation(modelElement, function(annotation, i){
+          annotation.attributes.name = newValue;
+          annotationsGrid.setCellValue(i, columnIndex, newValue);
+        }, this, function(annotation, i){
+          return annotation.attributes.name === oldValue;
+        });
+        break;
+      case "value":
+        var nameColumnIndex = annotationsGrid.getColumnIndex("name");
+        var key = annotationsGrid.getCellValue(rowIndex, nameColumnIndex);
+        model.setAnnotationValue(modelElement, key, newValue, true);
+        annotationsGrid.setCellValue(rowIndex, columnIndex, newValue);
+        break;
+    }
   },
   getModel: function(){
     return this.model;
@@ -996,27 +1042,18 @@ var GenericEditor;
     }
     var model = this.model, modelElement = this.modelElement;
     data = {
-      columns: [],
-      rows: [],
       cells: []
     }
     var rowNum = 0;
     if (model && modelElement) {
-      data.columns.push(
-        {name: "value", label: "Value"},
-        {name: "name", label: "Name"}
-      );
       model.eachAnnotation(modelElement, function(annotation, i){
-        data.rows.push([++rowNum]);
         data.cells.push([
           annotation.attributes.name,
           model.getNodeValue(annotation)
         ]);
       }, this);
     }
-    data.cells.push(["", ""]);
-    data.rows.push([data.cells.length]);
-    annotationsGrid.setData(data);
+    annotationsGrid.setRowSet(data);
   },
   setData: function(model, modelElementPath){
     var oldModel = this.model;
