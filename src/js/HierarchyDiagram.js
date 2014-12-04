@@ -48,7 +48,7 @@ var HierarchyDiagram;
       return this.fireEvent(eventName, objectInfo);
     }
   };
-  this.nameCellEditor = new CellEditor({
+  this.nameCellEditor = new CellTextEditor({
     listeners: cellEditorListeners
   });
 

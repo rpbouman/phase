@@ -64,13 +64,12 @@ var CubeDiagram;
       return this.fireEvent(eventName, objectInfo);
     }
   };
-  this.nameCellEditor = new CellEditor({
+  this.nameCellEditor = new CellTextEditor({
     listeners: cellEditorListeners
   });
-  this.aggregatorCellEditor = new CellEditor({
+  this.aggregatorCellEditor = new CellListEditor({
     listeners: cellEditorListeners,
     input: {
-      tagName: "select",
       options: ["avg", "count", "distinct-count", "min", "max", "sum"]
     }
   });
