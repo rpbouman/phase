@@ -189,7 +189,8 @@ function saveModel(){
                     removeOld = true;
                     doSaveModel(model, overwrite, removeOld);
                   },
-        label: "Rename"
+        label: "Rename",
+        focus: true
       },
       no: {
         handler:  function(){
@@ -243,7 +244,8 @@ function doSaveModel(model, overwrite, removeOld) {
                 label: "Yes"
               },
               no: {
-                label: "No"
+                label: "No",
+                focus: true
               }
             });
           }
@@ -305,7 +307,11 @@ function renameModel(model, oldName, newName){
                 "\"" + oldName + "\" to \"" + newName + "\". " +
                 "However, such a schema already exists. " +
                 "Please choose another name, or remove the existing schema first.",
-      title:    "Can't rename to existing schema"
+      title:    "Can't rename to existing schema.",
+      yes: {
+        label: "Ok",
+        focus: true
+      }
     });
     return false;
   }
@@ -354,6 +360,7 @@ function deleteCurrentObjects() {
       }
     },
     no: {
+      focus: true
     }
   });
 }
@@ -435,7 +442,8 @@ var mondrianSchemaTreeView = new MondrianSchemaTreeView({
             label: "Move",
             handler: function(){
               moveModelElement(modelElement, toModelElement);
-            }
+            },
+            focus: true
           },
           no: {
             label: "Copy",
