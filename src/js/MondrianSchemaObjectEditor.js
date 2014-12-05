@@ -757,6 +757,9 @@ var GenericEditor;
       {name: "name", label: "Name", cellEditor: this.annotationsGridCellEditor},
       {name: "value", label: "Value", cellEditor: this.annotationsGridCellEditor}
     ]);
+    this.annotationsGrid.setRowHeaders([
+      {name: "rowNum", label: "#", isAutoRowNum: true}
+    ]);
     this.createForm(this.tabPane.getTabPage(0), this.getFields());
     return dom;
   },
