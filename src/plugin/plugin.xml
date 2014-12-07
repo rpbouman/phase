@@ -2,15 +2,8 @@
 <plugin title="Pentaho Analysis Editor">
 
   <overlays>
-    <overlay id="startup.phase" resourcebundle="api/repos/pqe/resources/messages/launchermessages.properties" priority="2">
-      <menubar id="tools">
-        <!--
-        <menuitem
-          id="pqe"
-          label="Pentaho Query Editor"
-          command="mantleXulHandler.openUrl('Pequer old', 'Pequer old', 'content/pqe/resources/html/query-builder.html')"
-        />
-        -->
+    <overlay id="startup.phase" resourcebundle="api/repos/phase/resources/messages/launchermessages.properties" priority="2">
+      <menubar id="toolsmenu">
         <menuitem
           id="phase"
           label="Pentaho Analysis Editor"
@@ -20,7 +13,6 @@
     </overlay>
   </overlays>
 
-
   <static-paths>
     <static-path url="/phase/resources/js" localFolder="resources/js"/>
     <static-path url="/phase/resources/css" localFolder="resources/css"/>
@@ -29,12 +21,6 @@
     <static-path url="/phase/resources/mui" localFolder="resources/mui"/>
     <static-path url="/phase/lib" localFolder="lib"/>
   </static-paths>
-
-<!--
-  <external-resources>
-    <file context="requirejs">content/pequer/resources/js/pequer-require-js-cfg.js</file>
-  </external-resources>
--->
 
 </plugin>
 
