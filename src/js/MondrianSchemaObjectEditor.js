@@ -288,7 +288,25 @@ var GenericEditor;
   }
 
   this.annotationsGrid = new EditableDataGrid({
-    rowIndexHeader: true
+    listeners: {
+      scope: this,
+      rowInserted: function(grid, event, data) {
+        var model = this.model;
+        var modelElement = this.modelElement;
+        if (!model || !modelElement) {
+          return;
+        }
+        model.createAnnotation(modelElement, data.rowIndex);
+      },
+      rowDeleted: function(grid, event, data){
+        var model = this.model;
+        var modelElement = this.modelElement;
+        if (!model || !modelElement) {
+          return;
+        }
+        model.removeAnnotation(modelElement, data.rowIndex);
+      }
+    }
   });
   conf.tabs[1].component = this.annotationsGrid;
 
@@ -780,20 +798,13 @@ var GenericEditor;
     var annotationsGrid = this.annotationsGrid;
     var column = annotationsGrid.getColumn(cell.cellIndex);
     var columnIndex = column.index;
+    var annotation = model.getAnnotation(modelElement, rowIndex);
     switch (column.name) {
       case "name":
-        model.eachAnnotation(modelElement, function(annotation, i){
-          annotation.attributes.name = newValue;
-          annotationsGrid.setCellValue(i, columnIndex, newValue);
-        }, this, function(annotation, i){
-          return annotation.attributes.name === oldValue;
-        });
+        annotation.attributes.name = newValue;
         break;
       case "value":
-        var nameColumnIndex = annotationsGrid.getColumnIndex("name");
-        var key = annotationsGrid.getCellValue(rowIndex, nameColumnIndex);
-        model.setAnnotationValue(modelElement, key, newValue, true);
-        annotationsGrid.setCellValue(rowIndex, columnIndex, newValue);
+        model.setElementTextContent(annotation, newValue);
         break;
     }
   },

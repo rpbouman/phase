@@ -864,6 +864,28 @@ var MondrianModel;
     }
     return args.pop();
   },
+  createAnnotation: function(element, index, name, value){
+    var annotations = this.getAnnotations(element);
+    var annotation = this.createElement("Annotation", {
+      name: name || ""
+    });
+    if (value) {
+      this.setElementTextContent(annotation, value || "");
+    }
+    this.addChildNode(annotations, index, annotation);
+    return this.annotation;
+  },
+  removeAnnotation: function(element, index) {
+    var j = 0;
+    this.eachAnnotation(element, function(annotation, i){
+      if (j === index) {
+        var annotations = this.getAnnotations(element);
+        annotations.childNodes.splice(i, 1);
+        return false;
+      }
+      j++
+    });
+  },
   getAnnotations: function(element){
     var annotations = null;
     this.eachElementWithTag(element, "Annotations", function(node, index){
@@ -969,6 +991,17 @@ var MondrianModel;
       return null;
     }
     return this.getElementText(annotation);
+  },
+  getAnnotation: function(element, index){
+    var annotionElement = null, j = 0;
+    this.eachAnnotation(element, function(el, i){
+      if (j === index) {
+        annotionElement = el;
+        return false;
+      }
+      j++;
+    }, this);
+    return annotionElement;
   },
   eachAnnotation: function(element, callback, scope, filter){
     var annotations = this.getAnnotations(element);
