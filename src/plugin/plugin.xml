@@ -3,7 +3,7 @@
 
   <overlays>
     <overlay id="startup.phase" resourcebundle="api/repos/pqe/resources/messages/launchermessages.properties" priority="2">
-      <menubar id="newmenu">
+      <menubar id="tools">
         <!--
         <menuitem
           id="pqe"
