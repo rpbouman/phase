@@ -4,6 +4,7 @@
   </description>
 
   <!-- set global properties for this build -->
+  <property name="doc" location="doc"/>
   <property name="src" location="src"/>
   <property name="lib" location="lib"/>
   <property name="mui.src.dir" location="../mui/src"/>
@@ -68,11 +69,6 @@
 
     <mkdir dir="${dist.all}/resources"/>
 
-    <mkdir dir="${dist.all}/resources/doc"/>
-    <copy todir="${dist.all}/resources/doc">
-      <fileset dir="${src}/doc"/>
-    </copy>
-
     <mkdir dir="${dist.all}/resources/html"/>
     <copy todir="${dist.all}/resources/html">
       <fileset dir="${src}/html"/>
@@ -91,6 +87,11 @@
     <mkdir dir="${dist.all}/resources/images"/>
     <copy todir="${dist.all}/resources/images">
       <fileset dir="${src}/images"/>
+    </copy>
+
+    <mkdir dir="${dist.all}/resources/doc"/>
+    <copy todir="${dist.all}/resources/doc">
+      <fileset dir="${doc}"/>
     </copy>
 
     <delete file="${dist}/${ant.project.name}.zip"/>

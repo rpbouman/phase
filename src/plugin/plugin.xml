@@ -20,6 +20,7 @@
     <static-path url="/phase/resources/html" localFolder="resources/html"/>
     <static-path url="/phase/resources/mui" localFolder="resources/mui"/>
     <static-path url="/phase/lib" localFolder="lib"/>
+    <static-path url="/phase/resources/doc" localFolder="resources/doc"/>
   </static-paths>
 
 </plugin>
