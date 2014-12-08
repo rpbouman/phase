@@ -37,6 +37,10 @@ body, html {
   background-image: url('../mui/images/remove_16x16.png');
 }
 
+.toolbar .help {
+  background-image: url('../images/help.png');
+}
+
 .mainsplitpane {
   top: 32px;
 }

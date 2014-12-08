@@ -100,10 +100,13 @@ var mainToolbar = new Toolbar({
 });
 mainToolbar.addButton([
   {"class": "refresh", tooltip: "Refresh"},
-  {"class": "save", tooltip: "Save Schema"},
-  {"class": "new", tooltip: "New Schema"},
   {"class": "separator"},
-  {"class": "delete", tooltip: "Remove current object"}
+  {"class": "new", tooltip: "New Schema"},
+  {"class": "save", tooltip: "Save Schema"},
+  {"class": "separator"},
+  {"class": "delete", tooltip: "Remove current object"},
+  {"class": "separator"},
+  {"class": "help", tooltip: "Read the Phase Manual"}
 ]);
 mainToolbar.listen({
   "buttonPressed": function(toolbar, event, button){
@@ -121,6 +124,9 @@ mainToolbar.listen({
         break;
       case "delete":
         deleteCurrentObjects();
+        break;
+      case "help":
+        top.openURL("Phase - Manual", "phase-manual", "content/phase/resources/doc/index.html");
         break;
       default:
         throw "Not implemented";
