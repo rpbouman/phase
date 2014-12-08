@@ -60,7 +60,6 @@ Would be nice to create new roles.
 
 - only allow drag from the connection tree if a query diagram is activated.
 -
-#10 when creating a new object, a new treenode is created for it and that's selected. we should scroll the treeview so the new node is in view.
 
 #12
 Support for analyzer specific Annotations
@@ -75,8 +74,6 @@ Conditional Formatting: http://help.pentaho.com/Documentation/5.1/0N0/020/090/06
 
 #16 Support for virtual cubes.
 
-#17 Create standard date dimension
-
 #18 Make the levels in the hierarchy diagram collapsible so as to hide all the "extra" columns.
 
 #19 Add the data type to the levels in the hierarchy diagram
@@ -90,3 +87,7 @@ Conditional Formatting: http://help.pentaho.com/Documentation/5.1/0N0/020/090/06
 #25: In the cube diagram, dragging a column out of the fact table and dropping it on the canvas could trigger an action to create a measure or a dimension. We should probably pop up a dialog to ask the user what they want, and we could choose a default intelligently by looking at the column properties
 
 #26 when connecting a measure to the fact table we should detect the data type of the column and decide whether it makes sense to make a measure out of it. If not, we should popup a dialog to confirm the user's choice.
+
+#27 When refreshing the code view, scroll back to the original position.
+
+#28 support for localization http://infocenter.pentaho.com/help/topic/analysis_guide/task_schema_localization.html
