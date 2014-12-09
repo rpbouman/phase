@@ -20,20 +20,23 @@ limitations under the License.
   <head>
     <meta http-equiv="Content-Type" content="type=text/html; charset=utf-8" />
     <title>Phase - Manual</title>
-    <link rel="stylesheet" type="text/css" href="css/default.css"/>
     <!-- Pentaho theming stuff, dirs -->
     <script type="text/javascript" src="../js/theme.js"></script>
+    <!-- Doc styles -->
+    <link rel="stylesheet" type="text/css" href="css/default.css"/>
+    <script>
+      function highlightToc(frame){
+        var win = frame.contentWindow;
+        var loc = win.location;
+        var href = loc.href;
+        var path = href.split("/");
+        var doc = path.pop();
+
+      }
+    </script>
   </head>
-  <body>
-    <h1>Phase Manual</h1>
-    <p>
-      Phase stands for <b>P</b>enta<b>h</b>o <b>A</b>nalysi<b>s</b> <b>E</b>ditor.
-      With Phase you can create and edit data models that are required by Pentaho Analysis.
-    </p>
-    <h2>Table of Contents</h2>
-    <ol>
-      <li><a href="overview.html">Overview</a></li>
-      <li><a href="walkthrough.html">Walkthrough</a></li>
-    </ol>
-  </body>
+  <frameset cols="25%, *">
+    <frame id="toc" name="toc" src="toc.html"></frame>
+    <frame name="doc" name="doc" src="overview.html" onload="highlightToc(this)"></frame>
+  </frameset>
 </html>

@@ -22,86 +22,36 @@ limitations under the License.
     <title>Phase Manual - Overview</title>
     <!-- Pentaho theming stuff, dirs -->
     <script type="text/javascript" src="../js/theme.js"></script>
+    <!-- Doc styles -->
     <link rel="stylesheet" type="text/css" href="css/default.css"/>
   </head>
   <body>
     <h1>Phase - Overview</h1>
     <p>
       Phase stands for <b>P</b>enta<b>h</b>o <b>A</b>nalysi<b>s</b> <b>E</b>ditor.
-      With Phase you can create and edit data models that are required by Pentaho Analysis.
     </p>
-    <h2>Pentaho Analysis: some background</h2>
-    <p>
-      <a href="http://community.pentaho.com/projects/mondrian/" target="_mondrian">Pentaho Analysis</a> is a back-end component of the Pentaho Platform that provides <a href="http://mondrian.pentaho.com/documentation/olap.php">Online Analytical Processing</a> capabilities (OLAP).
-      OLAP provides multi-dimensional analysis of business data.
-    </p>
-    <h3>Multi-dimensional analysis</h3>
-    <p>
-      Multi-dimensional analysis categorizes business data in two kinds of items:
-    </p>
-    <dl>
-      <dt>Measures</dt>
-      <dd>
-        Quantative data that are indicative of the performance of the business process.
-        For example, typical measures for a sales process are units sold, profit, cost.
-      </dd>
-      <dt>Dimensions</dt>
-      <dd>
-        Qualitative data that describes situational aspects of the business process and provide the context for the measures: the who, what, when, where and why.
-        These different types of descriptive data are grouped into a number of independent dimensions.
-        For example, typical dimensions for a Sales process are the customer and the employ that handled the sale (the who), the product (what), order date or shipping date (when), the store (where) and maybe a promotion campaign that was in effect (why).
-      </dd>
-    </dl>
-    <p>
-      In multi-dimensional analysis, the measure data is grouped over its corresponding dimensions and aggregated.
-      Dimensions themselves are hierarchically structured into a number of distinct levels.
-      For example, an order date dimension may have year, month and day levels, and a store dimension may have a geographically oriented hieararchy with country, state, city and address levels.
-    </p>
-    <p>
-      This way of presenting the data allows users to navigate through large datasets and to project, filter and compare measures along with whatever aspects of the business process described by data from the dimensions.
-    </p>
-    <h3>The Mondrian engine</h3>
-    <p>
-      The heart of Pentaho Analysis is the <a href="http://mondrian.pentaho.com/documentation/" target="_mondrian">Mondrian</a> engine.
-      This component is typically not directly visible to end users.
-      But user-facing applications like Pentaho Analyzer and Saiku Analytics rely on mondrian to support the data analysis process.
+    <h2>Pentaho Analysis</h2>
+      <a href="pentaho_analysis.html">Pentaho Analysis</a> is a back-end component of the Pentaho Platform that provides <a href="http://mondrian.pentaho.com/documentation/olap.php" target="_blank">Online Analytical Processing</a> capabilities (OLAP).
+      User-facing applications like Pentaho Analyzer and Saiku Analytics work on top of Pentaho Analysis to support the data analysis process.
       Other pillars of the Pentaho platform, like Pentaho reporting and dashboarding can also use Pentaho Analysis as a data source.
     </p>
+    <h2>The Mondrian Engine</h2>
     <p>
-      From the point of view of the applications and components that rely on Mondrian, it does 2 different things:
-    </p>
-    <ul>
-      <li>Present a multidimensional view (i.e., a set of measures and corresponding dimensions) of business data. This allows applications to compose analytical queries.</li>
-      <li>Accept and process analytical queries, and return multi-dimensional datasets.</li>
-    </ul>
-    <p>
-      Analytical queries are formulated in the multi-dimensional expression language (MDX), which allows business data to be expressed as a selection of measures and whatever items from any corresponding dimensions.
-      Mondrian then does the hard work of performing the correct aggregations on the measure data, and structures the result in a way that reflects the requested dimensional data to describe the context of the measure aggregates.
-    </p>
-    <p>
-      Typically these queries and their results are not visible directly to an end-user.
-      Rather, end-user tools provide a graphical user interface that presents the dimensional model of the business data.
-      The application allows its end-users to select and arrange items from the dimensional model in some way that makes sense with respect to the business problem they want to solve.
-      The application then generates a corresponding MDX query, and visualizes the query result in some way the user understands.
-    </p>
-    <h3>Schemas</h3>
-    <p>
+      The heart of Pentaho Analysis is <a href="the_mondrian_engine.html">the Mondrian engine</a>.
       Mondrian is a so-called Relational OLAP-engine (ROLAP).
-      This means the actual data that makes up the measures and dimension data are sourced from a live relational database.
+      Being a ROLAP engine, Mondrian presents a multi-dimensional model suitable for analysis by business users on top of a relational database backend.
     </p>
+    <h2>Mondrian Schemas</h2>
     <p>
       In order to perform its tasks, Mondrian needs to know how to connect to the relational database backend.
-      It also needs to know how the tables and columns provided by the relational backend map to items in the relational model that mondrian presents.
-      This mapping is defined in a so-called schema.
-    </p>
-    <p>
-      One mondrian schema is associated with one database connection but can define many different measures and dimensions.
-      Mondrian schemas are typically expressed in specially designed XML-dialect.
+      It also needs to know how the tables and columns provided by the relational backend map to items in the multi-dimensional model that mondrian presents.
+      This mapping between the relational database backend and the logical is defined in a so-called <a href="modnrian_schemas.html">Mondrian schema</a> or an Pentaho Analysis Model.
     </p>
     <h2>Where Phase fits in</h2>
     <p>
-      Phase provides a graphical user interface that allows users to edit and create Mondrian schemas.
-      Phase is a thin client application that runs inside the Pentaho User console.
+      Phase offers a <a href="the_phase_user_interface.html"></a>graphical user interface</a> that allows you to create and edit mondrian schemas.
+      Phase is integrated with the Pentaho Business Analytics server.
+      Phase runs directly as a web application or so-called thin client in the Pentaho user console.
     </p>
   </body>
 </html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<!--
+
+Copyright 2014 Roland Bouman (roland.bouman@gmail.com)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="type=text/html; charset=utf-8" />
+    <title>Phase Manual - Installation</title>
+    <!-- Pentaho theming stuff, dirs -->
+    <script type="text/javascript" src="../js/theme.js"></script>
+    <!-- Doc styles -->
+    <link rel="stylesheet" type="text/css" href="css/default.css"/>
+  </head>
+  <body>
+    <h1>Marketplace Installation</h1>
+    <p>
+      The marketplace is available by default in the community edition of the Pentaho Business Analytics Server.
+    </p>
+    <p>
+      If you're running the Enterprise edition of the Pentaho Business Analytics Server, you can install the marketplace plugin manually.
+      Instructions to manually install the marketplace plugin can be found <a href="http://pedroalves-bi.blogspot.pt/2013/11/ctools-for-pentaho-50-is-available-cdf.html">here</a>.
+    </p>
+    <p>
+      If the marketplace plugin is installed, you can start the marketplace by going through the "Marketplace" perspective.
+      You can enable the Marketplace perspective by choosing the Marketplace item in the perspectives menu.
+      You can invoke this menu by clicking on the name of the current perspective, which is on the far left, directly beneath the menu bar.
+    </p>
+    <h2>Installing Pedis</h2>
+    <p>
+      Find the marketplace entry called "Pentaho Database Inspection Service" and click the install button.
+      To quickly locate this marketplace entry, use the "search" field and type "pedis".
+    </p>
+    <p>
+      After installing Pedis, you'll get a notification along with a recommendation to restart the BI server.
+      If you still need to install the Phase editor proper, don't restart just yet but install the Phase editor first.
+      When both are installed, restart the server.
+    </p>
+    <h2>Installing Phase</h2>
+    <p>
+      Find the marketplace entry called "Pentaho Analysis Editor" and click the install button.
+      To quickly locate this marketplace entry, use the "search" field and type "phase".
+    </p>
+    <p>
+      After installing Phase, you'll get a notification along with a recommendation to restart the BI server.
+      If you still need to install the Pedis service, don't restart just yet but install the Pedis service first.
+      When both are installed, restart the server.
+    </p>
+    <p>
+      If you're upgrading Phase, it is not strictly necessary to restart the Pentaho BI service.
+      In this case, it is sufficient to refresh the Pentaho User Console in the browser.
+      (If you can to be really sure, cler your browser cache as well.)
+    </p>
+  </body>
+</html>

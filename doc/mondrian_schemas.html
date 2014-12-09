@@ -19,17 +19,26 @@ limitations under the License.
 <html>
   <head>
     <meta http-equiv="Content-Type" content="type=text/html; charset=utf-8" />
-    <title>Phase Manual - Overview</title>
+    <title>Phase Manual - Mondrian Schemas</title>
     <!-- Pentaho theming stuff, dirs -->
     <script type="text/javascript" src="../js/theme.js"></script>
     <!-- Doc styles -->
     <link rel="stylesheet" type="text/css" href="css/default.css"/>
   </head>
   <body>
-    <h1>Phase - Walthrough</h1>
+    <h1>Mondrian Schemas</h1>
     <p>
-      Check out the video below for a quick walkthrough of Phase:
+      Mondrian is a so-called Relational OLAP-engine (ROLAP).
+      This means the actual data that makes up the measures and dimension data are sourced from a live relational database.
     </p>
-    <iframe width="960" height="720" src="//www.youtube.com/embed/2ZRkOkOFjqw?rel=0" frameborder="0" allowfullscreen></iframe>
+    <p>
+      In order to perform its tasks, Mondrian needs to know how to connect to the relational database backend.
+      It also needs to know how the tables and columns provided by the relational backend map to items in the relational model that mondrian presents.
+      This mapping is defined in a so-called <a target="_blank" href="http://mondrian.pentaho.com/documentation/schema.php">schema</a>.
+    </p>
+    <p>
+      One mondrian schema is associated with one database connection but can define many different measures and dimensions.
+      Mondrian schemas are typically expressed in specially designed XML-dialect.
+    </p>
   </body>
 </html>

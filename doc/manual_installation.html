@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<!--
+
+Copyright 2014 Roland Bouman (roland.bouman@gmail.com)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="type=text/html; charset=utf-8" />
+    <title>Phase Manual - Installation</title>
+    <!-- Pentaho theming stuff, dirs -->
+    <script type="text/javascript" src="../js/theme.js"></script>
+    <!-- Doc styles -->
+    <link rel="stylesheet" type="text/css" href="css/default.css"/>
+  </head>
+  <body>
+    <h1>Manual Installation</h1>
+    <p>
+      Installing Pentaho plugins manually is typically not that hard.
+      It requires you to download an archive containing all of the plugins executable code and resources,
+      and unpacking that into the <code>pentaho-solutions/system</code> directory,
+      which resides inside the home directory of your Pentaho Business Analytics server.
+    </p>
+    <h2>Manually installing Pedis</h2>
+    <p>
+      Find the <a href="https://github.com/rpbouman/pedis">pedis repository. on github</a>.
+      Switch to the desired branch and download the pedis.zip archive from the dist directory.
+      Unzip pedis.zip into the <code>pentaho-solutions/system</code> directory.
+      The archive should unpack itself into its own <code>pedis</code> directory.
+    </p>
+    <p>
+      Installing pedis requires a server restart.
+      You can do that as soon as you're done installing plugins.
+    </p>
+    <h2>Manually installing Phase</h2>
+    <p>
+      Find the phase repository on github and locate the phase.zip archive in the dist directory.
+      Unzip phase.zip into the <code>pentaho-solutions/system</code> directory.
+      The archive should unpack itself into its own <code>phase</code> directory.
+    </p>
+    <p>
+      If Phase wasn't installed already you'll need to restart the Pentaho Business Analytics server.
+      If you're only upgrading Phase it's enough to simply reload the Pentaho user console.
+    </p>
+  </body>
+</html>

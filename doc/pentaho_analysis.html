@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!--
+
+Copyright 2014 Roland Bouman (roland.bouman@gmail.com)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="type=text/html; charset=utf-8" />
+    <title>Phase Manual - Pentaho Analysis</title>
+    <!-- Pentaho theming stuff, dirs -->
+    <script type="text/javascript" src="../js/theme.js"></script>
+    <!-- Doc styles -->
+    <link rel="stylesheet" type="text/css" href="css/default.css"/>
+  </head>
+  <body>
+    <h1>Pentaho Analysis</h1>
+    <p>
+      Pentaho Analysis is a back-end component of the Pentaho Platform that provides <a href="http://mondrian.pentaho.com/documentation/olap.php" target="_blank">Online Analytical Processing</a> capabilities (OLAP).
+      OLAP provides multi-dimensional analysis of business data.
+    </p>
+    <h2>Multi-dimensional analysis</h2>
+    <p>
+      Multi-dimensional analysis categorizes business data in two kinds of items:
+    </p>
+    <dl>
+      <dt>Measures</dt>
+      <dd>
+        Quantative data that are indicative of the performance of the business process.
+        For example, typical measures for a sales process are units sold, profit, cost.
+      </dd>
+      <dt>Dimensions</dt>
+      <dd>
+        Qualitative data that describes situational aspects of the business process and provide the context for the measures: the who, what, when, where and why.
+        These different types of descriptive data are grouped into a number of independent dimensions.
+        For example, typical dimensions for a Sales process are the customer and the employ that handled the sale (the who), the product (what), order date or shipping date (when), the store (where) and maybe a promotion campaign that was in effect (why).
+      </dd>
+    </dl>
+    <p>
+      In multi-dimensional analysis, the measure data is grouped over its corresponding dimensions and aggregated.
+      Dimensions themselves are hierarchically structured into a number of distinct levels.
+      For example, an order date dimension may have year, month and day levels, and a store dimension may have a geographically oriented hieararchy with country, state, city and address levels.
+    </p>
+    <p>
+      This way of presenting the data allows users to navigate through large datasets and to project, filter and compare measures along with whatever aspects of the business process described by data from the dimensions.
+    </p>
+  </body>
+</html>

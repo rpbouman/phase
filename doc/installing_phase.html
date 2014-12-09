@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!--
+
+Copyright 2014 Roland Bouman (roland.bouman@gmail.com)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="type=text/html; charset=utf-8" />
+    <title>Phase Manual - Installation</title>
+    <!-- Pentaho theming stuff, dirs -->
+    <script type="text/javascript" src="../js/theme.js"></script>
+    <!-- Doc styles -->
+    <link rel="stylesheet" type="text/css" href="css/default.css"/>
+  </head>
+  <body>
+    <h1>Installing Phase</h1>
+    <p>
+      Phase <a href="marketplace_installation.html">can be installed from the Pentaho marketplace</a>.
+      This is the recommended procedure if you simply want to use Phase to edit your Pentaho Anaylysis schemas.
+    </p>
+    <p>
+      You can also <a href="manual_installation.html">manually install phase</a>.
+      If you're a developer and you plan to make modifications to the Phase source code (or the documentation),
+      you should use the manual installation procedure to test the changes you made.
+    </p>
+    <p>
+      Regardless of whether you choose to install Phase from the marketplace or manually, it is always a 2-step process:
+    </p>
+    <ol>
+      <li>
+        Install the Pentaho Database Inspection Service (Pedis).
+        This is a content generator plugin which provides JDBC metadata for any JDBC connections available through Pentaho's data access plugin.
+        Clients can obtain JDBC metadata (typically, in JSON format) through the REST calls handled by the content generator.
+      </li>
+      <li>
+        Install Phase proper - the actual editor.
+        The actual Pentaho Analysis Editor is a "thin client" - a pure client side application made up of HTML, CSS and javascript.
+        It works by doing REST calls to the Pentaho Database Inspection Service, as well as a number of webservices provided by Pentaho's data access plugin.
+      </li>
+    </ol>
+  </body>
+</html>
