@@ -591,6 +591,9 @@ var MondrianModel;
     return this.newName([this.getPrivateDimension, this.getDimensionUsage], [cube], name || "new Dimension");
   },
   createPrivateDimension: function(cubeName, attributes, dontFireEvent){
+    if (!attributes) {
+      attributes = {};
+    }
     var schema = this.getSchema();
     var cube = this.getCube(cubeName);
     var type = "PrivateDimension";
