@@ -27,9 +27,6 @@ var DiagramModel;
 
   this.pedisCache = conf.pedisCache;
   this.clear();
-  if (conf.listeners) {
-    this.listen(conf.listeners);
-  }
 
   arguments.callee._super.apply(this, [conf]);
 }).prototype = {
