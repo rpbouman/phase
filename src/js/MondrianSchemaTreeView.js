@@ -779,8 +779,6 @@ var MondrianSchemaTreeView;
           default:
             return null;
         }
-      case "VirtualCube":
-        return TreeNode.prototype.compare.call(this, treeNode);
       case "Hierarchy":
         switch (thisType){
           case "Level":
@@ -794,6 +792,10 @@ var MondrianSchemaTreeView;
             return null;
         }
         break;
+      case "CubeUsage": //TODO: take imported shared dimensions into account.
+        return TreeNode.prototype.compare.call(this, treeNode);
+      case "VirtualCube":
+        return TreeNode.prototype.compare.call(this, treeNode);
       default:
         throw "Unknown node type " + parentType;
     }
