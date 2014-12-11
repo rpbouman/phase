@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<!--
+
+Copyright 2014 Roland Bouman (roland.bouman@gmail.com)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="type=text/html; charset=utf-8" />
+    <title>Phase User Interface - Model Treeview</title>
+    <!-- Pentaho theming stuff, dirs -->
+    <script type="text/javascript" src="../js/theme.js"></script>
+    <!-- Doc styles -->
+    <link rel="stylesheet" type="text/css" href="css/default.css"/>
+  </head>
+  <body>
+    <h1>Model Treeview Nodes</h1>
+    <p>
+      The nodes in the model treeview reflect the structure of the available mondrian schemas.
+      The structure of the treeview is close to the actual physical document structure of the mondrian schemas.
+      However, the model treeview tries to simplify and abstract from the actual schema document structure where it makes sense.
+    </p>
+    <p>
+      In particular, the model treeview only shows the logical structure of the mondrian schemas.
+      In other words, the model treeview is mainly reflects the dimensional model defined by the mondrian schema.
+      The model treeview does not show any of the relational entities that are used to define these OLAP entities.
+    </p>
+    <h2>Interacting with Model Treeview nodes</h2>
+    <p>
+      Nodes in the treeview have several hotspots which you can click:
+    </p>
+    <ul>
+      <li>Clicking the + or - button (if present) just left of the node's icon, will change the state of the node. This allows you to <a href="#Navigating and Inspecting schemas">inspect and navigate mondrian models</a>.</li>
+      <li>Clicking the label (name) of the treenode, just to the right side of the node's icon will <a href="#Selecting a model or a model element">select that node</a> (and it's corresponding model or model element)</li>
+    </ul>
+    <p>
+      The nodes in the model treeview can also be <a href="#Dragging and Dropping Treenodes">dragged and dropped</a> to control the order of model elements.
+    </p>
+    <h3><a name="Navigating and Inspecting schemas"></a>Navigating and Inspecting schemas</h3>
+    <p>
+      A node in the model treeview is either a leaf node or not.
+      Leaf nodes do not have childnodes, whereas non-leaf nodes can and often will have childnodes.
+    </p>
+    <p>
+      Non-leaf nodes can be either expanded or collapsed.
+    </p>
+    <p>
+      Collapsed nodes have a + toggle button in front of their icon.
+      If a collapsed node has child nodes, then these will not be visible as long as the node is in a collapsed state.
+      Clicking the + button of a collapsed node will change the node to an expanded state.
+    </p>
+    <p>
+      Expanded nodes reveal their child nodes (if present).
+      Child nodes appear slightly indented beneath their parent node.
+    </p>
+    <p>
+      Expanded nodes have a - button in front of their icon.
+      Clicking the - button will hide the nodes childnodes (if any) and set the node to a collapsed state.
+    </p>
+    <p>
+      So, by expanding and collapsing nodes, the structure of all available mondrian schemas can be revealed and inspected.
+    </p>
+    <h3><a name="Selecting a model or a model element"></a>Selecting a model or a model element</h3>
+    <p>
+      Clicking on the label (name) of the node, just right of its icon will select the corresponding modelelement.
+      The selected treenode will change its appearance to have a blue background and white text.
+      As a response to selecting a node in the model tree node, an editor that is appropriate for that type of model element will load in the <a href="user_interface_editor_area.html">editor area</a>.
+    </p>
+    <h3><a name="Dragging and Dropping Treenodes"></a>Dragging and Dropping Treenodes</h3>
+    <p>
+      But generally the ordinal position of model elements is of no consequence with regard to schema functionality.
+      In few cases the order of the schema elements matters on a functional level.
+      For example, the order of Level elements within the hierarchy of a dimension determines the structure of the hierarchy,
+      such that levels that represent a higher level of aggregation precede those levels that represent a lower level of aggregation.
+    </p>
+    <p>
+      For this reason, schema authors must be able to control the order in which the model of a model appear.
+      Even in those cases where the order of the model elements does not matter functionally,
+      a custom order may be appear more natural and handy the schema author.
+    </p>
+    <p>
+      The order of model elements can be controlled by dragging and dropping nodes in the model treeview so that they occur in whatever order the schema author pleases.
+    </p>
+    <h2>Node types</h2>
+    <p>
+      Nodes in the model treeview are of a particular type and represent either a mondrian schema or an element within such a schema.
+      The nodes have both a label and an icon.
+      The icon indicates the type of modelelement that is represented by the node.
+      The name indicates the identifiers (the name) of the model element that the node represents.
+    </p>
+    <p>
+      The following list explains the different node types:
+    </p>
+    <dl>
+      <dt><img src="../images/schema.png"/>Schema node</dt>
+        <dd>
+          A schema node represents a Pentaho Analysis Model - (a Mondrian Schema).
+        </dd>
+      <dt><img src="../images/cube.png"/>Cube node</dt>
+        <dd>
+          A cube node represents a Cube. A cube is a domain-specific collection of measures and corresponding dimensions.
+          Cube nodes can be found beneath schema nodes.
+        </dd>
+      <dt><img src="../images/dimension.png"/>Shared Dimension node</dt>
+        <dd>
+          A shared dimension node represents a shared dimension.
+          A shared dimension is essentially a so-called conformed dimension which can be used by multiple cubes.
+          Shared dimension nodes can be found beneath schema nodes.
+        </dd>
+      <dt><img src="../images/private-dimension.png"/>Private Dimension node</dt>
+        <dd>
+          A private dimension node represents a private dimension.
+          A private dimension is a dimension that is specific to just one particular cube.
+          Shared dimension nodes can be found beneath cube nodes.
+        </dd>
+      <dt><img src="../images/dimension-usage.png"/>Dimension Usage node</dt>
+        <dd>
+          A dimension usage node represents a dimension usage.
+          A dimension usage is essentially a role playing dimension: it refers to a shared dimension but is given a specific role and boud to a specific context within a cube.
+          Dimension usage nodes can be found beneath cube nodes.
+        </dd>
+      <dt><img src="../images/hierarchy.png"/>Hierarchy node</dt>
+        <dd>
+          A hierarchy node represents a hierarchy within a shared or private dimension.
+        </dd>
+      <dt><img src="../images/level.png"/>Level node</dt>
+        <dd>
+          A level node represents a level within a hierarchy.
+        </dd>
+      <dt><img src="../images/measure.png"/>Measure node</dt>
+        <dd>
+          A measure node represents a measure.
+          Measure nodes can be found beneath cube nodes.
+          Measure nodes are leaf nodes.
+        </dd>
+      <dt><img src="../images/calculated-member.png"/>Calculated Member Node</dt>
+        <dd>
+          A calculated member node represents a calculated member.
+          Calculated member nodes can be found beneath cube nodes and virtual cube nodes.
+          Calculated member nodes are leaf nodes.
+        </dd>
+      <dt><img src="../images/named-set.png"/>Named Set Node</dt>
+        <dd>
+          A named set node represents a named set.
+          Named set nodes can be found beneath cube nodes, virtual cube nodes, and also schema nodes.
+          Named set nodes are leaf nodes.
+        </dd>
+      <dt><img src="../images/virtual-cube.png"/>Virtual Cube Node</dt>
+        <dd>
+          A virtual cube node represents a virtual cube.
+          Virtual cube nodes can be found beneath schema nodes.
+        </dd>
+      <dt><img src="../images/cube.png"/>Cube Usage node</dt>
+        <dd>
+          A cube usage node represents a Cube that is referenced somewhere in a Virtual Cube.
+          Cube usage nodes can be found beneath virtual cube nodes.
+        </dd>
+    </dl>
+  </body>
+</html>

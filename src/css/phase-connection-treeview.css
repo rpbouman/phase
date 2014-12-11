@@ -15,10 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 */
-.connection-tree div.catalog > div.head >  span.toggle {
+.catalog .toggle {
   background-image: url(../images/database_16x16.png);
 }
 
-.connection-tree div.schema > div.head >  span.toggle {
+.schema .toggle {
   background-image: url('../images/folder-visiting_16x16.png');
 }

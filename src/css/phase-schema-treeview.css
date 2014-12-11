@@ -21,62 +21,51 @@ div.mondrian-schema-tree div.node > div.head {
   border-bottom-color: white;
 }
 
-div.Schema > div.head >  span.toggle,
-.mondrian-schema-tree div.Schema > div.head >  span.toggle {
+.Schema .toggle {
   background-image: url('../images/schema.png');
 }
 
-div.CubeUsage > div.head >  span.toggle,
-.mondrian-schema-tree div.CubeUsage > div.head >  span.toggle {
+.CubeUsage .toggle {
   background-image: url('../images/cube.png');
 }
 
-div.Cube > div.head >  span.toggle,
-.mondrian-schema-tree div.Cube > div.head >  span.toggle {
+.Cube .toggle {
   background-image: url('../images/cube.png');
 }
 
-.mondrian-schema-tree div.VirtualCube > div.head >  span.toggle {
+.VirtualCube .toggle {
   background-image: url('../images/virtualcube.png');
 }
 
-div.SharedDimension > div.head >  span.toggle,
-.tree div.SharedDimension > div.head >  span.toggle {
+.SharedDimension .toggle {
   background-image: url('../images/dimension.png');
 }
 
-div.PrivateDimension > div.head >  span.toggle,
-.tree div.PrivateDimension > div.head >  span.toggle {
+.PrivateDimension .toggle {
   background-image: url('../images/private-dimension.png');
 }
 
-div.Hierarchy > div.head >  span.toggle,
-.mondrian-schema-tree div.Hierarchy > div.head >  span.toggle {
+.Hierarchy .toggle {
   background-image: url('../images/hierarchy.png');
 }
 
-div.Level > div.head >  span.toggle,
-.mondrian-schema-tree div.Level > div.head >  span.toggle {
+.Level .toggle {
   background-image: url('../images/level.png');
 }
 
-div.Measure > div.head >  span.toggle,
-.mondrian-schema-tree div.Measure > div.head >  span.toggle {
+.Measure .toggle {
   background-image: url('../images/measure.png');
 }
 
-div.CalculatedMember > div.head >  span.toggle,
-.mondrian-schema-tree div.CalculatedMember > div.head >  span.toggle {
+.CalculatedMember .toggle {
   background-image: url('../images/calculated-member.png');
 }
 
-div.NamedSet > div.head >  span.toggle,
-.mondrian-schema-tree div.NamedSet > div.head >  span.toggle {
+.NamedSet .toggle {
   background-image: url('../images/named-set.png');
 }
 
-div.DimensionUsage > div.head >  span.toggle,
-.mondrian-schema-tree div.DimensionUsage > div.head >  span.toggle {
+.DimensionUsage .toggle {
   background-image: url('../images/dimension-usage.png');
 }
 

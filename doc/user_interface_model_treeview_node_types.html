@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<!--
+
+Copyright 2014 Roland Bouman (roland.bouman@gmail.com)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="type=text/html; charset=utf-8" />
+    <title>Phase User Interface - Model Treeview</title>
+    <!-- Pentaho theming stuff, dirs -->
+    <script type="text/javascript" src="../js/theme.js"></script>
+    <!-- Doc styles -->
+    <link rel="stylesheet" type="text/css" href="css/default.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/phase-schema-treeview.css"/>
+    <style>
+      .toggle {
+        background-repeat: no-repeat;
+        padding-left: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Node types</h1>
+    <p>
+      Nodes in the model treeview are of a particular type and represent either a mondrian schema or an element within such a schema.
+      The nodes have both a label and an icon.
+      The icon indicates the type of modelelement that is represented by the node.
+      The name indicates the identifiers (the name) of the model element that the node represents.
+    </p>
+    <p>
+      The following list explains the different node types that may apper in the model treeview:
+    </p>
+    <dl>
+      <dt class="Schema"><span class="toggle">Schema node</span></dt>
+        <dd>
+          A schema node represents a Pentaho Analysis Model - (a Mondrian Schema).
+        </dd>
+      <dt class="Cube"><span class="toggle">Cube node</span></dt>
+        <dd>
+          A cube node represents a Cube. A cube is a domain-specific collection of measures and corresponding dimensions.
+          Cube nodes can be found beneath schema nodes.
+        </dd>
+      <dt class="SharedDimension"><span class="toggle">Shared Dimension node</span></dt>
+        <dd>
+          A shared dimension node represents a shared dimension.
+          A shared dimension is essentially a so-called conformed dimension which can be used by multiple cubes.
+          Shared dimension nodes can be found beneath schema nodes.
+        </dd>
+      <dt class="PrivateDimension"><span class="toggle">Private Dimension node</span></dt>
+        <dd>
+          A private dimension node represents a private dimension.
+          A private dimension is a dimension that is specific to just one particular cube.
+          Shared dimension nodes can be found beneath cube nodes.
+        </dd>
+      <dt class="DimensionUsage"><span class="toggle">Dimension Usage node</span></dt>
+        <dd>
+          A dimension usage node represents a dimension usage.
+          A dimension usage is essentially a role playing dimension: it refers to a shared dimension but is given a specific role and boud to a specific context within a cube.
+          Dimension usage nodes can be found beneath cube nodes.
+        </dd>
+      <dt class="Hierarchy"><span class="toggle">Hierarchy node</span></dt>
+        <dd>
+          A hierarchy node represents a hierarchy within a shared or private dimension.
+        </dd>
+      <dt class="Level"><span class="toggle">Level node</span></dt>
+        <dd>
+          A level node represents a level within a hierarchy.
+        </dd>
+      <dt class="Measure"><span class="toggle">Measure node</span></dt>
+        <dd>
+          A measure node represents a measure.
+          Measure nodes can be found beneath cube nodes.
+          Measure nodes are leaf nodes.
+        </dd>
+      <dt class="CalculatedMember"><span class="toggle">Calculated Member Node</span></dt>
+        <dd>
+          A calculated member node represents a calculated member.
+          Calculated member nodes can be found beneath cube nodes and virtual cube nodes.
+          Calculated member nodes are leaf nodes.
+        </dd>
+      <dt class="NamedSet"><span class="toggle">Named Set Node</span></dt>
+        <dd>
+          A named set node represents a named set.
+          Named set nodes can be found beneath cube nodes, virtual cube nodes, and also schema nodes.
+          Named set nodes are leaf nodes.
+        </dd>
+      <dt class="VirtualCube"><span class="toggle">Virtual Cube Node</span></dt>
+        <dd>
+          A virtual cube node represents a virtual cube.
+          Virtual cube nodes can be found beneath schema nodes.
+        </dd>
+      <dt class="CubeUsage"><span class="toggle">Cube Usage node</span></dt>
+        <dd>
+          A cube usage node represents a Cube that is referenced somewhere in a Virtual Cube.
+          Cube usage nodes can be found beneath virtual cube nodes.
+        </dd>
+    </dl>
+  </body>
+</html>

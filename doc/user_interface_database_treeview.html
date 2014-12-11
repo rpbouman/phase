@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<!--
+
+Copyright 2014 Roland Bouman (roland.bouman@gmail.com)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="type=text/html; charset=utf-8" />
+    <title>Phase User Interface - Database Treeview</title>
+    <!-- Pentaho theming stuff, dirs -->
+    <script type="text/javascript" src="../js/theme.js"></script>
+    <!-- Doc styles -->
+    <link rel="stylesheet" type="text/css" href="css/default.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/phase-connection-treeview.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/phase-tables-and-columns.css"/>
+    <style>
+      .toggle {
+        background-repeat: no-repeat;
+        padding-left: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Database Treeview</h1>
+    <p>
+      The database treeview is located on the left bottom of the phase application below the <a href="user_interface_model_treeview.html">Model Treeview</a>.
+      Phase will automatically update the database treeview to reflect the database connection that is associated with the schema to which the currently selected node in the model treeview belongs.
+      This happens either when a <a href="user_interface_model_treeview_interacting_with_nodes.html#Selecting a model or a model element">node is selected in the model treeview</a>,
+      and also when the value of the <a href="user_interface_schema_editor.html#field_datasource">Datasource field</a> in the <a href="user_interface_schema_editor.html">schema editor</a> is changed.
+    </p>
+    <h2>Database Treeview Node Types</h2>
+    <p>
+      The following list explains the different node types that may apper in the database treeview:
+    </p>
+    <dl>
+      <dt class="catalog"><span class="toggle">Catalog node</span></dt>
+        <dd>
+          Catalog nodes represent a database catalog.
+        </dd>
+      <dt class="schema"><span class="toggle">Schema node</span></dt>
+        <dd>
+          Schema nodes represent a database schema.
+          Database schema nodes can either be top-level nodes, or may appear beneath a database catalog node.
+        </dd>
+      <dt class="table"><span class="toggle">Tabe node</span></dt>
+        <dd>
+          Table nodes represent a database tables.
+        </dd>
+      <dt class="view"><span class="toggle">View node</span></dt>
+        <dd>
+          View nodes represent database views.
+        </dd>
+      <dt class="datatype--6"><span class="toggle">Column node with an integer datatype.</span></dt>
+        <dd>
+          Column with a tinyint, smallint, integer, or bigint datatype.
+        </dd>
+      <dt class="datatype-3"><span class="toggle">Column node with an decimal datatype.</span></dt>
+        <dd>
+          Column with a numeric or decimal datatype.
+        </dd>
+      <dt class="datatype-7"><span class="toggle">Column node with an floating point datatype.</span></dt>
+        <dd>
+          Column with a real, double or float datatype.
+        </dd>
+      <dt class="datatype-12"><span class="toggle">Column node with an string datatype.</span></dt>
+        <dd>
+          Column with a varchar, nvarchar, nclob, nchar, longvarchar, longnvarchar, clob, or char datatype.
+        </dd>
+      <dt class="datatype--3"><span class="toggle">Column node with an binary string datatype.</span></dt>
+        <dd>
+          Column with a varbinary, longvarbinary, blob, or binary datatype.
+        </dd>
+      <dt class="datatype-91"><span class="toggle">Column node with an date datatype.</span></dt>
+        <dd>
+          Column with a date datatype.
+        </dd>
+      <dt class="datatype-92"><span class="toggle">Column node with an time datatype.</span></dt>
+        <dd>
+          Column with a time datatype.
+        </dd>
+      <dt class="datatype-93"><span class="toggle">Column node with a datetime datatype.</span></dt>
+        <dd>
+          Column with a datetime datatype.
+        </dd>
+      <dt class="datatype--7"><span class="toggle">Column node with a bit or bool datatype.</span></dt>
+        <dd>
+          Column with a bit or bool datatype.
+        </dd>
+      <dt class="datatype-2000"><span class="toggle">Column node with Java Object datatype</span></dt>
+        <dd>
+          Column with a struct, rowid, ref, null, other, distinct, datalink or Array datatype.
+        </dd>
+      <dt class="datatype-2009"><span class="toggle">Column node with XML datatype</span></dt>
+        <dd>
+          Column with a struct, rowid, ref, null, other, distinct, datalink or Array datatype.
+        </dd>
+      <dt class="column"><span class="toggle">Column node with other datatypes</span></dt>
+        <dd>
+          Column with a struct, rowid, ref, null, other, distinct, datalink or Array datatype.
+        </dd>
+    </dl>
+  </body>
+</html>

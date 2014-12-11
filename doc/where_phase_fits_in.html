@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<!--
+
+Copyright 2014 Roland Bouman (roland.bouman@gmail.com)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="type=text/html; charset=utf-8" />
+    <title>Phase Manual - Where Phase fits in</title>
+    <!-- Pentaho theming stuff, dirs -->
+    <script type="text/javascript" src="../js/theme.js"></script>
+    <!-- Doc styles -->
+    <link rel="stylesheet" type="text/css" href="css/default.css"/>
+  </head>
+  <body>
+    <h1>Where Phase fits in</h1>
+    <p>
+      Phase is a Mondrian Schema editor that runs as a thin client webapplication in the user console (a.k.a. Puc, a.k.a. Mantle) of the Pentaho Business Analytics Server.
+    </p>
+    <h2>Other Schema Editors</h2>
+    <p>
+      There have always been ways to edit and create Mondrian Schemas.
+    </p>
+    <ul>
+      <li>Usign a text or XML editor to code the schema manually</li>
+      <li>Schema Workbench, which offers a graphical user interface</li>
+      <li>The data access wizard</li>
+    </ul>
+    <p>
+      Some of these options rely on external applications running outside of the Pentaho Business Analytics Server, such as an external text or XML editor, and Schema workbench.
+      Being external, the disadvantage of those solutions is that extra effort must be made to obtain the schema file from already published schemas,
+      and that a separate step must be taken to import the created or modified schema file to the server.
+      Another disadvantage is that part of the environment that is required to use the schema must be re-created outside the server (such as the JDBC connection),
+      or is simply not available at all (like the Role system).
+    </p>
+    <p>
+      Besides these external editors, there are some integrated editors.
+      For example, the modeler that is part of the Pentaho Data Access wizard, or the Ivy Schema editor.
+      While this doe not suffer from the same problems as the external editor, they have other issues.
+      Being essentially an XML editor, the Ivy Schema editor requires intimate knowledge of the Mondrian Schema XML format.
+      The modeler in the data access wizard has other limitations, such as being unable to cope with role-playing dimensions
+    </p>
+    <h2>Phase vision and features</h2>
+    <p>
+      The goal for Phase is to have an integrated Schema Editor, so it knows about and can work with the JDBC connections present in the BA server, has access to the role system, and of course to the already published schemas.
+      It is also meant to primarily offer a graphical user interface.
+      A - so far - unique feature on Phase are the diagram interfaces for editing Cubes and Hierarchies.
+    </p>
+    <p>
+      The other goal of Phase is to not block the more advanced users from editing the schemas at the XML level, if they want to.
+      This is met by offering an integrated XML editor, that supports syntax highlighting and a (basic) autocompletion feature to aid manual editing of schemas.
+    </p>
+  </body>
+</html>

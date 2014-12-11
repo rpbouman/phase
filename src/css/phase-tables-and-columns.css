@@ -15,33 +15,33 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 */
-div.system_view > div.head >  span.toggle,
+.system_view .toggle,
 .phase-diagram > div.system_view > table.relation > tbody > tr.view > td.icon,
-div.view > div.head >  span.toggle,
+.view .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.view > td.icon {
   background-image: url('../images/view_16x16.png');
 }
 
-div.table > div.head >  span.toggle,
+.table .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.table > td.icon {
   background-image: url('../images/table_16x16.png');
 }
 
-div.column > div.head >  span.toggle,
+.column .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.column > td.icon {
   background-image: url('../images/column_16x16.png');
 }
 
 /* see: https://docs.oracle.com/javase/6/docs/api/constant-values.html#java.sql.Types.STRUCT */
 
-div.datatype-2002 > div.head >  span.toggle,
-div.datatype--8 > div.head >  span.toggle,
-div.datatype-2006 > div.head >  span.toggle,
-div.datatype-0 > div.head >  span.toggle,
-div.datatype-1111 > div.head >  span.toggle,
-div.datatype-2001 > div.head >  span.toggle,
-div.datatype-70 > div.head >  span.toggle,
-div.datatype-2003 > div.head >  span.toggle,
+.datatype-2002 .toggle,
+.datatype--8 .toggle,
+.datatype-2006 .toggle,
+.datatype-0 .toggle,
+.datatype-1111 .toggle,
+.datatype-2001 .toggle,
+.datatype-70 .toggle,
+.datatype-2003 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-2002 > td.icon,  /* struct */
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype--8 > td.icon,    /* rowid */
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-2006 > td.icon,  /* ref */
@@ -54,30 +54,30 @@ div.datatype-2003 > div.head >  span.toggle,
   background-image: url('../images/column_16x16.png');
 }
 
-div.datatype-2000 > div.head >  span.toggle,
+.datatype-2000 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-2000 > td.icon   /* java object */
 {
   background-image: url('../images/JavaIcon.gif');
 }
 
-div.datatype-2009 > div.head >  span.toggle,
+.datatype-2009 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-2009 > td.icon   /* sqlxml */
 {
   background-image: url('../images/column-xml.png');
 }
 
-div.datatype--7 > div.head >  span.toggle,
-div.datatype-16 > div.head >  span.toggle,
+.datatype--7 .toggle,
+.datatype-16 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype--7 > td.icon,    /* bit */
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-16 > td.icon     /* boolean */
 {
   background-image: url('../images/column-boolean.png');
 }
 
-div.datatype--6 > div.head >  span.toggle,
-div.datatype-5 > div.head >  span.toggle,
-div.datatype-4 > div.head >  span.toggle,
-div.datatype--5 > div.head >  span.toggle,
+.datatype--6 .toggle,
+.datatype-5 .toggle,
+.datatype-4 .toggle,
+.datatype--5 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype--6 > td.icon,    /* tinyint  */
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-5 > td.icon,     /* smallint */
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-4 > td.icon,     /* integer  */
@@ -86,17 +86,17 @@ div.datatype--5 > div.head >  span.toggle,
   background-image: url('../images/column-integer.png');
 }
 
-div.datatype-3 > div.head >  span.toggle,
-div.datatype-2 > div.head >  span.toggle,
+.datatype-3 .toggle,
+.datatype-2 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-3 > td.icon,     /* decimal  */
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-2 > td.icon      /* numeric */
 {
   background-image: url('../images/column-decimal.jpg');
 }
 
-div.datatype-7 > div.head >  span.toggle,
-div.datatype-8 > div.head >  span.toggle,
-div.datatype-6 > div.head >  span.toggle,
+.datatype-7 .toggle,
+.datatype-8 .toggle,
+.datatype-6 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-7 > td.icon,     /* real  */
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-8 > td.icon,     /* double  */
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-6 > td.icon      /* float   */
@@ -104,14 +104,14 @@ div.datatype-6 > div.head >  span.toggle,
   background-image: url('../images/column-float.png');
 }
 
-div.datatype-12 > div.head >  span.toggle,
-div.datatype--9 > div.head >  span.toggle,
-div.datatype-2011 > div.head >  span.toggle,
-div.datatype--15 > div.head >  span.toggle,
-div.datatype--1 > div.head >  span.toggle,
-div.datatype--16 > div.head >  span.toggle,
-div.datatype-2005 > div.head >  span.toggle,
-div.datatype-1 > div.head >  span.toggle,
+.datatype-12 .toggle,
+.datatype--9 .toggle,
+.datatype-2011 .toggle,
+.datatype--15 .toggle,
+.datatype--1 .toggle,
+.datatype--16 .toggle,
+.datatype-2005 .toggle,
+.datatype-1 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-12 > td.icon,    /* varchar  */
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype--9 > td.icon,    /* nvarchar  */
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-2011 > td.icon,  /* nclob  */
@@ -124,10 +124,10 @@ div.datatype-1 > div.head >  span.toggle,
   background-image: url('../images/column-text.png');
 }
 
-div.datatype--3 > div.head >  span.toggle,
-div.datatype--4 > div.head >  span.toggle,
-div.datatype-2004 > div.head >  span.toggle,
-div.datatype--2 > div.head >  span.toggle,
+.datatype--3 .toggle,
+.datatype--4 .toggle,
+.datatype-2004 .toggle,
+.datatype--2 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype--3 > td.icon,    /* varbinary   */
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype--4 > td.icon,    /* longvarbinary   */
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-2004 > td.icon,  /* blob   */
@@ -136,19 +136,19 @@ div.datatype--2 > div.head >  span.toggle,
   background-image: url('../images/column-binary.png');
 }
 
-div.datatype-91 > div.head >  span.toggle,
+.datatype-91 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-91 > td.icon     /* date   */
 {
   background-image: url('../images/column-date.png');
 }
 
-div.datatype-92 > div.head >  span.toggle,
+.datatype-92 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-92 > td.icon     /* time   */
 {
   background-image: url('../images/column-time.png');
 }
 
-div.datatype-93 > div.head >  span.toggle,
+.datatype-93 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-93 > td.icon     /* timestamp   */
 {
   background-image: url('../images/column-datetime.png');
