@@ -35,6 +35,10 @@ limitations under the License.
   background-image: url('../images/level.png');
 }
 
+.phase-hierarchy-diagram div.level > table.level > tbody > tr.level-column > td {
+  cursor: default;
+}
+
 .phase-hierarchy-diagram div.level > table.level > tbody > tr.level-column-column > td.icon {
   background-image: url('../images/column_16x16.png');
 }

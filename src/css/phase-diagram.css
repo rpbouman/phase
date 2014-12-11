@@ -29,9 +29,18 @@ div.phase-diagram .celleditor {
   border-style: none;
 }
 
-.phase-diagram td.icon,
+.phase-diagram td.icon {
+  cursor: move;
+}
+
 .phase-diagram td.name,
 .phase-diagram td.caption {
+  white-space: nowrap;
+  cursor: text;
+}
+
+.phase-diagram .relation td.name,
+.phase-diagram .relation td.label {
   cursor: move;
 }
 
@@ -48,8 +57,16 @@ div.phase-diagram .celleditor {
 .phase-diagram td.table-alias,
 .phase-diagram td.column-alias,
 .phase-diagram td.checkbox {
-  cursor: pointer;
   white-space: nowrap;
+}
+
+.phase-diagram td.table-alias {
+  cursor: move;
+}
+
+.phase-diagram td.column-alias,
+.phase-diagram td.checkbox {
+  cursor: pointer;
 }
 
 .phase-diagram td.icon,
@@ -82,8 +99,8 @@ div.phase-diagram .celleditor {
 div > table > tbody > tr > td.caption:before,
 .phase-diagram div.relation .label:before {
   content: "\00A0\0041\0053\00A0";
+  cursor: move;
 }
-
 
 .phase-diagram td.checked {
   /*content: "\2714";*
