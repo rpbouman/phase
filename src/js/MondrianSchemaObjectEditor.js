@@ -274,6 +274,7 @@ var GenericEditor;
   if (!conf) {
     conf = {};
   }
+  this.conf = conf;
   if (!conf.classes) {
     conf.classes = [];
   }
@@ -287,28 +288,31 @@ var GenericEditor;
     }];
   }
 
-  this.annotationsGrid = new EditableDataGrid({
-    listeners: {
-      scope: this,
-      rowInserted: function(grid, event, data) {
-        var model = this.model;
-        var modelElement = this.modelElement;
-        if (!model || !modelElement) {
-          return;
+  var annotationsTab = this.getAnnotationsTab();
+  if (annotationsTab) {
+    this.annotationsGrid = new EditableDataGrid({
+      listeners: {
+        scope: this,
+        rowInserted: function(grid, event, data) {
+          var model = this.model;
+          var modelElement = this.modelElement;
+          if (!model || !modelElement) {
+            return;
+          }
+          model.createAnnotation(modelElement, data.rowIndex);
+        },
+        rowDeleted: function(grid, event, data){
+          var model = this.model;
+          var modelElement = this.modelElement;
+          if (!model || !modelElement) {
+            return;
+          }
+          model.removeAnnotation(modelElement, data.rowIndex);
         }
-        model.createAnnotation(modelElement, data.rowIndex);
-      },
-      rowDeleted: function(grid, event, data){
-        var model = this.model;
-        var modelElement = this.modelElement;
-        if (!model || !modelElement) {
-          return;
-        }
-        model.removeAnnotation(modelElement, data.rowIndex);
       }
-    }
-  });
-  conf.tabs[1].component = this.annotationsGrid;
+    });
+    annotationsTab.component = this.annotationsGrid;
+  }
 
   this.dialog = conf.dialog || new Dialog();
   this.tabPane = new TabPane({
@@ -376,6 +380,23 @@ var GenericEditor;
   arguments.callee._super.apply(this, arguments);
 }).prototype = {
   fields: {},
+  getTab: function(text){
+    var tabs = this.conf.tabs;
+    var n = tabs.length, i, tab;
+    for (i = 0; i < n; i++) {
+      tab = tabs[i];
+      if (tab.text === text) {
+        return tab;
+      }
+    }
+    return null;
+  },
+  getAnnotationsTab: function(){
+    return this.getTab("Annotations");
+  },
+  getGeneralTab: function(){
+    return this.getTab("General");
+  },
   cloneModelElement: function(){
     var model = this.model;
     if (!model) {
@@ -659,7 +680,6 @@ var GenericEditor;
   fieldUpdated: function(fieldName, value){
     //noop
   },
-
   getFormId: function(){
     return this.getId() + "-form";
   },
@@ -765,20 +785,25 @@ var GenericEditor;
     }
     this.tabPane.conf.container = dom;
     this.tabPane.addTab(conf.tabs);
-    this.annotationsGridCellEditor = new CellTextEditor({
-      listeners: {
-        scope: this,
-        editingStopped: this.annotationCellEdited
-      }
-    });
-    this.annotationsGrid.setColumns([
-      {name: "name", label: "Name", cellEditor: this.annotationsGridCellEditor},
-      {name: "value", label: "Value", cellEditor: this.annotationsGridCellEditor}
-    ]);
-    this.annotationsGrid.setRowHeaders([
-      {name: "rowNum", label: "#", isAutoRowNum: true}
-    ]);
-    this.createForm(this.tabPane.getTabPage(0), this.getFields());
+
+    var annotationsGrid = this.annotationsGrid;
+    if (annotationsGrid) {
+      this.annotationsGridCellEditor = new CellTextEditor({
+        listeners: {
+          scope: this,
+          editingStopped: this.annotationCellEdited
+        }
+      });
+      annotationsGrid.setColumns([
+        {name: "name", label: "Name", cellEditor: this.annotationsGridCellEditor},
+        {name: "value", label: "Value", cellEditor: this.annotationsGridCellEditor}
+      ]);
+      annotationsGrid.setRowHeaders([
+        {name: "rowNum", label: "#", isAutoRowNum: true}
+      ]);
+    }
+
+    this.createForm(this.getGeneralTab().component, this.getFields());
     return dom;
   },
   annotationCellEdited: function(cellEditor, event, data){
@@ -833,7 +858,23 @@ var GenericEditor;
       this.modelElement = null;
     }
     else {
-      this.modelElement = this.model.getModelElement(modelElementPath);
+      var modelElement = this.model.getModelElement(modelElementPath);
+      if (!modelElement) {
+        switch (modelElementPath.type) {
+          case "CubeUsage":
+            modelElement = this.model.createCubeUsage(
+              modelElementPath.VirtualCube,
+              modelElementPath.CubeUsage,
+              {},
+              true
+            );
+            break;
+          default:
+            this.modelElement = null;
+            throw "Model element not found";
+        }
+      }
+      this.modelElement = modelElement;
     }
   },
   setSelectFieldValue: function(fieldName, value){
@@ -1186,6 +1227,18 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
         }
         this.createNewCube();
       }},
+      {class: "separator"},
+      {
+        "class": "new-named-set",
+        tooltip: "New Named Set",
+        handler: function(){
+          if (!this.beforeCreateNew()){
+            return;
+          }
+          this.createNewNamedSet();
+        }
+      },
+      {class: "separator"},
       {"class": "new-dimension", tooltip: "New Shared Dimension", handler: function(){
         if (!this.beforeCreateNew()){
           return;
@@ -1706,6 +1759,17 @@ adopt(SchemaEditor, GenericEditor);
         }
       },
       {
+        "class": "new-named-set",
+        tooltip: "New Named Set",
+        handler: function(){
+          if (!this.beforeCreateNew()){
+            return;
+          }
+          this.createNewNamedSet();
+        }
+      },
+      {class: "separator"},
+      {
         "class": "new-dimension-usage",
         tooltip: "New Dimension Usage",
         handler: function(){
@@ -2144,16 +2208,7 @@ adopt(CubeEditor, GenericEditor);
           this.createNewCubeUsage();
         }
       },
-      {
-        "class": "new-virtual-dimension",
-        tooltip: "New Virtual Dimension",
-        handler: function(){
-          if (!this.beforeCreateNew()){
-            return;
-          }
-          this.createNewCubeUsage();
-        }
-      },
+      {class: "separator"},
       {
         "class": "new-calculated-member",
         tooltip: "New Calculated Member",
@@ -2162,6 +2217,27 @@ adopt(CubeEditor, GenericEditor);
             return;
           }
           this.createNewCalculatedMember();
+        }
+      },
+      {
+        "class": "new-named-set",
+        tooltip: "New Named Set",
+        handler: function(){
+          if (!this.beforeCreateNew()){
+            return;
+          }
+          this.createNewNamedSet();
+        }
+      },
+      {class: "separator"},
+      {
+        "class": "new-virtual-dimension",
+        tooltip: "New Virtual Dimension",
+        handler: function(){
+          if (!this.beforeCreateNew()){
+            return;
+          }
+          this.createNewCubeUsage();
         }
       }
     ];
@@ -2187,6 +2263,9 @@ adopt(CubeEditor, GenericEditor);
     });
     this.clearSelectField(fieldName);
     this.populateSelectField(fieldName, options);
+  },
+  createNewCubeUsage: function(){
+
   },
   createNewCalculatedMember: function(){
   }
@@ -2218,6 +2297,7 @@ adopt(VirtualCubeEditor, GenericEditor);
           this.createNewVirtualMeasure();
         }
       },
+      {class: "separator"},
       {
         "class": "new-dimension",
         tooltip: "New Virtual Dimension",
@@ -2230,11 +2310,26 @@ adopt(VirtualCubeEditor, GenericEditor);
       },
     ];
   }
+
+  if (!conf.tabs) {
+    conf.tabs = [{
+      text: "General",
+      selected: true,
+      component: cEl("div")
+    }];
+  }
+
   arguments.callee._super.apply(this, [conf]);
 }).prototype = {
   objectType: "Cube",
   fields: {
-    name: fields.name,
+    cubeName: {
+      labelText: "Cube Name",
+      dataPath: ["modelElement", "attributes", "cubeName"],
+      mandatory: true,
+      tooltipText: "Name of the imported cube.",
+      tagName: "select"
+    },
     ignoreUnrelatedDimensions: {
       inputType: "checkbox",
       labelText: "Rollup Unrelated Dimensions",
@@ -2246,6 +2341,19 @@ adopt(VirtualCubeEditor, GenericEditor);
   createNewVirtualMeasure: function(){
   },
   createNewVirtualDimension: function(){
+  },
+  updateCubeNameField: function(){
+    var fieldName = "cubeName";
+    var virtualCube = this.modelElement;
+    var options = [""];
+    this.model.eachCube(function(cube, i){
+      options.push(cube.attributes.name);
+    });
+    this.clearSelectField(fieldName);
+    this.populateSelectField(fieldName, options);
+  },
+  modelElementChanged: function(){
+    this.updateCubeNameField();
   }
 };
 adopt(CubeUsageEditor, GenericEditor);

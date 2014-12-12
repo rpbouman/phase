@@ -290,6 +290,78 @@ var MondrianModel;
   newCubeName: function(){
     return this.newName([this.getCube, this.getVirtualCube], [], "new Cube");
   },
+  getCubeUsages: function(virtualCubeName){
+    var virtualCube;
+    if (iEmt(virtualCubeName)) {
+      virtualCube = virtualCubeName;
+    }
+    if (iStr(virtualCubeName)) {
+      virtualCube = this.getVirtualCube(virtualCubeName);
+    }
+    if (!virtualCube) {
+      throw "No such virtual cube";
+    }
+    var cubeUsages = null;
+    this.eachElementWithTag(virtualCube, "CubeUsages", function(node, index){
+      cubeUsages = node;
+      return false;
+    });
+    return cubeUsages;
+  },
+  getCubeUsage: function(virtualCubeName, cubeName) {
+    var cubeUsages = this.getCubeUsages(virtualCubeName);
+    if (!cubeUsages) {
+      return null;
+    }
+    var cubeUsage = null;
+    this.eachElementWithTag(cubeUsages, "CubeUsage", function(node, i){
+      cubeUsage = node;
+      return false;
+    }, this, function(node, i){
+      return node.attributes.cubeName === cubeName;
+    });
+    return cubeUsage;
+  },
+  createCubeUsage: function(virtualCubeName, cubeName, attributes, dontFireEvent){
+    var virtualCube = this.getVirtualCube(virtualCubeName);
+    if (!virtualCube) {
+      throw "No such virtual cube";
+    }
+
+    var cubeUsage = this.getCubeUsage(virtualCube, cubeName);
+    if (cubeUsage) {
+      throw "Such a cube usage already exists";
+    }
+
+    if (!attributes) {
+      attributes = {};
+    }
+    cubeUsage = this.createElement("CubeUsage", {
+      cubeName: cubeName
+    }, attributes);
+
+    var cubeUsages = this.getCubeUsages(virtualCube);
+    if (!cubeUsages) {
+      cubeUsages = this.createElement("CubeUsages", {}, {});
+      var index = this.getIndexOfLastElementWithTagName(virtualCube, "Annotations");
+      virtualCube.childNodes.splice(index+1, 0, cubeUsages);
+    }
+
+    cubeUsages.childNodes.push(cubeUsage);
+    if (dontFireEvent !== true) {
+      eventData = {
+        modelElementPath: {
+          Schema: this.getSchemaName(),
+          VirtualCube: virtualCubeName,
+          CubeUsage: cubeName,
+          type: "CubeUsage"
+        },
+        modelElement: cubeUsage
+      }
+      this.fireEvent("modelElementCreated", eventData);
+    }
+    return cubeUsage;
+  },
   createCube: function(attributes, dontFireEvent){
     var type = "Cube";
     var name = this.newCubeName();
@@ -1685,6 +1757,9 @@ var MondrianModel;
           var schema = this.getSchema;
           data = this.getNamedSet(schema, modelElementPath.NamedSet);
         }
+        break;
+      case "CubeUsage":
+        data = this.getCubeUsage(modelElementPath.VirtualCube, modelElementPath.CubeUsage);
         break;
       default:
         data = null;

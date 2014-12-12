@@ -25,10 +25,6 @@ div.mondrian-schema-tree div.node > div.head {
   background-image: url('../images/schema.png');
 }
 
-.CubeUsage .toggle {
-  background-image: url('../images/cube.png');
-}
-
 .Cube .toggle {
   background-image: url('../images/cube.png');
 }
@@ -37,11 +33,19 @@ div.mondrian-schema-tree div.node > div.head {
   background-image: url('../images/virtualcube.png');
 }
 
+.CubeUsage .toggle {
+  background-image: url('../images/cube.png');
+}
+
 .SharedDimension .toggle {
   background-image: url('../images/dimension.png');
 }
 
 .PrivateDimension .toggle {
+  background-image: url('../images/private-dimension.png');
+}
+
+.VirtualCubeDimension .toggle {
   background-image: url('../images/private-dimension.png');
 }
 
@@ -54,6 +58,10 @@ div.mondrian-schema-tree div.node > div.head {
 }
 
 .Measure .toggle {
+  background-image: url('../images/measure.png');
+}
+
+.VirtualCubeMeasure .toggle {
   background-image: url('../images/measure.png');
 }
 

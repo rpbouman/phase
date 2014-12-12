@@ -623,18 +623,35 @@ var MondrianSchemaTreeView;
       "CubeUsage",
       true
     );
-
+    cubeUsageTreeNode.conf.sorted = false;
     var measure, measures = cubeUsageData.measures;
     for (measure in measures){
       measure = measures[measure];
-      this.createMeasureTreeNode(measure, cubeUsageTreeNode);
+      this.createVirtualCubeMeasureTreeNode(measure, cubeUsageTreeNode);
     }
 
     var dimension, dimensions = cubeUsageData.dimensions;
     for (dimension in dimensions){
       dimension = dimensions[dimension];
-      this.createDimensionTreeNode(dimension, cubeUsageTreeNode);
+      this.createVirtualCubeDimensionTreeNode(dimension, cubeUsageTreeNode);
     }
+    cubeUsageTreeNode.conf.sorted = true;
+  },
+  createVirtualCubeMeasureTreeNode: function(measure, parentTreeNode){
+    var virtualCubeMeasureTreeNode = this.createModelElementTreeNode(
+      measure,
+      parentTreeNode,
+      "VirtualCubeMeasure"
+    );
+    return virtualCubeMeasureTreeNode;
+  },
+  createVirtualCubeDimensionTreeNode: function(dimension, parentTreeNode){
+    var virtualCubeDimensionTreeNode = this.createModelElementTreeNode(
+      dimension,
+      parentTreeNode,
+      "VirtualCubeDimension"
+    );
+    return virtualCubeDimensionTreeNode;
   },
   compareTreeNode: function(treeNode){
 
@@ -793,6 +810,27 @@ var MondrianSchemaTreeView;
         }
         break;
       case "CubeUsage": //TODO: take imported shared dimensions into account.
+        switch (thisType) {
+          case "VirtualCubeMeasure":
+            switch (thatType) {
+              case thisType:
+                return TreeNode.prototype.compare.call(this, treeNode);
+              default:
+                return -1;
+            }
+          case "VirtualCubeDimension":
+            switch (thatType) {
+              case "VirtualCubeMeasure":
+                return -1;
+              case thisType:
+                return TreeNode.prototype.compare.call(this, treeNode);
+              default:
+                return 1;
+            }
+            break;
+          default:
+            return null;
+        }
         return TreeNode.prototype.compare.call(this, treeNode);
       case "VirtualCube":
         return TreeNode.prototype.compare.call(this, treeNode);
@@ -892,8 +930,8 @@ var MondrianSchemaTreeView;
         SharedDimension: dimensionElements,
         VirtualCube: {
           CubeUsage: {
-            VirtualMeasure: null,
-            VirtualDimension: null
+            VirtualCubeMeasure: null,
+            VirtualCubeDimension: null
           },
           CalculatedMember: null,
           NamedSet: null
