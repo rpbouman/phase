@@ -27,6 +27,10 @@ limitations under the License.
   background-image: url('../images/new-cube.png');
 }
 
+.toolbar .new-named-set {
+  background-image: url('../images/new-named-set.png');
+}
+
 .phase-schema-editor .toolbar .new-dimension {
   background-image: url('../images/new-dimension.png');
 }

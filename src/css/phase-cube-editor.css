@@ -27,6 +27,10 @@ limitations under the License.
   background-image: url('../images/new-measure.png');
 }
 
+.toolbar .new-named-set {
+  background-image: url('../images/new-named-set.png');
+}
+
 .toolbar .new-calculated-member {
   background-image: url('../images/new-calculated-member.png');
 }

@@ -23,6 +23,10 @@ limitations under the License.
   content: "Virtual Cube";
 }
 
+.toolbar .new-named-set {
+  background-image: url('../images/new-named-set.png');
+}
+
 .toolbar .new-calculated-member {
   background-image: url('../images/new-calculated-member.png');
 }
