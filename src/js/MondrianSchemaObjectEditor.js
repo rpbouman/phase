@@ -1304,17 +1304,6 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
     ];
   }
 
-  if (!conf.tabs) {
-    conf.tabs = [{
-      text: "General",
-      selected: true,
-      component: cEl("div")
-    }, {
-      text: "Source",
-      component: cEl("div")
-    }];
-  }
-
   arguments.callee._super.apply(this, [conf]);
 }).prototype = {
   objectType: "Schema",
@@ -1363,6 +1352,10 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
     return this.getTab("Source");
   },
   createDom: function(){
+    this.conf.tabs.push({
+      text: "Source",
+      component: cEl("div")
+    });
     var dom = SchemaEditor._super.prototype.createDom.apply(this, arguments);
     var sourceTab = this.getSourceTab();
 
@@ -2340,14 +2333,6 @@ adopt(VirtualCubeEditor, GenericEditor);
     ];
   }
 
-  if (!conf.tabs) {
-    conf.tabs = [{
-      text: "General",
-      selected: true,
-      component: cEl("div")
-    }];
-  }
-
   arguments.callee._super.apply(this, [conf]);
 }).prototype = {
   objectType: "CubeUsage",
@@ -2396,17 +2381,6 @@ adopt(CubeUsageEditor, GenericEditor);
     conf.classes = [];
   }
   conf.classes.push("phase-measure-editor");
-
-  if (!conf.tabs) {
-    conf.tabs = [{
-      text: "General",
-      selected: true,
-      component: cEl("div")
-    }, {
-      text: "Properties",
-      component: cEl("div")
-    }];
-  }
 
   arguments.callee._super.apply(this, [conf]);
 }).prototype = {
@@ -2491,17 +2465,6 @@ adopt(NamedSetEditor, GenericEditor);
     conf.classes = [];
   }
   conf.classes.push("phase-calculated-member-editor");
-
-  if (!conf.tabs) {
-    conf.tabs = [{
-      text: "General",
-      selected: true,
-      component: cEl("div")
-    }, {
-      text: "Properties",
-      component: cEl("div")
-    }];
-  }
 
   arguments.callee._super.apply(this, [conf]);
 }).prototype = {
@@ -3554,17 +3517,6 @@ adopt(HierarchyEditor, GenericEditor);
   }
   if (!conf.classes) {
     conf.classes = [];
-  }
-
-  if (!conf.tabs) {
-    conf.tabs = [{
-      text: "General",
-      selected: true,
-      component: cEl("div")
-    }, {
-      text: "Properties",
-      component: cEl("div")
-    }];
   }
 
   conf.classes.push("phase-level-editor");
