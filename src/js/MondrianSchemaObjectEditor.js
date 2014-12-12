@@ -569,7 +569,34 @@ var GenericEditor;
     //noop
   },
   handleModelEvent:function(event, data){
-    //noop.
+    var modelElement = data.modelElement;
+    var modelElementPath = data.modelElementPath;
+    var model = this.model;
+    switch (event) {
+      case "modelElementAttributeSet":
+        if (this.diagram) {
+          this.diagramNeedsUpdate = true;
+        }
+        break;
+      case "modelElementRemoved":
+        if (
+          model &&
+          model.isModelElementPathAncestor(modelElementPath, this.modelElementPath)
+        ) {
+          this.clearData();
+        }
+      case "modelElementCreated":
+        if (this.diagram) {
+          if (this.diagramActivated()) {
+            this.updateDiagram();
+          }
+          else {
+            this.diagramNeedsUpdate = true;
+          }
+        }
+        break;
+      default:
+    }
   },
   getFields: function(){
     var myFields = this.fields;
@@ -1503,6 +1530,7 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
     this.refreshCodeMirror();
   },
   handleModelEvent: function(event, data){
+    GenericEditor.prototype.handleModelEvent.call(this, event, data);
     switch (event) {
       case "modelElementRemoved":
       case "modelElementCreated":
@@ -1871,6 +1899,7 @@ adopt(SchemaEditor, GenericEditor);
     this.model.removeModelElement(modelElementPath);
   },
   handleModelEvent: function(event, data){
+    GenericEditor.prototype.handleModelEvent.call(this, event, data);
     var modelElement = data.modelElement;
     switch (data.modelElementPath.type) {
       case "Measure":
@@ -1886,26 +1915,6 @@ adopt(SchemaEditor, GenericEditor);
           data.y = y;
         }
         break;
-    }
-    switch (event) {
-      case "modelElementAttributeSet":
-        this.diagramNeedsUpdate = true;
-        break;
-      case "modelElementRemoved":
-        if (modelElement === this.modelElement) {
-          this.clearData();
-          break;
-        }
-        //fall through is intentional.
-      case "modelElementCreated":
-        if (this.diagramActivated()) {
-          this.updateDiagram();
-        }
-        else {
-          this.diagramNeedsUpdate = true;
-        }
-        break;
-      default:
     }
   },
   updateDefaultMeasureField: function(){
@@ -2275,6 +2284,7 @@ adopt(CubeEditor, GenericEditor);
   objectType: "VirtualCube",
   fields: CubeEditor.prototype.fields,
   handleModelEvent: function(event, data){
+    GenericEditor.prototype.handleModelEvent.call(this, event, data);
     var modelElement = data.modelElement;
     switch (data.modelElementPath.type) {
       case "VirtualCubeMeasure":
@@ -2490,6 +2500,7 @@ adopt(NamedSetEditor, GenericEditor);
     description: fields.description
   },
   handleModelEvent:function(event, data){
+    GenericEditor.prototype.handleModelEvent.call(this, event, data);
     switch (data.modelElementPath.type) {
       case "Hierarchy":
         switch (event) {
@@ -2749,6 +2760,7 @@ adopt(PrivateDimensionEditor, GenericEditor);
     PrivateDimensionEditor.prototype.fields
   ),
   handleModelEvent:function(event, data){
+    GenericEditor.prototype.handleModelEvent.call(this, event, data);
     switch (data.modelElementPath.type) {
       case "SharedDimension":
         switch (event) {
@@ -2964,33 +2976,13 @@ adopt(DimensionUsageEditor, GenericEditor);
     this.recalculateHierarchyRelations();
   },
   handleModelEvent: function(event, data){
+    GenericEditor.prototype.handleModelEvent.call(this, event, data);
     var modelElement = data.modelElement;
     switch (data.modelElementPath.type) {
       case "Table":
       case "Join":
         this.updatePrimaryKeyTableField();
         break;
-    }
-    switch (event) {
-      case "modelElementAttributeSet":
-        this.diagramNeedsUpdate = true;
-        break;
-      case "modelElementRemoved":
-        if (modelElement === this.modelElement) {
-          this.clearData();
-          break;
-        }
-        //fall through is intentional.
-      case "modelElementCreated":
-        if (this.diagramActivated()) {
-          //this.diagram.handleModelEvent(event, data);
-          this.updateDiagram();
-        }
-        else {
-          this.diagramNeedsUpdate = true;
-        }
-        break;
-      default:
     }
   },
   getLevelAnnotationPrefix: function(){
