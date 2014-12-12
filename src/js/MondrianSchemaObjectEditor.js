@@ -248,17 +248,14 @@ var fields = {
     tagName: "select",
     dataPath: ["modelElement", "attributes", "type"],
     defaultValue: "StandardDimension",
-    options: [
-      {labelText: "Standard", value: "StandardDimension"},
-      {labelText: "Date", value: "TimeDimension"}
-    ],
+    options: MondrianModel.SchemaInfoValues.dimensionType,
     tooltipText: "The type of this dimension."
   },
   datatype: {
     tagName: "select",
     labelText: "Data Type",
     dataPath: ["modelElement", "attributes", "datatype"],
-    options: ["Boolean", "Date", "Integer", "Numeric", "String", "Time", "Timestamp"],
+    options: MondrianModel.SchemaInfoValues.dataType,
     defaultValue: "",
     tooltipText: "The datatype of this item."
   },
@@ -2392,7 +2389,7 @@ adopt(CubeUsageEditor, GenericEditor);
       tagName: "select",
       labelText: "Aggregator",
       dataPath: ["modelElement", "attributes", "aggregator"],
-      options: ["avg", "count", "distinct-count", "min", "max", "sum"],
+      options: MondrianModel.SchemaInfoValues.aggregator,
       mandatory: true,
       defaultValue: "",
       tooltipText: "The function used to aggregate this measure's values."
@@ -3563,7 +3560,7 @@ adopt(HierarchyEditor, GenericEditor);
       tagName: "select",
       tooltipText: "Whether this is a regular or a time-related level.",
       dataPath: ["modelElement", "attributes", "levelType"],
-      options: ["", "TimeYears", "TimeQuarters", "TimeMonths", "TimeWeeks", "TimeDays"]
+      options: MondrianModel.SchemaInfoValues.levelType
     },
     type: merge({
       dataPath: ["modelElement", "attributes", "type"]
@@ -3573,7 +3570,7 @@ adopt(HierarchyEditor, GenericEditor);
       tagName: "select",
       tooltipText: "Indicates the Java type (and JDBC method) that Mondrian uses to store and retrieve this level's key column.",
       dataPath: ["modelElement", "attributes", "internalType"],
-      options: ["", "int", "long", "Object", "String"]
+      options: MondrianModel.SchemaInfoValues.internalType
     },
     visible: fields.visible,
     hideMemberIf: {
@@ -3581,7 +3578,7 @@ adopt(HierarchyEditor, GenericEditor);
       tagName: "select",
       tooltipText: "Condition which determines whether a member of this level is hidden.",
       dataPath: ["modelElement", "attributes", "hideMemberIf"],
-      options: ["Never", "IfBlankName", "IfParentsName"]
+      options: MondrianModel.SchemaInfoValues.hideMemberIf
     },
     description: fields.description,
     _column1: null,
