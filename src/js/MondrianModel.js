@@ -573,6 +573,17 @@ var MondrianModel;
   newMeasureName: function(cube, name){
     return this.newName(this.getMeasure, [cube], name || "new Measure");
   },
+  createProperty: function(level, attributes){
+    var property = this.createElement("Property", attributes);
+    var index = this.getIndexOfLastElementWithTagName(
+      level,
+      "Annotations",
+      "Property"
+    );
+    index = index + 1;
+    this.addChildNode(level, index, property);
+    return property;
+  },
   createMeasure: function(cubeName, attributes, annotations, dontFireEvent){
     var schema = this.getSchema();
     var cube = this.getCube(cubeName);
@@ -844,6 +855,9 @@ var MondrianModel;
   newSharedDimensionLevelName: function(dimensionName, hierarchyName, name){
     return this.newName(this.getSharedDimensionLevel, [dimensionName, hierarchyName], name || "new Level");
   },
+  newSharedDimensionPropertyName: function(dimensionName, hierarchyName, levelName, name){
+    return this.newName(this.getSharedDimensionProperty, [dimensionName, hierarchyName, levelName], name || "new Property");
+  },
   getLevelCount: function(hierarchy) {
     var count = this.getCountOfElementsWithTagName(hierarchy, "Level");
     return count;
@@ -889,8 +903,39 @@ var MondrianModel;
     }
     return level;
   },
+  createSharedDimensionProperty: function(dimensionName, hierarchyName, levelName, attributes, dontFireEvent){
+    var schema = this.getSchema();
+    var level = this.getSharedDimensionLevel(dimensionName, hierarchyName, levelName);
+
+    if (!attributes) {
+      attributes = {};
+    }
+    if (!attributes.name) {
+      attributes.name = this.newSharedDimensionPropertyName(dimensionName, hierarchyName, levelName);
+    }
+    var property = this.createProperty(level, attributes);
+
+    if (dontFireEvent !== true) {
+      var eventData = {
+        modelElementPath: {
+          Schema: schema.attributes.name,
+          SharedDimension: dimensionName,
+          Hierarchy: hierarchyName,
+          Level: levelName,
+          Property: attributes.name,
+          type: "Property"
+        },
+        modelElement: property
+      };
+      this.fireEvent("modelElementCreated", eventData);
+    }
+    return property;
+  },
   newPrivateDimensionLevelName: function(cubeName, dimensionName, hierarchyName, name){
     return this.newName(this.getPrivateDimensionLevel, [cubeName, dimensionName, hierarchyName], name || "new Level");
+  },
+  newPrivateDimensionPropertyName: function(cubeName, dimensionName, hierarchyName, levelName, name){
+    return this.newName(this.getPrivateDimensionProperty, [cubeName, dimensionName, hierarchyName, levelName], name || "new Property");
   },
   createPrivateDimensionLevel: function(cubeName, dimensionName, hierarchyName, attributes, dontFireEvent){
     var schema = this.getSchema();
@@ -920,6 +965,36 @@ var MondrianModel;
       this.fireEvent("modelElementCreated", eventData);
     }
     return level;
+  },
+  createPrivateDimensionProperty: function(cubeName, dimensionName, hierarchyName, levelName, attributes, dontFireEvent){
+    var schema = this.getSchema();
+    var level = this.getPrivateDimensionLevel(cubeName, dimensionName, hierarchyName, levelName);
+    var cube = this.getCube(cubeName);
+
+    if (!attributes) {
+      attributes = {};
+    }
+    if (!attributes.name) {
+      attributes.name = this.newPrivateDimensionPropertyName(cubeName, dimensionName, hierarchyName, levelName);
+    }
+    var property = this.createProperty(level, attributes);
+
+    if (dontFireEvent !== true) {
+      var eventData = {
+        modelElementPath: {
+          Schema: schema.attributes.name,
+          Cube: cubeName,
+          PrivateDimension: dimensionName,
+          Hierarchy: hierarchyName,
+          Level: levelName,
+          Property: attributes.name,
+          type: "Property"
+        },
+        modelElement: property
+      };
+      this.fireEvent("modelElementCreated", eventData);
+    }
+    return property;
   },
   newName: function(getters, args, name, num){
     if (!num) {
@@ -1540,6 +1615,12 @@ var MondrianModel;
     }
     return this.getSharedDimensionHierarchy(dimension, hierarchy);
   },
+  eachLevelProperty: function(level, callback, scope, filter){
+    if (!iEmt(level)) {
+      throw "Invalid level";
+    }
+    return this.eachElementWithTag(level, "Property", callback, scope, filter);
+  },
   eachHierarchyLevel: function(hierarchy, callback, scope, filter) {
     //TODO: accept string argument for hiearchy.
     if (!iEmt(hierarchy)) {
@@ -1558,6 +1639,17 @@ var MondrianModel;
     });
     return l;
   },
+  getPrivateDimensionProperty: function(cubeName, dimensionName, hierarchyName, levelName, propertyName){
+    var level = this.getPrivateDimensionLevel(cubeName, dimensionName, hierarchyName, levelName);
+    var p;
+    this.eachLevelProperty(level, function(property, index){
+      p = property;
+      return false;
+    }, this, function(property, index){
+      return property.attributes.name === propertyName;
+    });
+    return p;
+  },
   getSharedDimensionLevel: function(dimensionName, hierarchyName, levelName){
     var hierarchy = this.getSharedDimensionHierarchy(dimensionName, hierarchyName);
     var l;
@@ -1568,6 +1660,17 @@ var MondrianModel;
       return level.attributes.name === levelName;
     });
     return l;
+  },
+  getSharedDimensionProperty: function(dimensionName, hierarchyName, levelName, propertyName){
+    var level = this.getSharedDimensionLevel(dimensionName, hierarchyName, levelName);
+    var p;
+    this.eachLevelProperty(level, function(property, index){
+      p = property;
+      return false;
+    }, this, function(property, index){
+      return property.attributes.name === propertyName;
+    });
+    return p;
   },
   eachDimensionUsage: function(cube, callback, scope, filter){
     if (iStr(cube)) {
@@ -1709,6 +1812,27 @@ var MondrianModel;
             modelElementPath.PrivateDimension,
             hierarchy,
             level
+          );
+        }
+        break;
+      case "Property":
+        var property = modelElementPath.Property === "" ? undefined : modelElementPath.Property;
+        if (modelElementPath.SharedDimension) {
+          data = this.getSharedDimensionProperty(
+            modelElementPath.SharedDimension,
+            modelElementPath.Hierarchy,
+            modelElementPath.Level,
+            modelElementPath.Property
+          );
+        }
+        else
+        if (modelElementPath.PrivateDimension) {
+          data = this.getPrivateDimensionProperty(
+            modelElementPath.Cube,
+            modelElementPath.PrivateDimension,
+            modelElementPath.Hierarchy,
+            modelElementPath.Level,
+            modelElementPath.Property
           );
         }
         break;

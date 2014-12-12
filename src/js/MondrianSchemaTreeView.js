@@ -341,6 +341,7 @@ var MondrianSchemaTreeView;
       case "CalculatedMember":
       case "Hierarchy":
       case "Level":
+      case "Property":
         break;
       default:
         return;
@@ -463,6 +464,16 @@ var MondrianSchemaTreeView;
 
     callback();
   },
+  loadLevelTreeNodeChildren: function(callback, parentTreeNode){
+    var me = this;
+    var modelSelection = this.parseModelElementPath(parentTreeNode.id);
+    var model = this.mondrianSchemaCache.getModel(modelSelection.Schema);
+    var level = model.getModelElement(modelSelection);
+    model.eachLevelProperty(level, function(property, index){
+      me.createPropertyTreeNode(property, parentTreeNode)
+    });
+    callback();
+  },
   loadHierarchyTreeNodeChildren: function (callback, parentTreeNode){
     var me = this;
     var modelSelection = this.parseModelElementPath(parentTreeNode.id);
@@ -511,11 +522,19 @@ var MondrianSchemaTreeView;
       "DimensionUsage"
     );
   },
+  createPropertyTreeNode: function(property, parentTreeNode){
+    return this.createModelElementTreeNode(
+      property,
+      parentTreeNode,
+      "Property"
+    );
+  },
   createLevelTreeNode: function(level, parentTreeNode) {
     return this.createModelElementTreeNode(
       level,
       parentTreeNode,
-      "Level"
+      "Level",
+      this.loadLevelTreeNodeChildren
     );
   },
   createHierarchyTreeNode: function(hierarchy, parentTreeNode){
@@ -809,6 +828,17 @@ var MondrianSchemaTreeView;
             return null;
         }
         break;
+      case "Level":
+        switch (thisType){
+          case "Property":
+            switch (thatType) {
+              case thisType:
+                return TreeNode.prototype.compare.call(this, treeNode);
+              default:
+                return null;
+            }
+        }
+        break;
       case "CubeUsage": //TODO: take imported shared dimensions into account.
         switch (thisType) {
           case "VirtualCubeMeasure":
@@ -915,7 +945,9 @@ var MondrianSchemaTreeView;
     var pathCopy = merge({}, path);
     var dimensionElements = {
       Hierarchy: {
-        Level: null
+        Level: {
+          Property: null
+        }
       }
     };
     var elements = {

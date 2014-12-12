@@ -57,6 +57,10 @@ div.mondrian-schema-tree div.node > div.head {
   background-image: url('../images/level.png');
 }
 
+.Property .toggle {
+  background-image: url('../images/property.png');
+}
+
 .Measure .toggle {
   background-image: url('../images/measure.png');
 }

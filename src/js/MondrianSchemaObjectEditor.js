@@ -263,6 +263,13 @@ var fields = {
     labelText: "Format",
     dataPath: ["modelElement", "attributes", "formatString"],
     tooltipText: "Format string with which to format values of this item."
+  },
+  column: {
+    tagName: "select",
+    labelText: "Column",
+    dataPath: ["modelElement", "attributes", "column"],
+    tooltipText: "Column which is source of this item's values.",
+    addValue: true
   }
 };
 
@@ -487,9 +494,8 @@ var GenericEditor;
     }
     this.populateSelectField(fieldName, options);
   },
-  populateSelectFieldWithHierarchyRelationColumns: function(tableField, columnField, callback, scope){
+  populateSelectFieldWithHierarchyRelationColumns: function(tableName, columnField, callback, scope){
     this.clearSelectField(columnField);
-    var tableName = this.getFieldValue(tableField);
     var relationsInfo = this.getHierarchyRelations();
     var i, relations = relationsInfo.relations, n = relations.length, relation;
     for (i = 0; i < n; i++) {
@@ -2397,13 +2403,7 @@ adopt(CubeUsageEditor, GenericEditor);
       defaultValue: "",
       tooltipText: "The function used to aggregate this measure's values."
     },
-    column: {
-      tagName: "select",
-      labelText: "Column",
-      dataPath: ["modelElement", "attributes", "column"],
-      tooltipText: "Column which is source of this item's values.",
-      addValue: true
-    },
+    column: fields.column,
     datatype: fields.datatype,
     formatString: fields.formatString,
     visible: fields.visible,
@@ -3016,7 +3016,7 @@ adopt(DimensionUsageEditor, GenericEditor);
     }
     modelElementPath = merge({
       type: "Level",
-      Hierarchy: level.attributes.name
+      Level: level.attributes.name
     }, this.modelElementPath);
     this.fireEvent("editorCreateAction", {
       model: this.model,
@@ -3487,7 +3487,8 @@ adopt(DimensionUsageEditor, GenericEditor);
     }
   },
   updatePrimaryKeyField: function(){
-    this.populateSelectFieldWithHierarchyRelationColumns("primaryKeyTable", "primaryKey");
+    var tableName = this.getFieldValue("primaryKeyTable");
+    this.populateSelectFieldWithHierarchyRelationColumns(tableName, "primaryKey");
   },
   modelElementChanged: function(){
     this.updateUniqueKeyLevelNameField();
@@ -3520,6 +3521,20 @@ adopt(HierarchyEditor, GenericEditor);
   }
 
   conf.classes.push("phase-level-editor");
+
+  if (!conf.toolbar) {
+    conf.toolbar = {};
+  }
+  if (!conf.toolbar.buttons) {
+    conf.toolbar.buttons = [
+      {"class": "new-property", tooltip: "New Property", handler: function(){
+        if (!this.beforeCreateNew()){
+          return;
+        }
+        this.createNewProperty();
+      }},
+    ];
+  }
 
   arguments.callee._super.apply(this, [conf]);
 }).prototype = {
@@ -3614,6 +3629,34 @@ adopt(HierarchyEditor, GenericEditor);
       tooltipText: "Value which identifies null parents in a parent-child hierarchy."
     }
   },
+  createNewProperty: function(){
+    var model = this.model;
+    var modelElementPath = this.modelElementPath;
+    var property;
+    if (modelElementPath.SharedDimension) {
+      property = model.createSharedDimensionProperty(
+        modelElementPath.SharedDimension,
+        modelElementPath.Hierarchy,
+        modelElementPath.Level
+      );
+    }
+    else {
+      property = model.createPrivateDimensionProperty(
+        modelElementPath.Cube,
+        modelElementPath.PrivateDimension,
+        modelElementPath.Hierarchy,
+        modelElementPath.Level
+      );
+    }
+    modelElementPath = merge({
+      type: "Property",
+      Property: property.attributes.name
+    }, this.modelElementPath);
+    this.fireEvent("editorCreateAction", {
+      model: this.model,
+      modelElementPath: modelElementPath
+    });
+  },
   updateTableField: function(){
     this.populateSelectFieldWithHierarchyRelations("table");
   },
@@ -3639,19 +3682,24 @@ adopt(HierarchyEditor, GenericEditor);
     this.updateParentColumnField();
   },
   updateColumnField: function(){
-    this.populateSelectFieldWithHierarchyRelationColumns("table", "column");
+    var tableName = this.getFieldValue("table");
+    this.populateSelectFieldWithHierarchyRelationColumns(tableName, "column");
   },
   updateNameColumnField: function(){
-    this.populateSelectFieldWithHierarchyRelationColumns("table", "nameColumn");
+    var tableName = this.getFieldValue("table");
+    this.populateSelectFieldWithHierarchyRelationColumns(tableName, "nameColumn");
   },
   updateOrdinalColumnField: function(){
-    this.populateSelectFieldWithHierarchyRelationColumns("table", "ordinalColumn");
+    var tableName = this.getFieldValue("table");
+    this.populateSelectFieldWithHierarchyRelationColumns(tableName, "ordinalColumn");
   },
   updateCaptionColumnField: function(){
-    this.populateSelectFieldWithHierarchyRelationColumns("table", "captionColumn");
+    var tableName = this.getFieldValue("table");
+    this.populateSelectFieldWithHierarchyRelationColumns(tableName, "captionColumn");
   },
   updateParentColumnField: function(){
-    this.populateSelectFieldWithHierarchyRelationColumns("table", "parentColumn");
+    var tableName = this.getFieldValue("table");
+    this.populateSelectFieldWithHierarchyRelationColumns(tableName, "parentColumn");
   },
   modelElementChanged: function(){
     this.updateTableField();
@@ -3661,6 +3709,55 @@ adopt(HierarchyEditor, GenericEditor);
   },
 };
 adopt(LevelEditor, GenericEditor);
+
+(PropertyEditor = function(conf){
+  linkCss("../css/phase-property-editor.css");
+  if (!conf) {
+    conf = {};
+  }
+  if (!conf.classes) {
+    conf.classes = [];
+  }
+  conf.classes.push("phase-property-editor");
+
+  arguments.callee._super.apply(this, [conf]);
+}).prototype = {
+  objectType: "Property",
+  fields: {
+    name: fields.name,
+    caption: fields.caption,
+    column: fields.column,
+    type: merge({dataPath: ["modelElement", "attributes", "type"]}, fields.datatype),
+    dependsOnLevelValue: {
+      inputType: "checkbox",
+      labelText: "Depends on Level",
+      dataPath: ["modelElement", "attributes", "dependsOnLevelValue"],
+      defaultValue: true,
+      tooltipText: "Is the propery value functionally dependent upon the level key value?"
+    },
+    formatter: {
+      labelText: "Formatter",
+      dataPath: ["modelElement", "attributes", "formatter"],
+      tooltipText: "The classname of a member formatter."
+    },
+    description: fields.description
+  },
+  updateColumnField: function(){
+    var model = this.model;
+    var fieldName = "column";
+    if (!model) {
+      this.clearSelectField(fieldName);
+      return;
+    }
+    var level = model.getModelElementParent(this.modelElementPath);
+    this.populateSelectFieldWithHierarchyRelationColumns(level.attributes.table, "column");
+  },
+  modelElementChanged: function(){
+    this.updateColumnField();
+  }
+};
+adopt(PropertyEditor, GenericEditor);
+
 
 linkCss("../css/phase-editor.css");
 linkCss("../../lib/pure/css/pure-min.css");
