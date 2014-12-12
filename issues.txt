@@ -56,11 +56,6 @@ Would be nice to be able to horizontally or vertially align multiple objects in 
 We should be able to assign roles / privileges
 Would be nice to create new roles.
 
-#8 Drag and drop hints
-
-- only allow drag from the connection tree if a query diagram is activated.
--
-
 #12
 Support for analyzer specific Annotations
 o    AnalyzerDateFormat: http://help.pentaho.com/Documentation/5.1/0N0/020/070/030/000
@@ -91,3 +86,4 @@ Conditional Formatting: http://help.pentaho.com/Documentation/5.1/0N0/020/090/06
 #27 When refreshing the code view, scroll back to the original position.
 
 #28 support for localization http://infocenter.pentaho.com/help/topic/analysis_guide/task_schema_localization.html
+

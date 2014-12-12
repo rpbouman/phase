@@ -603,6 +603,12 @@ function getEditorForSelection(selection){
             selectMondrianSchemaTreeNode(treeNode);
           })
         }
+      },
+      diagramActivation: function(editor, event, data){
+        if (editor !== currentEditor) {
+          return;
+        }
+        connectionTreeView.setDnDEnabled(data);
       }
     }
   };
@@ -650,6 +656,7 @@ function updateEditor(model, selection){
   }
 
   currentEditor.setData(model, selection);
+  connectionTreeView.setDnDEnabled(currentEditor.diagramActivated());
 }
 
 function getModels(){

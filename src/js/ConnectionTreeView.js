@@ -44,6 +44,9 @@ var ConnectionTreeView;
     scope: this,
     startDrag: function(event, ddHandler) {
       clearBrowserSelection();
+      if (!this.enableDnD) {
+        return;
+      }
       var target = event.getTarget();
       if (target.className === "toggle") {
         return false;
@@ -127,6 +130,9 @@ var ConnectionTreeView;
     var el = ConnectionTreeView._super.prototype.createDom.apply(this, arguments);
     this.treeListener = new TreeListener({container: el});
     return el;
+  },
+  setDnDEnabled: function(enableDnD){
+    this.enableDnD = enableDnD;
   },
   renderCatalog: function(connection, catalog, catalogChildrenLoader) {
     var conf = {

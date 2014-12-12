@@ -295,15 +295,7 @@ var GenericEditor;
     listeners: {
       scope: this,
       beforeSelectTab: this.beforeSelectTab,
-      tabSelected: function(tabPane, event, data){
-        var tab = tabPane.getTab(data.newTab),
-            annotationsGrid = this.annotationsGrid
-        ;
-        if (tab.component === annotationsGrid) {
-          annotationsGrid.doLayout();
-        }
-        this.tabSelected(tabPane, event, data)
-      }
+      tabSelected: this.tabSelected
     }
   });
 
@@ -566,7 +558,12 @@ var GenericEditor;
     }
   },
   tabSelected: function(tabPane, event, data){
-    //noop
+    var tab = tabPane.getTab(data.newTab),
+        annotationsGrid = this.annotationsGrid
+    ;
+    if (tab.component === annotationsGrid) {
+      annotationsGrid.doLayout();
+    }
   },
   handleModelEvent:function(event, data){
     var modelElement = data.modelElement;
@@ -1552,6 +1549,7 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
     this.initSourceCodeEditor();
   },
   tabSelected: function(tabPane, event, data){
+    GenericEditor.prototype.tabSelected.call(this, tabPane, event, data);
     var tab = tabPane.getTab(data.newTab);
     switch (tab) {
       case this.getSourceTab():
@@ -2110,10 +2108,14 @@ adopt(SchemaEditor, GenericEditor);
   updateDiagram: function(){
     this.saveDiagram();
     this.clearDiagram();
-    this.addCubeRelationToDiagram();
+    if (this.model && this.modelElement) {
+      this.addCubeRelationToDiagram();
+    }
     this.diagramNeedsUpdate = false;
   },
   tabSelected: function(tabPane, event, data){
+    GenericEditor.prototype.tabSelected.call(this, tabPane, event, data);
+    this.fireEvent("diagramActivation", this.diagramActivated());
     this.saveFieldValues();
     this.updateDiagramIfDisplayed();
     this.updateFieldValues();
@@ -3435,10 +3437,15 @@ adopt(DimensionUsageEditor, GenericEditor);
   updateDiagram: function(){
     this.saveDiagram();
     this.clearDiagram();
-    this.addHierarchyRelationsToDiagram();
+    if (this.model && this.modelElement) {
+      this.addHierarchyRelationsToDiagram();
+    }
     this.diagramNeedsUpdate = false;
   },
   tabSelected: function(tabPane, event, data){
+    GenericEditor.prototype.tabSelected.call(this, tabPane, event, data);
+    var tab = tabPane.getTab(data.newTab);
+    this.fireEvent("diagramActivation", this.diagramActivated());
     this.saveFieldValues();
     this.updateDiagramIfDisplayed();
     this.updateFieldValues();
