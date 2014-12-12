@@ -20,8 +20,9 @@
 
 <!--
   <property name="bi-server.dir"  location="/home/roland/pentaho-ce/5.1/biserver-ce"/>
--->
   <property name="bi-server.dir"  location="/home/roland/pentaho-ce/biserver-ce-5.2.0.0-209/biserver-ce"/>
+-->
+  <property name="bi-server.dir"  location="/home/roland/pentaho-ce/biserver-ce-5.3-1494/biserver-ce"/>
 
   <property name="bi-server-system.dir"  location="${bi-server.dir}/pentaho-solutions/system"/>
   <property name="tomcat.dir"  location="${bi-server.dir}/tomcat"/>
