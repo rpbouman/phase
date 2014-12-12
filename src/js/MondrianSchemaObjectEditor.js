@@ -280,35 +280,7 @@ var GenericEditor;
       text: "General",
       selected: true,
       component: cEl("div")
-    }, {
-      text: "Annotations"
     }];
-  }
-
-  var annotationsTab = this.getAnnotationsTab();
-  if (annotationsTab) {
-    this.annotationsGrid = new EditableDataGrid({
-      listeners: {
-        scope: this,
-        rowInserted: function(grid, event, data) {
-          var model = this.model;
-          var modelElement = this.modelElement;
-          if (!model || !modelElement) {
-            return;
-          }
-          model.createAnnotation(modelElement, data.rowIndex);
-        },
-        rowDeleted: function(grid, event, data){
-          var model = this.model;
-          var modelElement = this.modelElement;
-          if (!model || !modelElement) {
-            return;
-          }
-          model.removeAnnotation(modelElement, data.rowIndex);
-        }
-      }
-    });
-    annotationsTab.component = this.annotationsGrid;
   }
 
   this.dialog = conf.dialog || new Dialog();
@@ -387,6 +359,37 @@ var GenericEditor;
       }
     }
     return null;
+  },
+  hasChildElement: function(name){
+    var tagName = this.objectType;
+    var schemaObjectInfoItem = MondrianModel.SchemaInfo[tagName];
+    if (!schemaObjectInfoItem) {
+      var indexOfSpace = tagName.lastIndexOf(" ");
+      if (indexOfSpace === -1) {
+        return false;
+      }
+      schemaObjectInfoItem = MondrianModel.SchemaInfo[tagName.substr(indexOfSpace+1)];
+      if (!schemaObjectInfoItem) {
+        tagName = tagName.replace(/ /g, "");
+        schemaObjectInfoItem = MondrianModel.SchemaInfo[tagName.substr(indexOfSpace+1)];
+      }
+    }
+    if (!schemaObjectInfoItem) {
+      return false;
+    }
+    var i, children = schemaObjectInfoItem.children, n = children.length;
+    for (i = 0; i < n; i++){
+      if (children[i] === name) {
+        return true;
+      }
+    }
+    return false;
+  },
+  hasAnnotations: function(){
+    return this.hasChildElement("Annotations");
+  },
+  hasProperties: function(){
+    return this.hasChildElement("Properties");
   },
   getAnnotationsTab: function(){
     return this.getTab("Annotations");
@@ -780,22 +783,52 @@ var GenericEditor;
         }
       });
     }
+
+    var hasAnnotations = this.hasAnnotations();
+    if (hasAnnotations) {
+      var annotationsTab = {
+        text: "Annotations"
+      };
+      this.annotationsGrid = new EditableDataGrid({
+        listeners: {
+          scope: this,
+          rowInserted: function(grid, event, data) {
+            var model = this.model;
+            var modelElement = this.modelElement;
+            if (!model || !modelElement) {
+              return;
+            }
+            model.createAnnotation(modelElement, data.rowIndex);
+          },
+          rowDeleted: function(grid, event, data){
+            var model = this.model;
+            var modelElement = this.modelElement;
+            if (!model || !modelElement) {
+              return;
+            }
+            model.removeAnnotation(modelElement, data.rowIndex);
+          }
+        }
+      });
+      annotationsTab.component = this.annotationsGrid;
+      conf.tabs.push(annotationsTab);
+    }
+
     this.tabPane.conf.container = dom;
     this.tabPane.addTab(conf.tabs);
 
-    var annotationsGrid = this.annotationsGrid;
-    if (annotationsGrid) {
+    if (hasAnnotations) {
       this.annotationsGridCellEditor = new CellTextEditor({
         listeners: {
           scope: this,
           editingStopped: this.annotationCellEdited
         }
       });
-      annotationsGrid.setColumns([
+      this.annotationsGrid.setColumns([
         {name: "name", label: "Name", cellEditor: this.annotationsGridCellEditor},
         {name: "value", label: "Value", cellEditor: this.annotationsGridCellEditor}
       ]);
-      annotationsGrid.setRowHeaders([
+      this.annotationsGrid.setRowHeaders([
         {name: "rowNum", label: "#", isAutoRowNum: true}
       ]);
     }
@@ -1277,8 +1310,6 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
       selected: true,
       component: cEl("div")
     }, {
-      text: "Annotations"
-    }, {
       text: "Source",
       component: cEl("div")
     }];
@@ -1328,9 +1359,12 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
   getSourceTextAreaId: function(){
     return this.getId() + "-textarea";
   },
+  getSourceTab: function(){
+    return this.getTab("Source");
+  },
   createDom: function(){
     var dom = SchemaEditor._super.prototype.createDom.apply(this, arguments);
-    var sourceTab = this.tabPane.getTab(2);
+    var sourceTab = this.getSourceTab();
 
     var textArea = cEl("textarea", {
       id: this.getSourceTextAreaId()
@@ -1445,8 +1479,7 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
   },
   refreshCodeMirror: function(){
     var tab = this.tabPane.getSelectedTab();
-    //TODO: make a proper check to see if this is the code mirror tab.
-    if (tab.text !== "Source") {
+    if (tab !== this.getSourceTab()) {
       return;
     }
     var codeMirror = this.codeMirror;
@@ -1492,8 +1525,9 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
     this.initSourceCodeEditor();
   },
   tabSelected: function(tabPane, event, data){
-    switch (data.newTab) {
-      case 2:
+    var tab = tabPane.getTab(data.newTab);
+    switch (tab) {
+      case this.getSourceTab():
         this.initSourceCodeEditor();
         break;
     }
@@ -1722,8 +1756,6 @@ adopt(SchemaEditor, GenericEditor);
       text: "General",
       selected: true,
       component: cEl("div")
-    }, {
-      text: "Annotations"
     }, {
       text: "Diagram",
       component: this.diagram
@@ -2318,7 +2350,7 @@ adopt(VirtualCubeEditor, GenericEditor);
 
   arguments.callee._super.apply(this, [conf]);
 }).prototype = {
-  objectType: "Cube",
+  objectType: "CubeUsage",
   fields: {
     cubeName: {
       labelText: "Cube Name",
@@ -2369,9 +2401,6 @@ adopt(CubeUsageEditor, GenericEditor);
     conf.tabs = [{
       text: "General",
       selected: true,
-      component: cEl("div")
-    }, {
-      text: "Annotations",
       component: cEl("div")
     }, {
       text: "Properties",
@@ -2467,9 +2496,6 @@ adopt(NamedSetEditor, GenericEditor);
     conf.tabs = [{
       text: "General",
       selected: true,
-      component: cEl("div")
-    }, {
-      text: "Annotations",
       component: cEl("div")
     }, {
       text: "Properties",
@@ -2888,8 +2914,6 @@ adopt(DimensionUsageEditor, GenericEditor);
       text: "General",
       selected: true,
       component: cEl("div")
-    }, {
-      text: "Annotations"
     }, {
       text: "Diagram",
       component: this.diagram
@@ -3536,9 +3560,6 @@ adopt(HierarchyEditor, GenericEditor);
     conf.tabs = [{
       text: "General",
       selected: true,
-      component: cEl("div")
-    }, {
-      text: "Annotations",
       component: cEl("div")
     }, {
       text: "Properties",
