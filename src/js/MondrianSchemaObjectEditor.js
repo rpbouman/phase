@@ -468,6 +468,19 @@ var GenericEditor;
     }
     return ret;
   },
+  hasHierarchyRelations: function(){
+    var relationsInfo = this.getHierarchyRelations();
+    var relations = relationsInfo.relations;
+    var i, n = relations.length;
+    for (i = 0; i < n; i++){
+      relation = relations[i];
+      switch (relation.tagName) {
+        case "Table":
+          return true;
+      }
+    }
+    return false;
+  },
   populateSelectFieldWithHierarchyRelations: function(fieldName){
     this.clearSelectField(fieldName);
     var relationsInfo = this.getHierarchyRelations();
@@ -512,6 +525,29 @@ var GenericEditor;
       this.populateSelectField(columnField, options);
       if (callback) {
         callback.call(scope || null, tableField, columnField);
+      }
+      else {
+        this.setSelectFieldValue(columnField, this.modelElement.attributes[columnField]);
+      }
+    }, this);
+  },
+  populateSelectFieldWithCubeRelationColumns: function(columnField, callback, scope){
+    this.clearSelectField(columnField);
+    this.getCubeRelationInfo(function(data){
+      var options = [];
+      if (data) {
+        var metadata = data.metadata;
+        var info = metadata.info;
+        var columns = info.columns;
+        var i, column, n = columns.length;
+        for (i = 0; i < n; i++) {
+          column = columns[i];
+          options.push(column.COLUMN_NAME);
+        }
+      }
+      this.populateSelectField(columnField, options);
+      if (callback) {
+        callback.call(scope || null, columnField);
       }
       else {
         this.setSelectFieldValue(columnField, this.modelElement.attributes[columnField]);
@@ -2705,23 +2741,7 @@ adopt(SharedDimensionEditor, GenericEditor);
     });
   },
   updateForeignKeyField: function(){
-    var fieldName = "foreignKey";
-    this.clearSelectField(fieldName);
-    this.getCubeRelationInfo(function(data){
-      var options = [];
-      if (data) {
-        var metadata = data.metadata;
-        var info = metadata.info;
-        var columns = info.columns;
-        var i, column, n = columns.length;
-        for (i = 0; i < n; i++) {
-          column = columns[i];
-          options.push(column.COLUMN_NAME);
-        }
-      }
-      this.populateSelectField(fieldName, options);
-      this.setSelectFieldValue(fieldName, this.modelElement.attributes.foreignKey);
-    }, this);
+    this.populateSelectFieldWithCubeRelationColumns("foreignKey");
   },
   modelElementChanged: function(){
     this.updateForeignKeyField()
@@ -3681,25 +3701,32 @@ adopt(HierarchyEditor, GenericEditor);
     this.updateCaptionColumnField();
     this.updateParentColumnField();
   },
+  updateColField: function(fieldName){
+    var hasHierarchyRelations = this.hasHierarchyRelations();
+    //if this hierarchy has any relations, we have to get columns from the currently assigned hiearchy relation.
+    if (hasHierarchyRelations) {
+      var tableName = this.getFieldValue("table");
+      this.populateSelectFieldWithHierarchyRelationColumns(tableName, fieldName);
+    }
+    //if this hierarchy does not have any relations, it is degenerate and we need to get columns from the cube relation.
+    else {
+      this.populateSelectFieldWithCubeRelationColumns(fieldName);
+    }
+  },
   updateColumnField: function(){
-    var tableName = this.getFieldValue("table");
-    this.populateSelectFieldWithHierarchyRelationColumns(tableName, "column");
+    this.updateColField("column");
   },
   updateNameColumnField: function(){
-    var tableName = this.getFieldValue("table");
-    this.populateSelectFieldWithHierarchyRelationColumns(tableName, "nameColumn");
+    this.updateColField("nameColumn");
   },
   updateOrdinalColumnField: function(){
-    var tableName = this.getFieldValue("table");
-    this.populateSelectFieldWithHierarchyRelationColumns(tableName, "ordinalColumn");
+    this.updateColField("ordinalColumn");
   },
   updateCaptionColumnField: function(){
-    var tableName = this.getFieldValue("table");
-    this.populateSelectFieldWithHierarchyRelationColumns(tableName, "captionColumn");
+    this.updateColField("captionColumn");
   },
   updateParentColumnField: function(){
-    var tableName = this.getFieldValue("table");
-    this.populateSelectFieldWithHierarchyRelationColumns(tableName, "parentColumn");
+    this.updateColField("parentColumn");
   },
   modelElementChanged: function(){
     this.updateTableField();
