@@ -35,7 +35,19 @@ var PedisCache;
   }
   this.connectionId = null;
 }).prototype = {
+  purgeConnection: function(connectionId){
+    if (!this.metaData[connectionId]) {
+      return;
+    }
+    this.fireEvent("purgeConnection", connectionId);
+    delete this.metaData[connectionId];
+    this.fireEvent("connectionPurged", connectionId);
+  },
   loadConnections: function(conf){
+    if (!conf) {
+      conf = {};
+    }
+    this.metaData = {};
     var eventData = {
       type: "connections"
     };
@@ -59,6 +71,21 @@ var PedisCache;
       },
       scope: this
     });
+  },
+  getConnections: function(callback, scope){
+    var me = this;
+    var action = function(connections){
+      callback.call(scope || null, connections);
+    }
+
+    if (this.connections && this.connections.length) {
+      action(this.connections);
+    }
+    else {
+      this.loadConnections({
+        success: action
+      })
+    }
   },
   getTableTypes: function(connectionId){
     var connection = this.getConnection(connectionId || this.getConnection());

@@ -114,6 +114,8 @@ mainToolbar.listen({
     var className = conf["class"];
     switch (className) {
       case "refresh":
+        unselectCurrentEditor();
+        pedisCache.loadConnections();
         getModels();
         break;
       case "new":
@@ -663,6 +665,7 @@ function getModels(){
   pham.getModels({
     success: function(modelNames){
       //empty entire cache
+      selectedModel = null;
       mondrianSchemaCache.purge();
       mondrianSchemaTreeView.renderModelTreeNodes(modelNames);
     },

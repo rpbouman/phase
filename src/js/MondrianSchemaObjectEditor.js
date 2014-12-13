@@ -1372,6 +1372,24 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
   }
 
   arguments.callee._super.apply(this, [conf]);
+
+  this.pedisCache.listen({
+    scope: this,
+    loading: function(pedisCache, event, data){
+      switch (data.type) {
+        case "connections":
+          this.clearDataSourceList();
+          break;
+      }
+    },
+    loadSuccess: function(pedisCache, event, data){
+      switch (data.type) {
+        case "connections":
+          this.populateDataSourceList();
+          break;
+      }
+    }
+  });
 }).prototype = {
   objectType: "Schema",
   fields: {
@@ -1657,10 +1675,14 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
         break;
     }
   },
+  clearDataSourceList: function(){
+    this.clearSelectField("dataSource");
+  },
   populateDataSourceList: function(){
+    this.clearDataSourceList();
     var me = this;
-    this.pedisCache.loadConnections({
-      success: function(data){
+    this.pedisCache.getConnections(
+      function(data){
         var i, n = data.length, item, names = [""];
         for (i = 0; i < n; i++) {
           item = data[i];
@@ -1669,8 +1691,9 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
         var fieldName = "dataSource";
         me.populateSelectField(fieldName, names);
         me.updateFieldValue(fieldName);
-      }
-    });
+      },
+      this
+    );
   }
 };
 adopt(SchemaEditor, GenericEditor);
