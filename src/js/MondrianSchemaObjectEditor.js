@@ -1325,6 +1325,7 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
         }
         this.createNewSharedDimension(dimensionDecorations.geography);
       }},
+      {class: "separator"},
       {group: "code", "class": "save-code", style: {display: "none"}, tooltip: "Parse and save code changes", handler: function(){
         this.parseCodeAndSaveChanges();
       }},
