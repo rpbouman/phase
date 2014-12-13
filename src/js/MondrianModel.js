@@ -26,7 +26,7 @@ var MondrianModel;
     })
   );
   this.datasourceInfo = {};
-  this.setDirty();
+  this.setDirty(false);
 }).prototype = {
   setDocument: function(doc) {
     if (iStr(doc)) {
@@ -46,7 +46,7 @@ var MondrianModel;
       oldSchema: this.doc ? this.getSchemaName() : "",
       newDoc: doc
     };
-    if (this.fireEvent("setDocument", eventData)===false) {
+    if (this.fireEvent("setDocument", eventData) === false) {
       return false;
     }
     this.doc = doc;
@@ -75,6 +75,7 @@ var MondrianModel;
   },
   fireEvent: function(event, eventData){
     switch (event) {
+      case "documentSet":
       case "modelElementAttributeSet":
       case "modelElementCreated":
       case "modelElementMoved":

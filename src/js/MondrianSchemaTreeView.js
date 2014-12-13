@@ -318,11 +318,11 @@ var MondrianSchemaTreeView;
     var dom = treeNode.getDom();
     rCls(dom, removeClass, addClass);
   },
-  markDirty: function(model, dirty){
+  markDirty: function(model){
     var schemaName = model.getSchemaName();
     var treeNode = this.getModelTreeNode(schemaName);
     var dom = treeNode.getDom();
-    if (dirty) {
+    if (model.isDirty()) {
       aCls(dom, "dirty");
     }
     else {
@@ -1042,10 +1042,19 @@ var MondrianSchemaTreeView;
   renderModelTreeNode: function (modelName, append){
     var me = this;
 
+    var model = this.mondrianSchemaCache.getModel(modelName);
+    var dirty;
+    if (model) {
+      dirty = model.isDirty();
+    }
+    else {
+      dirty = false;
+    }
+
     var nodeId = "Schema:" + modelName;
     var treeNode = new TreeNode({
       id: nodeId,
-      classes: "Schema",
+      classes: "Schema" + (dirty ? " dirty" : ""),
       title: modelName,
       tooltip: modelName,
       state: TreeNode.states.collapsed,
