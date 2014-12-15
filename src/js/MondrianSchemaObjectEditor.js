@@ -259,10 +259,29 @@ var fields = {
     defaultValue: "",
     tooltipText: "The datatype of this item."
   },
+  //see http://apostate.com/programming/vb-format-syntax.html
   formatString: {
     labelText: "Format",
     dataPath: ["modelElement", "attributes", "formatString"],
-    tooltipText: "Format string with which to format values of this item."
+    tooltipText: "Format string with which to format values of this item.",
+    options: [
+      "General Number",     //Shows numbers as entered.
+      "Currency",           //Shows negative numbers inside parentheses.
+      "Fixed",              //Shows at least one digit.
+      "Standard",           //Uses a thousands separator.
+      "Percent",            //Multiplies the value by 100 with a percent sign at the end.
+      "Scientific",         //Uses standard scientific notation.
+      "General Date",       //Shows date and time if expression contains both. If expression is only a date or a time, the missing information is not displayed.
+      "Long Date",          //Uses the Long Date format specified in Windows Regional Settings control panel.
+      "Medium Date",        //Uses the dd-mmm-yy format, e.g. 03-Apr–93
+      "Short Date",         //Uses the Short Date format specified in the Regional Settings dialog box of the Windows Control Panel.
+      "Long Time",          //Shows the hour, minute, second in hh:mm:ss format followed by AM or PM, e.g. 12:21:47 AM.
+      "Medium Time",        //Shows the hour, minute in hh:mm format followed by AM or PM, e.g. 12:21 PM
+      "Short Time",         //Shows the hour and minute in hh:mm format.
+      "Yes/No",             //Any nonzero numeric value (usually –1) is Yes. Zero is No.
+      "True/False",         //Any nonzero numeric value (usually –1) is True. Zero is False.
+      "On/Off"              //Any nonzero numeric value (usually –1) is On. Zero is Off.
+    ]
   },
   column: {
     tagName: "select",
@@ -692,25 +711,39 @@ var GenericEditor;
       }
       var input = cEl(definition.tagName || "input", inputConf);
       if (definition.options) {
-        if (definition.tagName === "select") {
-          var i, option, optionDefinition, options = definition.options;
-          if (!mandatory) {
-            options = [""].concat(options);
-          }
-          var n = options.length;
-          for (i = 0; i < n; i++){
-            optionDefinition = options[i];
-            if (iStr(optionDefinition)) {
-              optionDefinition = {
-                labelText: optionDefinition,
-                value: optionDefinition
-              }
+        var optionContainer;
+        switch (input.tagName.toLowerCase()) {
+          case "input":
+            if (input.type === "text") {
+              var containerId = key + "_options";
+              sAtt(input, "list", containerId);
+              optionContainer = cEl("datalist", {
+                id: containerId
+              }, null, fieldset);
             }
-            cEl("option", {
-              label: optionDefinition.labelText || "",
-              value: optionDefinition.value || ""
-            }, optionDefinition.labelText || optionDefinition.value, input);
+            break;
+          case "select":
+            optionContainer = input;
+            break;
+          default:
+        }
+        var i, option, optionDefinition, options = definition.options;
+        if (!mandatory) {
+          options = [""].concat(options);
+        }
+        var n = options.length;
+        for (i = 0; i < n; i++){
+          optionDefinition = options[i];
+          if (iStr(optionDefinition)) {
+            optionDefinition = {
+              labelText: optionDefinition,
+              value: optionDefinition
+            }
           }
+          cEl("option", {
+            label: optionDefinition.labelText || "",
+            value: optionDefinition.value || ""
+          }, optionDefinition.labelText || optionDefinition.value, optionContainer);
         }
       }
       children.push(input);
