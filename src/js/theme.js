@@ -1,5 +1,7 @@
 var mantle_win;
-if (parent) mantle_win = parent;
+if (parent) {
+  mantle_win = parent;
+}
 if (window.opener) {
   if (window.opener.parent) mantle_win = window.opener.parent;
   else mantle_win = window.opener;
@@ -17,3 +19,4 @@ var cssDir = "../css/";
 var themeScript = document.createElement("script");
 themeScript.setAttribute("src", "../../../../js/themeResources.js");
 document.getElementsByTagName("HEAD")[0].appendChild(themeScript);
+
