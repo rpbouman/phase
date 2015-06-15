@@ -961,6 +961,7 @@ var GenericEditor;
         model.setElementTextContent(annotation, newValue);
         break;
     }
+    annotationsGrid.setCellText(cell, newValue);
   },
   getModel: function(){
     return this.model;
