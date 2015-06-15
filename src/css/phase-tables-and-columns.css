@@ -32,8 +32,20 @@ limitations under the License.
   background-image: url('../images/column_16x16.png');
 }
 
-/* see: https://docs.oracle.com/javase/6/docs/api/constant-values.html#java.sql.Types.STRUCT */
+select.column > option {
+  background-repeat: no-repeat;
+  padding-left: 20px;
+}
 
+/* see: https://docs.oracle.com/javase/6/docs/api/constant-values.html#java.sql.Types.STRUCT */
+select.column > option.datatype-2002,
+select.column > option.datatype--8 ,
+select.column > option.datatype-2006 ,
+select.column > option.datatype-0 ,
+select.column > option.datatype-1111 ,
+select.column > option.datatype-2001 ,
+select.column > option.datatype-70 ,
+select.column > option.datatype-2003 ,
 .datatype-2002 .toggle,
 .datatype--8 .toggle,
 .datatype-2006 .toggle,
@@ -54,18 +66,22 @@ limitations under the License.
   background-image: url('../images/column_16x16.png');
 }
 
+select.column > option.datatype-2000,
 .datatype-2000 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-2000 > td.icon   /* java object */
 {
   background-image: url('../images/JavaIcon.gif');
 }
 
+select.column > option.datatype-2009,
 .datatype-2009 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-2009 > td.icon   /* sqlxml */
 {
   background-image: url('../images/column-xml.png');
 }
 
+select.column > option.datatype--7,
+select.column > option.datatype-16,
 .datatype--7 .toggle,
 .datatype-16 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype--7 > td.icon,    /* bit */
@@ -74,6 +90,10 @@ limitations under the License.
   background-image: url('../images/column-boolean.png');
 }
 
+select.column > option.datatype--6,
+select.column > option.datatype-5,
+select.column > option.datatype-4,
+select.column > option.datatype--5,
 .datatype--6 .toggle,
 .datatype-5 .toggle,
 .datatype-4 .toggle,
@@ -86,6 +106,8 @@ limitations under the License.
   background-image: url('../images/column-integer.png');
 }
 
+select.column > option.datatype-3,
+select.column > option.datatype-2,
 .datatype-3 .toggle,
 .datatype-2 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-3 > td.icon,     /* decimal  */
@@ -94,6 +116,9 @@ limitations under the License.
   background-image: url('../images/column-decimal.jpg');
 }
 
+select.column > option.datatype-7,
+select.column > option.datatype-8,
+select.column > option.datatype-6,
 .datatype-7 .toggle,
 .datatype-8 .toggle,
 .datatype-6 .toggle,
@@ -104,6 +129,14 @@ limitations under the License.
   background-image: url('../images/column-float.png');
 }
 
+select.column > option.datatype-12,
+select.column > option.datatype--9,
+select.column > option.datatype-2011,
+select.column > option.datatype--15,
+select.column > option.datatype--1,
+select.column > option.datatype--16,
+select.column > option.datatype-2005,
+select.column > option.datatype-1,
 .datatype-12 .toggle,
 .datatype--9 .toggle,
 .datatype-2011 .toggle,
@@ -124,6 +157,10 @@ limitations under the License.
   background-image: url('../images/column-text.png');
 }
 
+select.column > option.datatype--3,
+select.column > option.datatype--4,
+select.column > option.datatype-2004,
+select.column > option.datatype--2,
 .datatype--3 .toggle,
 .datatype--4 .toggle,
 .datatype-2004 .toggle,
@@ -136,18 +173,21 @@ limitations under the License.
   background-image: url('../images/column-binary.png');
 }
 
+select.column > option.datatype-91,
 .datatype-91 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-91 > td.icon     /* date   */
 {
   background-image: url('../images/column-date.png');
 }
 
+select.column > option.datatype-92,
 .datatype-92 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-92 > td.icon     /* time   */
 {
   background-image: url('../images/column-time.png');
 }
 
+select.column > option.datatype-93,
 .datatype-93 .toggle,
 .phase-diagram > div.relation > table.relation > tbody > tr.datatype-93 > td.icon     /* timestamp   */
 {

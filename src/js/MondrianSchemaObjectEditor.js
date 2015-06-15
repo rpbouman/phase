@@ -518,6 +518,13 @@ var GenericEditor;
     }
     this.populateSelectField(fieldName, options);
   },
+  getOptionConfigForColumn: function(column){
+    return {
+      "class": "datatype-" + column.DATA_TYPE,
+      label: column.COLUMN_NAME,
+      value: column.COLUMN_NAME
+    };
+  },
   populateSelectFieldWithHierarchyRelationColumns: function(tableName, columnField, callback, scope){
     this.clearSelectField(columnField);
     var relationsInfo = this.getHierarchyRelations();
@@ -536,10 +543,11 @@ var GenericEditor;
       return;
     }
     this.getRelationInfo(relation, function(table){
-      var options = [], info = table.info, columns = info.columns, column, i, n = columns.length;
+      var options = [], info = table.info, columns = info.columns, column, conf, i, n = columns.length;
       for (i = 0; i < n; i++) {
         column = columns[i];
-        options.push(column.COLUMN_NAME);
+        conf = this.getOptionConfigForColumn(column);
+        options.push(conf);
       }
       this.populateSelectField(columnField, options);
       if (callback) {
@@ -558,10 +566,11 @@ var GenericEditor;
         var metadata = data.metadata;
         var info = metadata.info;
         var columns = info.columns;
-        var i, column, n = columns.length;
+        var i, column, conf, n = columns.length;
         for (i = 0; i < n; i++) {
           column = columns[i];
-          options.push(column.COLUMN_NAME);
+          conf = this.getOptionConfigForColumn(column);
+          options.push(conf);
         }
       }
       this.populateSelectField(columnField, options);
@@ -1272,6 +1281,22 @@ var GenericEditor;
   },
   populateSelectField: function(fieldName, options){
     options.sort(function(a, b) {
+      if (typeof(a) === "object") {
+        if (a === null) {
+          a = "";
+        }
+        else {
+          a = a.label;
+        }
+      }
+      if (typeof(b) === "object") {
+        if (b === null) {
+          b = "";
+        }
+        else {
+          b = b.label;
+        }
+      }
       a = a.toLowerCase();
       b = b.toLowerCase();
       var r;
@@ -1291,13 +1316,38 @@ var GenericEditor;
     if (!this.isFieldMandatory(fieldName)){
       options = [""].concat(options);
     }
-    var n = options.length, option, i;
+    var n = options.length, option, i, label, className, value;
     for (i = 0; i < n; i++) {
       option = options[i];
-      cEl("option", {
-        label: option,
-        value: option,
-      }, option, fieldElement);
+      switch (typeof(option)) {
+        case "boolean":
+        case "number":
+          option = String(option);
+        case "string":
+          option = {
+            label: option,
+            value: option,
+            "class": option
+          };
+          break;
+        case "undefined":
+          option = {
+            label: "",
+            value: "",
+            "class": "undefined"
+          };
+          break;
+        case "object":
+          if (option === null) {
+            option = {
+              label: "",
+              value: "",
+              "class": "null"
+            };
+          }
+          break;
+      }
+      cEl("OPTION", option, option.label, fieldElement);
     }
   },
   getDiagram: function(){
@@ -2524,10 +2574,11 @@ adopt(CubeUsageEditor, GenericEditor);
         var metadata = data.metadata;
         var info = metadata.info;
         var columns = info.columns;
-        var i, column, n = columns.length;
+        var i, column, conf, n = columns.length;
         for (i = 0; i < n; i++) {
           column = columns[i];
-          options.push(column.COLUMN_NAME);
+          conf = this.getOptionConfigForColumn(column);
+          options.push(conf);
         }
       }
       this.populateSelectField(fieldName, options);
@@ -3668,7 +3719,7 @@ adopt(HierarchyEditor, GenericEditor);
     },
     uniqueMembers: {
       inputType: "checkbox",
-      labelText:  "Is unique?",
+      labelText:  "Is Unique?",
       dataPath: ["modelElement", "attributes", "uniqueMembers"],
       tooltipText: "Indicates whether the values in this level are unique."
     },
@@ -3833,8 +3884,21 @@ adopt(LevelEditor, GenericEditor);
       this.clearSelectField(fieldName);
       return;
     }
-    var level = model.getModelElementParent(this.modelElementPath);
-    this.populateSelectFieldWithHierarchyRelationColumns(level.attributes.table, "column");
+    var levelModelElementPath = model.getModelElementParentPath(this.modelElementPath)
+    var level = model.getModelElement(levelModelElementPath);
+    var table = level.attributes.table;
+    if (!table) {
+      var hierarchyRelations = this.getHierarchyRelations();
+      var relations = hierarchyRelations.relations;
+      if (relations.length) {
+        table = relations[0].attributes.name;
+      }
+      if (!table) {
+        var cubeRelation = model.getCubeRelation(this.modelElementPath);
+        table = cubeRelation.attributes.name;
+      }
+    }
+    this.populateSelectFieldWithHierarchyRelationColumns(table, "column");
   },
   modelElementChanged: function(){
     this.updateColumnField();
