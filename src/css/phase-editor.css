@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 .phase-editor {
-  bottom: 35px;
+  bottom: 32px;
 }
 
 .phase-editor .toolbar {
@@ -24,7 +24,7 @@ limitations under the License.
 }
 
 .phase-editor .tabpane {
-  top: 35px;
+  top: 32px;
 }
 
 .phase-editor .pentaho-tab-deck-panel > div {
