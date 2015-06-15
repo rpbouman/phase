@@ -467,7 +467,7 @@ var mondrianSchemaTreeView = new MondrianSchemaTreeView({
 
 function selectMondrianSchemaTreeNode(treeNode){
   mondrianSchemaTreeView.setSelectedTreeNode(treeNode);
-  treeNode.getDom().scrollIntoView(true);
+  //treeNode.getDom().scrollIntoView(true);
 }
 
 function moveModelElement(fromModelElementPath, toModelElementPath){
