@@ -17,7 +17,8 @@ limitations under the License.
 */
 var editors = {
 };
-var SchemaEditor, CubeEditor, VirtualCubeEditor, NamedSetEditor,
+var SchemaEditor, CubeEditor, VirtualCubeEditor,
+    SharedNamedSetEditor, PrivateNamedSetEditor,
     SharedDimensionEditor, PrivateDimensionEditor, DimensionUsageEditor,
     HierarchyEditor, LevelEditor, MeasureEditor
 ;
@@ -1507,6 +1508,12 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
         }
         this.createNewCube();
       }},
+      {"class": "new-virtual-cube", tooltip: "New Virtual Cube", handler: function(){
+        if (!this.beforeCreateNew()){
+          return;
+        }
+        this.createNewVirtualCube();
+      }},
       {class: "separator"},
       {
         "class": "new-named-set",
@@ -1807,9 +1814,20 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
       modelElementPath: modelElementPath
     });
   },
+  createNewVirtualCube: function(){
+    var virtualCube = this.model.createVirtualCube();
+    var modelElementPath = merge({
+      type: "VirtualCube",
+      VirtualCube: virtualCube.attributes.name
+    }, this.modelElementPath);
+    this.fireEvent("editorCreateAction", {
+      model: this.model,
+      modelElementPath: modelElementPath
+    });
+  },
   createNewNamedSet: function(){
     var model = this.model;
-    var namedSet = model.createNamedSet();
+    var namedSet = model.createSharedNamedSet();
     var modelElementPath = merge({
       type: "NamedSet",
       NamedSet: namedSet.attributes.name
@@ -2735,6 +2753,38 @@ adopt(MeasureEditor, GenericEditor);
   }
 };
 adopt(NamedSetEditor, GenericEditor);
+
+(SharedNamedSetEditor = function(conf){
+  linkCss("../css/phase-named-set-editor.css");
+  if (!conf) {
+    conf = {};
+  }
+  if (!conf.classes) {
+    conf.classes = [];
+  }
+  conf.classes.push("phase-named-set-editor");
+
+  arguments.callee._super.apply(this, [conf]);
+}).prototype = {
+  objectType: "Shared Named Set",
+};
+adopt(SharedNamedSetEditor, NamedSetEditor);
+
+(PrivateNamedSetEditor = function(conf){
+  linkCss("../css/phase-named-set-editor.css");
+  if (!conf) {
+    conf = {};
+  }
+  if (!conf.classes) {
+    conf.classes = [];
+  }
+  conf.classes.push("phase-named-set-editor");
+
+  arguments.callee._super.apply(this, [conf]);
+}).prototype = {
+  objectType: "Private Named Set",
+};
+adopt(PrivateNamedSetEditor, NamedSetEditor);
 
 (CalculatedMemberEditor = function(conf){
   linkCss("../css/phase-calculated-member-editor.css");

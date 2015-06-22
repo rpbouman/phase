@@ -342,6 +342,8 @@ var MondrianSchemaTreeView;
       case "Hierarchy":
       case "Level":
       case "Property":
+      case "VirtualCube":
+      case "SharedNamedSet":
         break;
       default:
         return;
@@ -501,13 +503,6 @@ var MondrianSchemaTreeView;
       "Measure"
     );
   },
-  createNamedSetTreeNode: function(namedSet, parentTreeNode) {
-    return this.createModelElementTreeNode(
-      namedSet,
-      parentTreeNode,
-      "NamedSet"
-    );
-  },
   createCalculatedMemberTreeNode: function(calculatedMember, parentTreeNode){
     return this.createModelElementTreeNode(
       calculatedMember,
@@ -558,6 +553,20 @@ var MondrianSchemaTreeView;
       parentTreeNode,
       selection.type === "Schema" ? "SharedDimension" : "PrivateDimension",
       this.loadDimensionTreeNodeChildren
+    );
+  },
+  createSharedNamedSetTreeNode: function (namedSet, parentTreeNode){
+    return this.createNamedSetTreeNode(namedSet, parentTreeNode);
+  },
+  createPrivateNamedSetTreeNode: function (namedSet, parentTreeNode){
+    return this.createNamedSetTreeNode(namedSet, parentTreeNode);
+  },
+  createNamedSetTreeNode: function(namedSet, parentTreeNode) {
+    var selection = this.parseModelElementPath(parentTreeNode.id);
+    return this.createModelElementTreeNode(
+      namedSet,
+      parentTreeNode,
+      selection.type === "Schema" ? "SharedNamedSet" : "PrivateNamedSet"
     );
   },
   createCubeTreeNode: function(cube, parentTreeNode) {
@@ -723,6 +732,7 @@ var MondrianSchemaTreeView;
                 return TreeNode.prototype.compare.call(this, treeNode);
               case "SharedDimension":
               case "VirtualCube":
+              case "SharedNamedSet":
                 return -1;
               default:
                 return null;
@@ -734,6 +744,7 @@ var MondrianSchemaTreeView;
               case "Cube":
                 return 1;
               case "VirtualCube":
+              case "SharedNamedSet":
                 return -1;
               default:
                 return null;
@@ -742,11 +753,20 @@ var MondrianSchemaTreeView;
             switch (thatType) {
               case thisType:
                 return TreeNode.prototype.compare.call(this, treeNode);
+              case "Cube":
               case "SharedDimension":
-              case "VirtualCube":
                 return 1;
+              case "SharedNamedSet":
+                return -1;
               default:
                 return null;
+            }
+          case "SharedNamedSet":
+            switch (thatType){
+              case thisType:
+                return TreeNode.prototype.compare.call(this, treeNode);
+              default:
+                return -1;
             }
         }
         return null;
@@ -760,6 +780,7 @@ var MondrianSchemaTreeView;
               case "CalculatedMember":
               case "PrivateDimension":
               case "DimensionUsage":
+              case "PrivateNamedSet":
                 return -1;
               default:
                 return null;
@@ -772,6 +793,7 @@ var MondrianSchemaTreeView;
                 return 1;
               case "PrivateDimension":
               case "DimensionUsage":
+              case "PrivateNamedSet":
                 return -1;
               default:
                 return null;
@@ -784,6 +806,7 @@ var MondrianSchemaTreeView;
               case "CalculatedMember":
                 return 1;
               case "DimensionUsage":
+              case "PrivateNamedSet":
                 return -1;
               default:
                 return null;
@@ -796,8 +819,17 @@ var MondrianSchemaTreeView;
               case "CalculatedMember":
               case "PrivateDimension":
                 return 1;
+              case "PrivateNamedSet":
+                return -1;
               default:
                 return null;
+            }
+          case "PrivateNamedSet":
+            switch (thatType) {
+              case thisType:
+                return TreeNode.prototype.compare.call(this, treeNode);
+              default:
+                return -1;
             }
         }
         return null;
@@ -957,7 +989,7 @@ var MondrianSchemaTreeView;
           CalculatedMember: null,
           PrivateDimension: dimensionElements,
           DimensionUsage: null,
-          NamedSet: null
+          PrivateNamedSet: null
         },
         SharedDimension: dimensionElements,
         VirtualCube: {
@@ -966,9 +998,9 @@ var MondrianSchemaTreeView;
             VirtualCubeDimension: null
           },
           CalculatedMember: null,
-          NamedSet: null
+          PrivateNamedSet: null
         },
-        NamedSet: null
+        SharedNamedSet: null
       }
     }
     var id = "", name, value = elements;

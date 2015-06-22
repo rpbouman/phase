@@ -77,6 +77,14 @@ div.mondrian-schema-tree div.node > div.head {
   background-image: url('../images/named-set.png');
 }
 
+.SharedNamedSet .toggle {
+  background-image: url('../images/named-set.png');
+}
+
+.PrivateNamedSet .toggle {
+  background-image: url('../images/named-set.png');
+}
+
 .DimensionUsage .toggle {
   background-image: url('../images/dimension-usage.png');
 }

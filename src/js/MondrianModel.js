@@ -315,6 +315,9 @@ var MondrianModel;
   newCubeName: function(){
     return this.newName([this.getCube, this.getVirtualCube], [], "new Cube");
   },
+  newVirtualCubeName: function(){
+    return this.newName([this.getCube, this.getVirtualCube], [], "new Virtual Cube");
+  },
   getCubeUsages: function(virtualCubeName){
     var virtualCube;
     if (iEmt(virtualCubeName)) {
@@ -387,6 +390,40 @@ var MondrianModel;
     }
     return cubeUsage;
   },
+  createVirtualCube: function(attributes, dontFireEvent) {
+    var type = "VirtualCube";
+    var name = this.newVirtualCubeName();
+    var virtualCube = this.createElement(type, {
+      name: name
+    }, attributes);
+
+    var schema = this.getSchema();
+
+    //get the index and insert new node
+    var index = this.getIndexOfLastElementWithTagName(
+      schema,
+      "Annotations",
+      "Dimension",
+      "Cube",
+      "VirtualCube"
+    );
+    index = index + 1;
+    this.addChildNode(schema, index, virtualCube);
+
+    if (dontFireEvent !== true) {
+      var eventData = {
+        modelElementPath: {
+          Schema: schema.attributes.name,
+          VirtualCube: name,
+          type: type,
+          index: index
+        },
+        modelElement: virtualCube
+      };
+      this.fireEvent("modelElementCreated", eventData);
+    }
+    return virtualCube;
+  },
   createCube: function(attributes, dontFireEvent){
     var type = "Cube";
     var name = this.newCubeName();
@@ -417,9 +454,46 @@ var MondrianModel;
         modelElement: cube
       };
       this.fireEvent("modelElementCreated", eventData);
-
     }
     return cube;
+  },
+  newSharedNamedSetName: function(name){
+    return this.newName(this.getSharedNamedSet, [], name || "new Named Set");
+  },
+  createSharedNamedSet: function(attributes, dontFireEvent){
+    var type = "SharedNamedSet";
+    var name = this.newSharedNamedSetName();
+    var sharedNamedSet = this.createElement("NamedSet", {
+      name: name
+    }, attributes);
+
+    var schema = this.getSchema();
+
+    //get the index and insert new node
+    var index = this.getIndexOfLastElementWithTagName(
+      schema,
+      "Annotations",
+      "Dimension",
+      "Cube",
+      "VirtualCube",
+      "NamedSet"
+    );
+    index = index + 1;
+    this.addChildNode(schema, index, sharedNamedSet);
+
+    if (dontFireEvent !== true) {
+      var eventData = {
+        modelElementPath: {
+          Schema: schema.attributes.name,
+          SharedNamedSet: name,
+          type: type,
+          index: index
+        },
+        modelElement: sharedNamedSet
+      };
+      this.fireEvent("modelElementCreated", eventData);
+    }
+    return sharedNamedSet;
   },
   createCubeTable: function(cubeName, attributes, dontFireEvent){
     var table = this.createElement("Table", attributes);
@@ -1268,13 +1342,15 @@ var MondrianModel;
     }
     else {
       var formulaElement = this.getFirstElementWithTag(element, "Formula");
-      formula = this.getNodeValue(formulaElement);
+      if (formulaElement !== null) {
+        formula = this.getNodeValue(formulaElement);
+      }
     }
     return formula;
   },
   getNodeValue: function(node){
     var value;
-    if (node.childNodes){
+    if (node && node.childNodes){
       node = node.childNodes[0];
       if (node) {
         value = node.data || null;
@@ -1523,6 +1599,14 @@ var MondrianModel;
       return namedSetElement.attributes.name === name;
     })
     return namedSet;
+  },
+  getPrivateNamedSet: function(container, name){
+    var schema = this.getSchema();
+    return this.getNamedSet(container, name);
+  },
+  getSharedNamedSet: function(name){
+    var schema = this.getSchema();
+    return this.getNamedSet(schema, name);
   },
   eachNamedSet: function(container, callback, scope, filter){
     if (iStr(container)) {
@@ -1919,6 +2003,20 @@ var MondrianModel;
         break;
       case "VirtualCube":
         data = this.getVirtualCube(modelElementPath.VirtualCube);
+        break;
+      case "SharedNamedSet":
+        data = this.getSharedNamedSet(modelElementPath.SharedNamedSet);
+        break;
+      case "PrivateNamedSet":
+        if (modelElementPath.Cube) {
+          var cube = this.getCube(modelElementPath.Cube);
+          data = this.getPrivateNamedSet(cube, modelElementPath.NamedSet);
+        }
+        else
+        if (modelElementPath.VirtualCube) {
+          var virtualCube = this.getCube(modelElementPath.VirtualCube);
+          data = this.getPrivateNamedSet(virtualCube, modelElementPath.NamedSet);
+        }
         break;
       case "NamedSet":
         if (modelElementPath.Cube) {

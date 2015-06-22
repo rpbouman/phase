@@ -27,6 +27,10 @@ limitations under the License.
   background-image: url('../images/new-cube.png');
 }
 
+.toolbar .new-virtual-cube {
+  background-image: url('../images/new-virtualcube.png');
+}
+
 .toolbar .new-named-set {
   background-image: url('../images/new-named-set.png');
 }
