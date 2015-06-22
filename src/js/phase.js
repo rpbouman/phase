@@ -486,7 +486,14 @@ function moveModelElement(fromModelElementPath, toModelElementPath){
       toModel.moveModelElement(fromModelElementPath, toModelElementPath, destinationIndex);
     }
     else {
-      toModel.repositionModelElement(fromModelElementPath, toModelElementPath);
+      var fromModelElementParent = this.getModelElement(fromModelElementParentPath);
+      var toModelElementParent = this.getModelElementParent(toModelElementPath);
+      if (fromModelElementParent === toModelElementParent) {
+        toModel.repositionModelElement(fromModelElementPath, toModelElementPath);
+      }
+      else {
+        throw "Move to another parent is not supported yet.";
+      }
     }
   }
   else {
