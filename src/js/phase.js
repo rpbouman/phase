@@ -477,16 +477,20 @@ function moveModelElement(fromModelElementPath, toModelElementPath){
     throw "Model not found in cache!";
   }
   if (fromSchema === toModelElementPath.Schema) {
-    var fromModelElementParentPath = model.getModelElementParentPath(fromModelElementPath);
+    var toModel = fromModel;
+    var fromModelElementParentPath = fromModel.getModelElementParentPath(fromModelElementPath);
 
     var destinationPath, destinationIndex;
     if (fromModelElementParentPath.type === toModelElementPath.type) {
-      destinationIndex = model.firstAvailableIndexForType(toModelElementPath, fromModelElementPath.type);
-      model.moveModelElement(fromModelElementPath, toModelElementPath, destinationIndex);
+      destinationIndex = toModel.firstAvailableIndexForType(toModelElementPath, fromModelElementPath.type);
+      toModel.moveModelElement(fromModelElementPath, toModelElementPath, destinationIndex);
     }
     else {
-      model.repositionModelElement(fromModelElementPath, toModelElementPath);
+      toModel.repositionModelElement(fromModelElementPath, toModelElementPath);
     }
+  }
+  else {
+    throw "Move to another schema not supported yet.";
   }
 }
 
