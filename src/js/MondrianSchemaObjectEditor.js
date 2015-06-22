@@ -289,6 +289,11 @@ var fields = {
     dataPath: ["modelElement", "attributes", "column"],
     tooltipText: "Column which is source of this item's values.",
     addValue: true
+  },
+  sqlExpression: {
+    editor: "SQLExpressionEditor",
+    labelText: "SQL Expression",
+    tooltipText: "Column which is source of this item's values.",
   }
 };
 
@@ -664,7 +669,19 @@ var GenericEditor;
     return myFields;
   },
   getFieldDefinition: function(field) {
-    return this.getFields()[field];
+    var fieldDef;
+    this.forEachField(function(key, conf){
+      if (key === field) {
+        fieldDef = conf;
+        return false;
+      }
+    }, this, false);
+    return fieldDef;
+  },
+  layoutColumnRegex: /^_column\d+$/,
+  fieldIsLayoutColumn: function(field){
+    this.layoutColumnRegex.lastIndex = 0;
+    return this.layoutColumnRegex.test(field);
   },
   forEachField: function(callback, scope, includeColumnSeparators){
     var field, fields = this.getFields(), fieldDef;
@@ -672,12 +689,25 @@ var GenericEditor;
       scope = this;
     }
     for (field in fields) {
-      fieldDef = fields[field];
-      if (/_column\d+/.test(field) && fieldDef === null && includeColumnSeparators !== true) {
+      if (includeColumnSeparators !== true && this.fieldIsLayoutColumn(field)) {
         continue;
       }
+      fieldDef = fields[field];
       if (callback.call(scope, field, fieldDef) === false) {
         return false;
+      }
+      if (!fieldDef) {
+        continue;
+      }
+      var choices = fieldDef.choose;
+      if (choices) {
+        var choice, choiceDef;
+        for (choice in choices) {
+          choiceDef = choices[choice];
+          if (callback.call(scope, choice, choiceDef) === false) {
+            return false;
+          }
+        }
       }
     }
     return true;
@@ -697,85 +727,135 @@ var GenericEditor;
     }
     return false;
   },
-  createField: function(fieldset, key, definition, tabIndex) {
-    var children = [], mandatory;
-    if (key && definition) {
-      mandatory = this.isFieldMandatory(definition);
-      var id = this.getFieldId(key);
-      children.push(
-        cEl("label", {
-          "for": id
-        }, definition.labelText || key)
-      );
-
-      var inputConf = {
-        "id": id,
-        "name": key,
-        "type": definition.inputType || "text",
-        "class": key,
-        tabindex: tabIndex
-      };
-      if (mandatory) {
-        inputConf.required = true;
-      }
-      var input = cEl(definition.tagName || "input", inputConf);
-      if (definition.options) {
-        var optionContainer;
-        switch (input.tagName.toLowerCase()) {
-          case "input":
-            if (input.type === "text") {
-              var containerId = key + "_options";
-              sAtt(input, "list", containerId);
-              optionContainer = cEl("datalist", {
-                id: containerId
-              }, null, fieldset);
-            }
-            break;
-          case "select":
-            optionContainer = input;
-            break;
-          default:
-        }
-        var i, option, optionDefinition, options = definition.options;
-        if (!mandatory) {
-          options = [""].concat(options);
-        }
-        var n = options.length;
-        for (i = 0; i < n; i++){
-          optionDefinition = options[i];
-          if (iStr(optionDefinition)) {
-            optionDefinition = {
-              labelText: optionDefinition,
-              value: optionDefinition
-            }
+  createFieldLabel: function(key, definition){
+    var id = this.getFieldId(key);
+    var label = cEl("label", {
+      "for": id
+    }, definition.labelText || key);
+    return label;
+  },
+  createFieldInput: function(fieldset, key, definition, tabIndex){
+    var id = this.getFieldId(key);
+    var mandatory = this.isFieldMandatory(definition);
+    var inputConf = {
+      "id": id,
+      "name": key,
+      "type": definition.inputType || "text",
+      "class": key,
+      tabindex: tabIndex
+    };
+    if (mandatory) {
+      inputConf.required = true;
+    }
+    var input = cEl(definition.tagName || "input", inputConf);
+    if (definition.options) {
+      var optionContainer;
+      switch (input.tagName.toLowerCase()) {
+        case "input":
+          if (input.type === "text") {
+            var containerId = key + "_options";
+            sAtt(input, "list", containerId);
+            optionContainer = cEl("datalist", {
+              id: containerId
+            }, null, fieldset);
           }
-          cEl("option", {
-            label: optionDefinition.labelText || "",
-            value: optionDefinition.value || ""
-          }, optionDefinition.labelText || optionDefinition.value, optionContainer);
-        }
+          break;
+        case "select":
+          optionContainer = input;
+          break;
+        default:
       }
-      children.push(input);
-
-      if (definition.tooltipText) {
-        var indent = String.fromCharCode(160);
-        indent += indent + indent + indent + indent + indent + indent;
-        children.push(
-          cEl("span", {
-              "class": "hint-icon",
-            },
-            [indent, cEl("div", {
-              "class": "tooltip"
-            }, definition.tooltipText)]
-          )
-        );
+      var i, option, optionDefinition, options = definition.options;
+      if (!mandatory) {
+        options = [""].concat(options);
+      }
+      var n = options.length;
+      for (i = 0; i < n; i++){
+        optionDefinition = options[i];
+        if (iStr(optionDefinition)) {
+          optionDefinition = {
+            labelText: optionDefinition,
+            value: optionDefinition
+          }
+        }
+        cEl("option", {
+          label: optionDefinition.labelText || "",
+          value: optionDefinition.value || ""
+        }, optionDefinition.labelText || optionDefinition.value, optionContainer);
       }
     }
+    return input;
+  },
+  createFieldTooltip: function(key, definition){
+    var indent = String.fromCharCode(160);
+    indent += indent + indent + indent + indent + indent + indent;
+    var tooltip = cEl("span", {
+        "class": "hint-icon",
+      },
+      [indent, cEl("div", {
+        "class": "tooltip"
+      }, definition.tooltipText)]
+    );
+    return tooltip;
+  },
+  getChoiceFieldId: function(key, choice){
+    var id = this.getFieldId(key);
+    return id + "-choice-" + choice;
+  },
+  createFieldChoiceElement: function(fieldset, key, definition, tabIndex){
+    var id = this.getFieldId(key);
+    var mandatory = this.isFieldMandatory(definition);
+    var choicesElement = cEl("SPAN", {
+      id: id,
+      name: key,
+      "class": key
+    });
+    var choices = definition.choose, choice, choiceDef, choiceLabel, input, span, field;
+    for (choice in choices) {
+      choiceDef = choices[choice];
+      input = cEl("INPUT", {
+        "id": this.getChoiceFieldId(key, choice),
+        "name": key,
+        "type": "radio",
+        "class": key,
+        tabindex: tabIndex
+      }, null, choicesElement);
+      choiceLabel = cEl("SPAN", {
+        "class": "choice-label",
+        "id": id + "-choice-" + choice + "label"
+      }, choiceDef.labelText, choicesElement);
+    }
+    return choicesElement;
+  },
+  createField: function(fieldset, key, definition, tabIndex) {
+    var children = [];
+    var mandatory = false;
+    if (key && definition) {
+      var label = this.createFieldLabel(key, definition);
+      children.push(label);
+
+      var choices = definition.choose;
+      if (choices) {
+        var choicesElement = this.createFieldChoiceElement(fieldset, key, definition, tabIndex);
+        children.push(choicesElement);
+      }
+      else {
+        var input = this.createFieldInput(fieldset, key, definition, tabIndex);
+        children.push(input);
+      }
+
+      if (definition.tooltipText) {
+        var tooltip = this.createFieldTooltip(key, definition);
+        children.push(tooltip);
+      }
+
+      mandatory = this.isFieldMandatory(definition);
+    }
+
     var pureClasses = "pure-control-group";
     if (this.columnCount > 1) {
       pureClasses += " pure-u-1 pure-u-md-1-" + this.columnCount;
     }
-
     var item = cEl("div", {
       "class": pureClasses + (mandatory ? " mandatory" : "") + " field-" + key
     }, children, fieldset);
@@ -803,7 +883,7 @@ var GenericEditor;
 
     var fieldColumn = [], fieldColumns = [fieldColumn], numFields, maxNumFields = 0;
     this.forEachField(function(field, fieldDef){
-      if (/_column\d+/.test(field) && fieldDef === null) {
+      if (this.fieldIsLayoutColumn(field)) {
         numFields = fieldColumn.length;
         if (numFields > maxNumFields) {
           maxNumFields = numFields;
@@ -1051,7 +1131,7 @@ var GenericEditor;
   },
   updateFieldValue: function(field, fieldDef) {
     if (!fieldDef) {
-      fieldDef = this.getFields()[field];
+      fieldDef = this.getFieldDefinition(field);
     }
     var path = fieldDef.dataPath;
     if (!path) {
@@ -1075,7 +1155,12 @@ var GenericEditor;
             fieldEl.checked = String(data) === "true";
             break;
           default:
-            fieldEl.value = data;
+            if (fieldDef.choose) {
+              debugger;
+            }
+            else {
+              fieldEl.value = data;
+            }
         }
     }
     this.fieldUpdated(field, data);
@@ -1104,8 +1189,8 @@ var GenericEditor;
     if (!fieldDef){
       fieldDef = this.getFieldDefinition(field);
     }
-    var value;
-    switch (fieldEl.tagName.toLowerCase()) {
+    var value, tagName = fieldEl.tagName;
+    switch (tagName.toLowerCase()) {
       case "select":
         if (fieldEl.selectedIndex === -1) {
           value = undefined;
@@ -1128,7 +1213,22 @@ var GenericEditor;
         value = fieldEl.value;
         break;
       default:
-        throw "Unknown field type";
+        var choices = fieldDef.choose;
+        if (choices) {
+          var choice, choiceId, choiceEl;
+          for (choice in choices) {
+            choiceId = this.getChoiceFieldId();
+            choiceEl = this.getFieldElement(choiceId);
+            if (!choiceEl.selected) {
+              continue;
+            }
+            value = choiceId;
+            break;
+          }
+        }
+        else {
+          throw "Don't know how to handle field of tag \"" + tagName + "\" for field \"" + field + "\"";
+        }
     }
     if (
       (!this.isFieldMandatory(fieldDef) && this.isFieldDefault(fieldDef, value)) ||
@@ -2560,6 +2660,17 @@ adopt(CubeUsageEditor, GenericEditor);
       tooltipText: "The function used to aggregate this measure's values."
     },
     column: fields.column,
+/*
+    definition: {
+      labelText: "Definition",
+      mandatory: true,
+      tooltipText: "Choose either a column, or enter a SQL expression.",
+      choose: {
+        column: fields.column,
+        expression: fields.sqlExpression
+      }
+    },
+*/
     datatype: fields.datatype,
     formatString: fields.formatString,
     visible: fields.visible,
