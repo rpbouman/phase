@@ -99,7 +99,11 @@ var MondrianSchemaCache;
         });
         break;
     }
-    return true;
+    return this.fireEvent("renameModelElement", {
+      modelEvent: event,
+      model: model,
+      eventData: data
+    });
   },
   handleModelElementRenamed: function(model, event, data) {
     var modelElementPath = data.modelElementPath;

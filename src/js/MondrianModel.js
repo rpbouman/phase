@@ -233,6 +233,26 @@ var MondrianModel;
       childNodes: []
     }
   },
+  updateReferences: function(eventData) {
+    var modelElementPath = eventData.modelElementPath;
+    var modelElement = eventData.modelElement;
+    var attribute = eventData.attribute;
+    var newName = eventData.newValue;
+    var oldName = eventData.oldValue;
+    switch (modelElementPath.type) {
+      case "Cube":
+        //update virtual cubes
+        break;
+      case "SharedDimension":
+        this.updateSharedDimensionReferences(oldName, newName);
+        break;
+      default:
+    }
+    //TODO: update all expressions that reference this item:
+    //- Calculated Member
+    //- name set
+    //-
+  },
   setAttributeValue: function(modelElementPath, attribute, value){
     var modelElement = this.getModelElement(modelElementPath);
     if (!modelElement) {
@@ -269,6 +289,7 @@ var MondrianModel;
     }
 
     if (attribute === "name") {
+      this.updateReferences(eventData);
       this.fireEvent("modelElementRenamed", eventData);
     }
 
@@ -515,16 +536,29 @@ var MondrianModel;
     }
     return table;
   },
-  changeSharedDimensionName: function(oldName, newName){
-    var sharedDimension = this.getSharedDimension(oldName);
-    if (!sharedDimension) {
-      throw "No such dimension " + oldName;
-    }
+  updateSharedDimensionReferences: function(oldName, newName){
+    //var sharedDimension = this.getSharedDimension(oldName);
+    //if (!sharedDimension) {
+    //  throw "No such dimension " + oldName;
+    //}
+
+    //update dimension usages
     this.eachCube(function(cube, index){
       this.eachDimensionUsage(cube, function(dimensionUsage, index){
         dimensionUsage.attributes.source = newName;
       }, this, function(dimensionUsage, index){
         return dimensionUsage.attributes.source === oldName;
+      });
+    }, this);
+
+    //update virtual cube dimensions
+    this.eachVirtualCube(function(virtualCube, index){
+      this.eachVirtualCubeDimension(virtualCube, function(virtualCubeDimension, index){
+        virtualCubeDimension.attributes.name = newName;
+      }, this, function(virtualCubeDimension, index){
+        return iUnd(virtualCubeDimension.attributes.cubeName) &&
+                virtualCubeDimension.attributes.name === oldName
+        ;
       });
     }, this);
   },

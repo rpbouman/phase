@@ -337,7 +337,7 @@ var GenericEditor;
           eventData.modelElementPath
         );
       }
-      this.handleModelEvent(data.modelEvent, eventData);
+      return this.handleModelEvent(data.modelEvent, eventData);
     },
     modelElementRenamed: function(mondrianSchemaCache, event, data){
       var model = this.model;
@@ -347,10 +347,10 @@ var GenericEditor;
       var modelElementPath = this.modelElementPath;
       var eventData = data.eventData;
       var eventModelElementPath = eventData.modelElementPath;
-      if (!model.isModelElementPathAncestor(eventModelElementPath, modelElementPath)) {
-        return;
+      if (model.isModelElementPathAncestor(eventModelElementPath, modelElementPath)) {
+        this.modelElementPath[eventModelElementPath.type] = eventData.newValue;
       }
-      this.modelElementPath[eventModelElementPath.type] = eventData.newValue;
+      return this.handleModelEvent(data.modelEvent, eventData);
     },
     modelPurged: function(mondrianSchemaCache, event, data){
       var model = this.model;
@@ -1807,6 +1807,18 @@ adopt(GenericEditor, ContentPane, Displayed, Observable);
       modelElementPath: modelElementPath
     });
   },
+  createNewNamedSet: function(){
+    var model = this.model;
+    var namedSet = model.createNamedSet();
+    var modelElementPath = merge({
+      type: "NamedSet",
+      NamedSet: namedSet.attributes.name
+    }, this.modelElementPath);
+    this.fireEvent("editorCreateAction", {
+      model: this.model,
+      modelElementPath: modelElementPath
+    });
+  },
   createNewSharedDimension: function(conf){
     if (!conf) {
       conf = dimensionDecorations.standard;
@@ -3008,6 +3020,7 @@ adopt(PrivateDimensionEditor, GenericEditor);
         switch (event) {
           case "modelElementCreated":
           case "modelElementRemoved":
+          case "modelElementRenamed":
             this.updateSharedDimensionsField();
             break;
           default:
