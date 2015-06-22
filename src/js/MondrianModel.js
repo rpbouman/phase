@@ -244,7 +244,10 @@ var MondrianModel;
         //update virtual cubes
         break;
       case "SharedDimension":
-        this.updateSharedDimensionReferences(oldName, newName);
+        this.updateSharedDimensionReferences(modelElementPath, oldName, newName);
+        break;
+      case "Measure":
+        this.updateMeasureReferences(modelElementPath, oldName, newName);
         break;
       default:
     }
@@ -536,7 +539,22 @@ var MondrianModel;
     }
     return table;
   },
-  updateSharedDimensionReferences: function(oldName, newName){
+  updateMeasureReferences: function(modelElementPath, oldName, newName){
+    var cube = this.getModelElementParent(modelElementPath);
+    if (cube.attributes.defaultMeasure === oldName) {
+      cube.attributes.defaultMeasure = newName;
+    }
+    var cubeName = cube.attributes.name;
+    this.eachVirtualCube(function(virtualCube, index){
+      this.eachVirtualCubeMeasure(virtualCube, function(virtualCubeMeasure, index){
+        virtualCubeDimension.attributes.name = newName;
+      }, this, function(virtualCubeMeasure, index){
+        return virtualCubeMeasure.attributes.cubeName === cubeName
+        ;
+      });
+    }, this);
+  },
+  updateSharedDimensionReferences: function(modelElementPath, oldName, newName){
     //var sharedDimension = this.getSharedDimension(oldName);
     //if (!sharedDimension) {
     //  throw "No such dimension " + oldName;
