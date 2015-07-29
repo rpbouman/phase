@@ -1896,26 +1896,28 @@ var MondrianModel;
   },
   getModelElement: function(modelElementPath){
     var data;
-    switch (modelElementPath.type) {
+    var type = modelElementPath.type;
+    var name = modelElementPath[type];
+    switch (type) {
       case "Schema":
         data = this.getSchema();
         break;
       case "Cube":
-        data = this.getCube(modelElementPath.Cube);
+        data = this.getCube(name);
         break;
       case "SharedDimension":
-        data = this.getSharedDimension(modelElementPath.SharedDimension);
+        data = this.getSharedDimension(name);
         break;
       case "PrivateDimension":
         var cube = this.getCube(modelElementPath.Cube);
-        data = this.getPrivateDimension(cube, modelElementPath.PrivateDimension);
+        data = this.getPrivateDimension(cube, name);
         break;
       case "DimensionUsage":
         var cube = this.getCube(modelElementPath.Cube);
-        data = this.getDimensionUsage(cube, modelElementPath.DimensionUsage);
+        data = this.getDimensionUsage(cube, name);
         break;
       case "Hierarchy":
-        var hierarchy = modelElementPath.Hierarchy === "" ? undefined : modelElementPath.Hierarchy;
+        var hierarchy = name === "" ? undefined : name;
         if (modelElementPath.SharedDimension) {
           data = this.getSharedDimensionHierarchy(
             modelElementPath.SharedDimension,
@@ -1934,7 +1936,7 @@ var MondrianModel;
         break;
       case "Level":
         var hierarchy = modelElementPath.Hierarchy;
-        var level = modelElementPath.Level === "" ? undefined : modelElementPath.Level;
+        var level = name === "" ? undefined : name;
         if (modelElementPath.SharedDimension) {
           data = this.getSharedDimensionLevel(
             modelElementPath.SharedDimension,
@@ -1953,13 +1955,12 @@ var MondrianModel;
         }
         break;
       case "Property":
-        var property = modelElementPath.Property === "" ? undefined : modelElementPath.Property;
         if (modelElementPath.SharedDimension) {
           data = this.getSharedDimensionProperty(
             modelElementPath.SharedDimension,
             modelElementPath.Hierarchy,
             modelElementPath.Level,
-            modelElementPath.Property
+            name
           );
         }
         else
@@ -1969,16 +1970,15 @@ var MondrianModel;
             modelElementPath.PrivateDimension,
             modelElementPath.Hierarchy,
             modelElementPath.Level,
-            modelElementPath.Property
+            name
           );
         }
         break;
       case "Measure":
         var cube = this.getCube(modelElementPath.Cube);
-        data = this.getMeasure(cube, modelElementPath.Measure);
+        data = this.getMeasure(cube, name);
         break;
       case "CalculatedMember":
-        var name = modelElementPath.CalculatedMember;
         if (modelElementPath.Cube) {
           var cube = this.getCube(modelElementPath.Cube);
           data = this.getCalculatedMember(cube, name);
@@ -2002,22 +2002,23 @@ var MondrianModel;
         }
         break;
       case "VirtualCube":
-        data = this.getVirtualCube(modelElementPath.VirtualCube);
+        data = this.getVirtualCube(name);
         break;
       case "SharedNamedSet":
-        data = this.getSharedNamedSet(modelElementPath.SharedNamedSet);
+        data = this.getSharedNamedSet(name);
         break;
       case "PrivateNamedSet":
         if (modelElementPath.Cube) {
           var cube = this.getCube(modelElementPath.Cube);
-          data = this.getPrivateNamedSet(cube, modelElementPath.NamedSet);
+          data = this.getPrivateNamedSet(cube, name);
         }
         else
         if (modelElementPath.VirtualCube) {
           var virtualCube = this.getCube(modelElementPath.VirtualCube);
-          data = this.getPrivateNamedSet(virtualCube, modelElementPath.NamedSet);
+          data = this.getPrivateNamedSet(virtualCube, name);
         }
         break;
+/*
       case "NamedSet":
         if (modelElementPath.Cube) {
           var cube = this.getCube(modelElementPath.Cube);
@@ -2033,8 +2034,9 @@ var MondrianModel;
           data = this.getNamedSet(schema, modelElementPath.NamedSet);
         }
         break;
+*/
       case "CubeUsage":
-        data = this.getCubeUsage(modelElementPath.VirtualCube, modelElementPath.CubeUsage);
+        data = this.getCubeUsage(modelElementPath.VirtualCube, name);
         break;
       default:
         data = null;
