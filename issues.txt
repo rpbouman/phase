@@ -87,3 +87,48 @@ Conditional Formatting: http://help.pentaho.com/Documentation/5.1/0N0/020/090/06
 
 #28 support for localization http://infocenter.pentaho.com/help/topic/analysis_guide/task_schema_localization.html
 
+#29 Dependencies:
+
+Cube:
+  virtual cubes (cube usage).
+Shared Dimension:
+  virtual cube (virtual cube dimension).
+  cube (dimension usage)
+Measure
+  virtual cube (virtual cube measure)
+  calculated member (referenced in formula)
+  named set (referenced in formula)
+Calculated Member
+  virtual cube (virtual cube measure)
+  calculated member (referenced in formula)
+  named set (referenced in formula)
+Level
+  Dimension Usage (joined at level)
+  Calculated Member (referenced in formula)
+  Named Set (referenced in formula)
+Dimension Usage
+  virtual cubes (virtual cube dimension).
+  Calculated Member (referenced in formula)
+  Named Set (referenced in formula)
+Private Dimension
+  virtual cubes (virtual cube dimension).
+  Calculated Member (referenced in formula)
+  Named Set (referenced in formula)
+Hierarchy
+  Calculated Member (hierarchy)
+
+#30 Level Properties in the Hierarchy Diagram
+
+#31 support for Aggregate tables
+
+Should be in the cube diagram
+
+#32 support for closure tables
+
+Should be in the Hierarchy diagram
+
+#33 Add an "edit" button next to all fields controls (combos) that reference a schema object to quickly open the corresponding object in its editor and edit it.
+
+#34 Would be nice to have a table data preview / data profile
+
+#35 diagram does not take scrolling into account - misaligned relationships if the content is larger than the viewport.
