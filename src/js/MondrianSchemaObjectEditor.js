@@ -1091,7 +1091,7 @@ var GenericEditor;
             break;
           default:
             this.modelElement = null;
-            throw "Model element not found";
+            throw "Model element of type " + modelElementPath.type + " not found";
         }
       }
       this.modelElement = modelElement;
