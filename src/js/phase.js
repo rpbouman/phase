@@ -136,7 +136,7 @@ mainToolbar.listen({
   }
 });
 
-function newModel(model){
+function newModel(model, select){
   var schemaName;
   if (model) {
     schemaName = model.getSchemaName();
@@ -148,7 +148,9 @@ function newModel(model){
   }
   var treeNode = mondrianSchemaTreeView.renderModelTreeNode(schemaName);
   mondrianSchemaCache.addModel(model);
-  selectMondrianSchemaTreeNode(treeNode);
+  if (select !== false) {
+    selectMondrianSchemaTreeNode(treeNode);
+  }
 }
 
 function saveModel(){
@@ -163,7 +165,6 @@ function saveModel(){
     }
   }
   var model = mondrianSchemaCache.getModel(selectedModel);
-  var overwrite;
   var modelName = model.getName();
   var schemaName = model.getSchemaName();
 
@@ -183,8 +184,6 @@ function saveModel(){
   }
   else {
     //save a renamed model
-    overwrite = false;
-    var removeOld;
     confirmDialog.show({
       message:  "Your changed the name of the schema. " +
                 "Do you want to make a copy of \"" + modelName + "\" " +
@@ -194,16 +193,15 @@ function saveModel(){
       title:    "Rename or Copy?",
       yes: {
         handler:  function(){
-                    removeOld = true;
-                    doSaveModel(model, overwrite, removeOld);
+                    doSaveModel(model, false, true);
                   },
         label: "Rename",
         focus: true
       },
       no: {
         handler:  function(){
-                    removeOld = false;
-                    doSaveModel(model, overwrite, removeOld);
+                    cloneModel(model, modelName, false);
+                    doSaveModel(model, false, false);
                   },
         label: "Copy"
       }
@@ -216,17 +214,16 @@ function doSaveModel(model, overwrite, removeOld) {
     model: model,
     overwrite: overwrite,
     success: function(xhr, options, message){
-      model.setName(model.getSchemaName());
-      model.setNotDirty();
-      var modelName = model.getName();
+      var oldModelName = model.getName();
       var schemaName = model.getSchemaName();
+      model.setName(schemaName);
+      model.setNotDirty();
 
       var treeNode = mondrianSchemaTreeView.getModelTreeNode(schemaName)
       selectMondrianSchemaTreeNode(treeNode);
 
       if (removeOld) {
-        var modelName = model.getName();
-        deleteModel(modelName);
+        deleteModel(oldModelName);
       }
     },
     failure: function(xhr, options, status, message){
@@ -275,11 +272,11 @@ function deleteModel(modelName, callback, scope){
   var model = mondrianSchemaCache.getModel(modelName);
   var action = function(){
     if (selectedModel === modelName) {
+      pedisCache.setConnection(null);
       selectedModel = null;
     }
     mondrianSchemaCache.purge(modelName);
     mondrianSchemaTreeView.removeModelTreeNode(modelName);
-    pedisCache.setConnection(null);
     if (callback) {
       callback.call(scope);
     }
@@ -549,6 +546,12 @@ listen(window, "resize", function(){
   windowResizedTimer.start();
 });
 
+function cloneModel(model, newName, select){
+  var clone = model.clone();
+  clone.setSchemaName(newName);
+  newModel(clone, select);
+}
+
 //get an editor for a particular type of mondrian model element.
 var currentEditor = null;
 var currentConnection = null;
@@ -569,10 +572,8 @@ function getEditorForSelection(selection){
     listeners: {
       cloneModel: function(editor, event, data) {
         var model = data.model;
-        var clone = model.clone();
-        var schemaName = mondrianSchemaCache.newSchemaName(model.getSchemaName());
-        clone.setSchemaName(schemaName);
-        newModel(clone);
+        var newName = mondrianSchemaCache.newSchemaName(model.getSchemaName());
+        cloneModel(model, newName);
       },
       editDiagramElement: function(editor, event, data){
         var model = editor.getModel();
