@@ -387,7 +387,11 @@ var MondrianSchemaTreeView;
     };
     var oldId = treeNode.id;
     var lastIndexOf = oldId.lastIndexOf(":");
-    if (oldId.substr(lastIndexOf + 1) !== oldName) {
+    var nameFromId = oldId.substr(lastIndexOf + 1);
+    if (
+      (iDef(oldName) && (nameFromId !== oldName)) ||
+      (iUnd(oldName) && (nameFromId !== ""))  //hierarchy names might have been undefined.
+    ) {
       throw {
         message: "Invalid id"
       };
