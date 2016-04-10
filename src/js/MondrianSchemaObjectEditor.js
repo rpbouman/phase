@@ -2312,8 +2312,8 @@ adopt(SchemaEditor, GenericEditor);
     var attributes = {
       name: metadata.TABLE_NAME
     };
-    if (metadata.TABLE_SCHEMA) {
-      attributes.schema = metadata.TABLE_SCHEMA;
+    if (metadata.TABLE_SCHEM) {
+      attributes.schema = metadata.TABLE_SCHEM;
     }
     if (metadata.alias){
       attributes.alias = metadata.alias;
@@ -3573,8 +3573,8 @@ adopt(DimensionUsageEditor, GenericEditor);
     var attributes = {
       name: tableName
     };
-    if (metadata.TABLE_SCHEMA) {
-      attributes.schema = metadata.TABLE_SCHEMA;
+    if (metadata.TABLE_SCHEM) {
+      attributes.schema = metadata.TABLE_SCHEM;
     }
     attributes.alias = alias;
     model.createHierarchyTable(this.modelElementPath, attributes);
