@@ -483,8 +483,8 @@ function moveModelElement(fromModelElementPath, toModelElementPath){
       toModel.moveModelElement(fromModelElementPath, toModelElementPath, destinationIndex);
     }
     else {
-      var fromModelElementParent = this.getModelElement(fromModelElementParentPath);
-      var toModelElementParent = this.getModelElementParent(toModelElementPath);
+      var fromModelElementParent = fromModel.getModelElement(fromModelElementParentPath);
+      var toModelElementParent = toModel.getModelElementParent(toModelElementPath);
       if (fromModelElementParent === toModelElementParent) {
         toModel.repositionModelElement(fromModelElementPath, toModelElementPath);
       }
